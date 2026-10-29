@@ -12,14 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AgriculturalMrvRouteImport } from './routes/agricultural-mrv'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BusinessImpactRouteImport } from './routes/business-impact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CarbonCreditsRouteImport } from './routes/carbon-credits'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as FieldProgramsRouteImport } from './routes/field-programs'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PassportRouteImport } from './routes/passport'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
@@ -42,6 +46,11 @@ const AgriculturalMrvRoute = AgriculturalMrvRouteImport.update({
   path: '/agricultural-mrv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessImpactRoute = BusinessImpactRouteImport.update({
   id: '/business-impact',
   path: '/business-impact',
@@ -62,6 +71,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FieldProgramsRoute = FieldProgramsRouteImport.update({
   id: '/field-programs',
   path: '/field-programs',
@@ -72,6 +86,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MethodologyRoute = MethodologyRouteImport.update({
   id: '/methodology',
   path: '/methodology',
@@ -80,6 +99,11 @@ const MethodologyRoute = MethodologyRouteImport.update({
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PassportRoute = PassportRouteImport.update({
+  id: '/passport',
+  path: '/passport',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlatformRoute = PlatformRouteImport.update({
@@ -117,14 +141,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agricultural-mrv': typeof AgriculturalMrvRoute
+  '/auth': typeof AuthRoute
   '/business-impact': typeof BusinessImpactRoute
   '/calculator': typeof CalculatorRoute
   '/carbon-credits': typeof CarbonCreditsRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
+  '/passport': typeof PassportRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -136,14 +164,18 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agricultural-mrv': typeof AgriculturalMrvRoute
+  '/auth': typeof AuthRoute
   '/business-impact': typeof BusinessImpactRoute
   '/calculator': typeof CalculatorRoute
   '/carbon-credits': typeof CarbonCreditsRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
+  '/passport': typeof PassportRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -156,14 +188,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/agricultural-mrv': typeof AgriculturalMrvRoute
+  '/auth': typeof AuthRoute
   '/business-impact': typeof BusinessImpactRoute
   '/calculator': typeof CalculatorRoute
   '/carbon-credits': typeof CarbonCreditsRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
+  '/passport': typeof PassportRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
@@ -177,14 +213,18 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agricultural-mrv'
+    | '/auth'
     | '/business-impact'
     | '/calculator'
     | '/carbon-credits'
     | '/contact'
+    | '/dashboard'
     | '/field-programs'
     | '/how-it-works'
+    | '/marketplace'
     | '/methodology'
     | '/partners'
+    | '/passport'
     | '/platform'
     | '/privacy'
     | '/research'
@@ -196,14 +236,18 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agricultural-mrv'
+    | '/auth'
     | '/business-impact'
     | '/calculator'
     | '/carbon-credits'
     | '/contact'
+    | '/dashboard'
     | '/field-programs'
     | '/how-it-works'
+    | '/marketplace'
     | '/methodology'
     | '/partners'
+    | '/passport'
     | '/platform'
     | '/privacy'
     | '/research'
@@ -215,14 +259,18 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/agricultural-mrv'
+    | '/auth'
     | '/business-impact'
     | '/calculator'
     | '/carbon-credits'
     | '/contact'
+    | '/dashboard'
     | '/field-programs'
     | '/how-it-works'
+    | '/marketplace'
     | '/methodology'
     | '/partners'
+    | '/passport'
     | '/platform'
     | '/privacy'
     | '/research'
@@ -235,14 +283,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AgriculturalMrvRoute: typeof AgriculturalMrvRoute
+  AuthRoute: typeof AuthRoute
   BusinessImpactRoute: typeof BusinessImpactRoute
   CalculatorRoute: typeof CalculatorRoute
   CarbonCreditsRoute: typeof CarbonCreditsRoute
   ContactRoute: typeof ContactRoute
+  DashboardRoute: typeof DashboardRoute
   FieldProgramsRoute: typeof FieldProgramsRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   MethodologyRoute: typeof MethodologyRoute
   PartnersRoute: typeof PartnersRoute
+  PassportRoute: typeof PassportRoute
   PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
@@ -274,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgriculturalMrvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/business-impact': {
       id: '/business-impact'
       path: '/business-impact'
@@ -302,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/field-programs': {
       id: '/field-programs'
       path: '/field-programs'
@@ -316,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/methodology': {
       id: '/methodology'
       path: '/methodology'
@@ -328,6 +401,13 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/partners'
       preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/passport': {
+      id: '/passport'
+      path: '/passport'
+      fullPath: '/passport'
+      preLoaderRoute: typeof PassportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/platform': {
@@ -379,14 +459,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AgriculturalMrvRoute: AgriculturalMrvRoute,
+  AuthRoute: AuthRoute,
   BusinessImpactRoute: BusinessImpactRoute,
   CalculatorRoute: CalculatorRoute,
   CarbonCreditsRoute: CarbonCreditsRoute,
   ContactRoute: ContactRoute,
+  DashboardRoute: DashboardRoute,
   FieldProgramsRoute: FieldProgramsRoute,
   HowItWorksRoute: HowItWorksRoute,
+  MarketplaceRoute: MarketplaceRoute,
   MethodologyRoute: MethodologyRoute,
   PartnersRoute: PartnersRoute,
+  PassportRoute: PassportRoute,
   PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
