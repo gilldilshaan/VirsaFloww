@@ -1,0 +1,7 @@
+import { SectionHeading, TextLink } from './site-shell';
+import { capabilityStatus, pageDetails, type DetailSection } from '@/lib/earth/page-details';
+export function DetailSections({ page, sections, label = 'IN DETAIL' }: { page?: string; sections?: DetailSection[]; label?: string }) {
+ const items = sections ?? (page ? pageDetails[page] : []) ?? [];
+ return <><div className="earth-container earth-capability-note"><span className="earth-label">CAPABILITY STATUS</span><p>{capabilityStatus}</p></div><section className="earth-container earth-detailed-sections" aria-label={label}>{items.map((item,i) => <article key={item.title}><div className="earth-detail-heading"><span className="earth-label">{String(i+1).padStart(2,'0')} / {label}</span><h2>{item.title}</h2></div><div className="earth-prose"><p>{item.text}</p>{item.points && <ul>{item.points.map(point => <li key={point}>{point}</li>)}</ul>}{item.note && <p className="earth-detail-note">{item.note}</p>}</div></article>)}</section></>;
+}
+export function EvidenceNextSteps(){return <section className="earth-section earth-sage"><div className="earth-container"><SectionHeading label="CONNECTED QUESTIONS" title="Follow the evidence to its next decision."/><div className="earth-cta-links"><TextLink to="/agricultural-mrv">Understand agricultural MRV</TextLink><TextLink to="/methodology">Inspect methodology & evidence</TextLink><TextLink to="/contact">Discuss your evidence requirements</TextLink></div></div></section>}
