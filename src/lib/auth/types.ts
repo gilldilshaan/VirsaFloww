@@ -85,6 +85,15 @@ export interface LoginCredentials {
   isDemoRequest?: boolean;
 }
 
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  organization?: string | undefined;
+  buyerCompanyId?: string | undefined;
+}
+
 export interface StoredSession {
   user: AuthUser;
   issuedAt: number;

@@ -1,6 +1,7 @@
+import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, status
-from backend.app.schemas.user import LoginRequest, SessionResponse, User, UserRole
+from backend.app.schemas.user import LoginRequest, RegisterRequest, SessionResponse, User, UserInDB, UserRole
 from backend.app.schemas.common import ListEnvelope
 from backend.app.services.auth_service import AuthService
 from backend.app.services.audit_service import AuditService
@@ -12,8 +13,78 @@ from backend.app.api.deps import (
     AppContainer,
     require_roles,
 )
+from backend.app.utils.crypto import hash_password
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+ROLE_CODE_MAP = {
+    UserRole.ADMIN: "ADMIN",
+    UserRole.PROJECT_DEVELOPER: "DEV",
+    UserRole.FIELD_OFFICER: "FLD",
+    UserRole.REVIEWER: "REV",
+    UserRole.FARMER: "FAR",
+    UserRole.BUYER: "BUY",
+}
+
+@router.post("/register", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
+def register(
+    body: RegisterRequest,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+    audit_service: AuditService = Depends(get_audit_service),
+):
+    """Registers a new user, hashes password with scrypt, persists user, and returns a signed JWT."""
+    norm_email = body.email.strip().lower()
+
+    # Check for existing user with identical email
+    existing_users, _ = auth_service.user_repo.list(
+        filter_fn=lambda u: u.email.lower() == norm_email,
+        limit=1,
+    )
+    if existing_users:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "EMAIL_ALREADY_EXISTS", "message": "An account with this email address already exists."},
+        )
+
+    role_code = ROLE_CODE_MAP.get(body.role, "USR")
+    short_suffix = uuid.uuid4().hex[:8].upper()
+    user_id = f"USR-{role_code}-{short_suffix}"
+
+    pw_hash = hash_password(body.password)
+
+    user_in_db = UserInDB(
+        id=user_id,
+        email=norm_email,
+        name=body.name.strip(),
+        role=body.role,
+        organization=body.organization.strip() if body.organization else None,
+        buyer_company_id=body.buyer_company_id.strip() if body.buyer_company_id else None,
+        assigned_project_ids=[],
+        assigned_field_ids=[],
+        is_active=True,
+        password_hash=pw_hash,
+    )
+
+    auth_service.user_repo.create(user_in_db)
+    user = User.model_validate(user_in_db.model_dump())
+
+    token, expires_in = auth_service.create_access_token(user)
+
+    audit_service.log_event(
+        actor_id=user.id,
+        action="USER_REGISTER",
+        entity_type="USER",
+        entity_id=user.id,
+        details={"email": user.email, "role": user.role, "organization": user.organization},
+    )
+
+    return SessionResponse(
+        access_token=token,
+        token_type="Bearer",
+        expires_in_seconds=expires_in,
+        user=user,
+    )
 
 @router.post("/session", response_model=SessionResponse)
 @router.post("/login", response_model=SessionResponse)

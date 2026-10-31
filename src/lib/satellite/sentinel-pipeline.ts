@@ -391,6 +391,7 @@ export async function extractRealParcelNdvi(
   const utm = wgs84ToUtm43N(centerLng, centerLat);
 
   try {
+    // @ts-ignore
     const { fromUrl } = await import("geotiff");
     let b4Tiff: any = null;
     let b8Tiff: any = null;
