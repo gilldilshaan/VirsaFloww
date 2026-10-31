@@ -132,6 +132,35 @@ export function canAccessPortal(user: AuthUser | null, portal: PortalType): bool
     default:
       return false;
   }
+  return [];
+}
+
+/** Check whether a role can access a specific route */
+export function canAccessRoute(role: UserRole, pathname: string): boolean {
+  const portal = getPortalFromPath(pathname);
+  if (portal && !canAccessPortal(role, portal)) {
+    return false;
+  }
+
+  const required = getRequiredPermissions(pathname);
+  if (required.length === 0) return true;
+
+  return required.every((perm) => hasPermission(role, perm));
+}
+
+/**
+ * Determine where to redirect an unauthorized user.
+ * - Not authenticated → /login
+ * - Authenticated but wrong portal → /unauthorized
+ */
+export function getAuthRedirect(
+  isAuthenticated: boolean,
+  currentPath: string,
+): string {
+  if (!isAuthenticated) {
+    return `/login?next=${encodeURIComponent(currentPath)}`;
+  }
+  return '/unauthorized';
 }
 
 /**

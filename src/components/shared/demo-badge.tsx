@@ -1,10 +1,28 @@
-import { Sparkles } from "lucide-react";
+import { FlaskConical } from 'lucide-react';
 
-export function DemoBadge({ label = "Synthetic Demo Dataset" }: { label?: string }) {
+/**
+ * Demo data badge — must be shown wherever synthetic/demo records are displayed.
+ * Per blueprint: "All synthetic data must carry a visible Demo data label."
+ */
+export function DemoBadge({
+  label = 'Demo data',
+  size = 'sm',
+  className = '',
+}: {
+  label?: string;
+  size?: 'xs' | 'sm';
+  className?: string;
+}) {
+  const sizeClasses = size === 'xs'
+    ? 'text-[9px] px-1.5 py-0.5 gap-1'
+    : 'text-[10px] px-2 py-0.5 gap-1.5';
+
   return (
-    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-mono">
-      <Sparkles size={12} className="text-amber-600" />
-      <span>{label}</span>
-    </div>
+    <span
+      className={`inline-flex items-center rounded-full border border-amber-200 bg-amber-50 font-mono uppercase tracking-wider text-amber-700 ${sizeClasses} ${className}`}
+    >
+      <FlaskConical size={size === 'xs' ? 9 : 11} />
+      {label}
+    </span>
   );
 }

@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-Dk72oS4N.js";import{t}from"./useNavigate-QLUEPe4D.js";var n=e(),r=()=>(0,n.jsx)(t,{to:`/workspace/command`,replace:!0});export{r as component};
