@@ -286,13 +286,17 @@ def upgrade() -> None:
         ELSIF TG_OP = 'UPDATE' THEN
             IF OLD.id != NEW.id OR
                OLD.field_id != NEW.field_id OR
-               OLD.sha256 != NEW.sha256 OR
-               OLD.submitter_id != NEW.submitter_id OR
+               OLD.activity_id IS DISTINCT FROM NEW.activity_id OR
+               OLD.title != NEW.title OR
+               OLD.type != NEW.type OR
+               OLD.category != NEW.category OR
                OLD.captured_at != NEW.captured_at OR
                OLD.submitted_at != NEW.submitted_at OR
-               OLD.type != NEW.type OR
-               OLD.category != NEW.category THEN
-                RAISE EXCEPTION 'Evidence records are immutable. Only status transitions are permitted.';
+               OLD.submitter_id != NEW.submitter_id OR
+               OLD.sha256 != NEW.sha256 OR
+               OLD.supersedes_id IS DISTINCT FROM NEW.supersedes_id OR
+               OLD.is_demo != NEW.is_demo THEN
+                RAISE EXCEPTION 'Evidence records are strictly immutable. Only status transitions are permitted.';
             END IF;
         END IF;
         RETURN NEW;

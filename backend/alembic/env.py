@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Optional
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
@@ -11,17 +12,23 @@ from backend.app.core.config import settings
 from backend.app.db.base import Base
 import backend.app.db.models  # Ensure all models are registered with Base.metadata
 
-config = context.config
+config = getattr(context, "config", None)
 
-if config.config_file_name is not None:
+if config is not None and config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 
-def get_target_url() -> str:
+def get_target_url(target_override: Optional[str] = None) -> str:
     """Resolves target database URL with strict isolation and production safety guards."""
-    x_args = context.get_x_argument(as_dictionary=True)
-    target_env = x_args.get("target", "test").lower()
+    if target_override:
+        target_env = target_override.lower()
+    else:
+        try:
+            x_args = context.get_x_argument(as_dictionary=True)
+            target_env = x_args.get("target", "test").lower()
+        except Exception:
+            target_env = "test"
 
     prod_url = settings.DATABASE_URL
     test_url = settings.TEST_DATABASE_URL
@@ -84,7 +91,11 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+if config is not None:
+    try:
+        if context.is_offline_mode():
+            run_migrations_offline()
+        else:
+            run_migrations_online()
+    except NameError:
+        pass
