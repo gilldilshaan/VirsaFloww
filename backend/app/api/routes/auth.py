@@ -1,8 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from backend.app.schemas.user import LoginRequest, SessionResponse, User
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Request, Query, status
+from backend.app.schemas.user import LoginRequest, SessionResponse, User, UserRole
+from backend.app.schemas.common import ListEnvelope
 from backend.app.services.auth_service import AuthService
 from backend.app.services.audit_service import AuditService
-from backend.app.api.deps import get_auth_service, get_audit_service, get_current_user
+from backend.app.api.deps import (
+    get_auth_service,
+    get_audit_service,
+    get_current_user,
+    get_container,
+    AppContainer,
+    require_roles,
+)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -53,3 +62,20 @@ def create_session(
 def get_me(current_user: User = Depends(get_current_user)):
     """Returns the authenticated user profile and roles."""
     return current_user
+
+@router.get("/users", response_model=ListEnvelope[User])
+def list_users(
+    role: Optional[UserRole] = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    current_user: User = Depends(require_roles(UserRole.ADMIN)),
+    container: AppContainer = Depends(get_container),
+):
+    """Lists registered users for platform administration. Admin only."""
+    def filter_fn(item: User) -> bool:
+        if role and item.role != role:
+            return False
+        return True
+
+    items, total = container.user_repo.list(filter_fn=filter_fn, offset=offset, limit=limit)
+    return ListEnvelope[User](items=items, total=total, limit=limit, offset=offset)

@@ -51,6 +51,57 @@ def get_project(
         )
     return item
 
+@router.post("", response_model=Project, status_code=status.HTTP_201_CREATED)
+def create_project(
+    body: Project,
+    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.PROJECT_DEVELOPER)),
+    container: AppContainer = Depends(get_container),
+    audit_service: AuditService = Depends(get_audit_service),
+):
+    """Creates a new carbon MRV project in the internal workspace."""
+    existing = container.project_repo.get(body.id)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "ALREADY_EXISTS", "message": f"Project '{body.id}' already exists."},
+        )
+
+    created = container.project_repo.create(body)
+    audit_service.log_event(
+        actor_id=current_user.id,
+        action="PROJECT_CREATED",
+        entity_type="PROJECT",
+        entity_id=body.id,
+        details={"title": body.title, "developer": body.developer},
+    )
+    return created
+
+@router.put("/{project_id}", response_model=Project)
+def update_project(
+    project_id: str,
+    body: Project,
+    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.PROJECT_DEVELOPER)),
+    container: AppContainer = Depends(get_container),
+    audit_service: AuditService = Depends(get_audit_service),
+):
+    """Updates an existing project in the internal workspace."""
+    existing = container.project_repo.get(project_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "NOT_FOUND", "message": f"Project '{project_id}' not found."},
+        )
+
+    updated = container.project_repo.update(body)
+    audit_service.log_event(
+        actor_id=current_user.id,
+        action="PROJECT_UPDATED",
+        entity_type="PROJECT",
+        entity_id=project_id,
+        details={"title": body.title},
+    )
+    return updated
+
 @router.post("/{project_id}/publish", response_model=Project)
 def publish_project(
     project_id: str,

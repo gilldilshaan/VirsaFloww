@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   Building,
   Sprout,
-  Users,
   CheckCircle2,
   X,
   FileCheck2,
@@ -75,7 +74,6 @@ export function BuyerMarketplaceView() {
   // Compute portfolio aggregates for corporate overview
   const totalHectares = allProjects.reduce((acc, p) => acc + p.totalHectares, 0);
   const totalParcels = allProjects.reduce((acc, p) => acc + p.enrolledParcels, 0);
-  const totalFarmers = allProjects.reduce((acc, p) => acc + p.farmerCount, 0);
 
   if (isLoading) {
     return <LoadingState message="Loading approved agricultural carbon project directory…" />;
@@ -145,14 +143,14 @@ export function BuyerMarketplaceView() {
 
         <div className="bg-white rounded-xl p-4 border border-[#dde4d9] shadow-2xs">
           <div className="flex items-center justify-between text-[11px] font-mono text-[#708071] uppercase">
-            <span>Participating Farmers</span>
-            <Users size={14} className="text-[#245b45]" />
+            <span>Methodology Standard</span>
+            <Sprout size={14} className="text-[#245b45]" />
           </div>
           <div className="text-2xl font-bold text-[#193b2a] mt-2">
-            {totalFarmers.toLocaleString()}
+            Verra VM0042
           </div>
           <div className="text-[11px] text-[#708071] mt-0.5">
-            Anonymized smallholder aggregate
+            Rice practice transition protocol
           </div>
         </div>
 

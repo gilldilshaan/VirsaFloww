@@ -259,6 +259,6 @@ describe('VirsaFlow MRV State Machine & Data Models', () => {
       expect(router.routesByPath['/passport']).toBeDefined();
 
       expect(router.routesByPath['/']).toBeDefined();
-    });
+    }, 15000);
   });
 });

@@ -63,6 +63,7 @@ export interface AuthUser {
   name: string;
   role: UserRole;
   permissions: Permission[];
+  organization?: string;
   scope?: ResourceScope;
   fpoId?: string;
   farmerId?: string;

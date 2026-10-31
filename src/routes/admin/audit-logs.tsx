@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, useId } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DemoBadge } from '@/components/shared/demo-badge';
 import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api/client';
 import {
   FileText,
   Search,
@@ -12,103 +13,69 @@ import {
   Filter,
   Shield,
   Layers,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import { pageHead } from '@/lib/earth/content';
 
-interface AuditLogEntry {
-  id: string;
-  timestamp: string;
-  actor: string;
-  role: string;
+interface AuditEvent {
+  eventId: string;
+  actorId: string;
   action: string;
-  resource: string;
-  sha256Hash: string;
-  ipAddress: string;
-  status: 'VERIFIED' | 'TAMPER_PROOF';
+  entityType: string;
+  entityId: string;
+  timestamp: string;
+  details?: Record<string, unknown>;
+  previousHash: string;
+  eventHash: string;
 }
 
-const AUDIT_LOGS_DATA: AuditLogEntry[] = [
-  {
-    id: 'AUD-88291',
-    timestamp: '2026-10-31 06:14:22 UTC',
-    actor: 'root@panjdhara.com',
-    role: 'admin',
-    action: 'POLICY_UPDATE',
-    resource: 'MRV_RULE_THRESHOLD_PHOTO_BUFFER',
-    sha256Hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    ipAddress: '103.24.18.90',
-    status: 'VERIFIED',
-  },
-  {
-    id: 'AUD-88290',
-    timestamp: '2026-10-31 05:42:10 UTC',
-    actor: 'kbell.audit@carbon-standards.org',
-    role: 'reviewer',
-    action: 'REVIEW_DECISION_RECORDED',
-    resource: 'EVIDENCE_ITEM_EV-004-LOG',
-    sha256Hash: '72c3d10526017b8f9e2cf44b581023a968d901764ebaf231a47b19df52c1e847',
-    ipAddress: '194.80.22.11',
-    status: 'VERIFIED',
-  },
-  {
-    id: 'AUD-88289',
-    timestamp: '2026-10-31 04:19:03 UTC',
-    actor: 'harpreet.field@panjdhara.com',
-    role: 'field_officer',
-    action: 'IN_SITU_PHOTO_UPLOAD',
-    resource: 'PARCEL_PB-LUD-042_EV-005',
-    sha256Hash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
-    ipAddress: '49.36.128.4',
-    status: 'VERIFIED',
-  },
-  {
-    id: 'AUD-88288',
-    timestamp: '2026-10-30 22:10:45 UTC',
-    actor: 'lead.developer@panjdhara.com',
-    role: 'project_developer',
-    action: 'MRV_RULES_EVALUATION',
-    resource: 'PROJECT_PRJ-PB-DSR-01',
-    sha256Hash: '9f83a21e7d0a2731804b901a1d1297e5591cf8813bcdae34024b423f7178a301',
-    ipAddress: '103.24.18.90',
-    status: 'VERIFIED',
-  },
-  {
-    id: 'AUD-88287',
-    timestamp: '2026-10-30 18:04:12 UTC',
-    actor: 'sophia@climateprocurement.com',
-    role: 'buyer',
-    action: 'DUE_DILIGENCE_INQUIRY_SUBMITTED',
-    resource: 'ENQUIRY_DD-INQ-88401',
-    sha256Hash: '4f29a0e71b29a8c3d9039bf832da8431c09420bba54320912189dca0298a2873',
-    ipAddress: '82.165.197.1',
-    status: 'VERIFIED',
-  },
-  {
-    id: 'AUD-88286',
-    timestamp: '2026-10-30 14:30:00 UTC',
-    actor: 'root@panjdhara.com',
-    role: 'admin',
-    action: 'DATA_ROOM_PERMIT_GRANTED',
-    resource: 'BUYER_BUY-ACC-001',
-    sha256Hash: '8a9c394801fe839bcda0192847291a039bfe8912304918237192837491029384',
-    ipAddress: '103.24.18.90',
-    status: 'VERIFIED',
-  },
-];
-
 export function AdminAuditLogsPage() {
-  const [logs] = useState<AuditLogEntry[]>(AUDIT_LOGS_DATA);
+  const [logs, setLogs] = useState<AuditEvent[]>([]);
+  const [chainValid, setChainValid] = useState<boolean>(true);
+  const [verifiedBy, setVerifiedBy] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
   const searchInputId = useId();
   const actionFilterId = useId();
 
+  const fetchLogs = async () => {
+    setIsLoading(true);
+    try {
+      const [listRes, verifyRes] = await Promise.all([
+        api.get<{ items: AuditEvent[]; total: number }>('/audit?limit=100'),
+        api.get<{ valid: boolean; error: string | null; verifiedBy?: string }>('/audit/verify'),
+      ]);
+
+      if (listRes.data?.items) {
+        setLogs(listRes.data.items);
+      }
+      if (verifyRes.data) {
+        setChainValid(verifyRes.data.valid);
+        setVerifiedBy(verifyRes.data.verifiedBy || 'Administrator');
+      }
+    } catch {
+      // Keep existing logs on fetch error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  const actionTypes = Array.from(new Set(logs.map((l) => l.action))).filter(Boolean);
+
   const filtered = logs.filter((l) => {
     const matchSearch =
-      l.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.actorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.resource.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      l.id.toLowerCase().includes(searchTerm.toLowerCase());
+      l.entityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.entityId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.eventId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.eventHash.toLowerCase().includes(searchTerm.toLowerCase());
     const matchAction = actionFilter === 'all' || l.action === actionFilter;
     return matchSearch && matchAction;
   });
@@ -118,7 +85,7 @@ export function AdminAuditLogsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `tcc_audit_ledger_${Date.now()}.json`;
+    a.download = `tcc_sha256_audit_ledger_${Date.now()}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -132,6 +99,16 @@ export function AdminAuditLogsPage() {
         description="Append-only cryptographic audit ledger documenting every system modification, role assumption, evidence upload, and reviewer decision."
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              onClick={fetchLogs}
+              variant="outline"
+              size="sm"
+              className="text-xs h-7 gap-1 border-[#dde4d9] text-[#193b2a]"
+              disabled={isLoading}
+            >
+              <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
+              Verify Chain
+            </Button>
             <DemoBadge label="SHA-256 Ledger" />
             <Button
               onClick={exportLedger}
@@ -143,6 +120,35 @@ export function AdminAuditLogsPage() {
           </div>
         }
       />
+
+      {/* Integrity Verification Card */}
+      <div className="bg-[#102e20] text-[#f5f5e8] rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            {chainValid ? (
+              <CheckCircle2 size={18} className="text-[#d6eaa6]" />
+            ) : (
+              <AlertCircle size={18} className="text-red-400" />
+            )}
+            <h2 className="font-serif text-lg text-white font-semibold">
+              {chainValid
+                ? 'Cryptographic Hash-Chain Continuity Verified'
+                : 'Ledger Hash Mismatch Detected'}
+            </h2>
+          </div>
+          <p className="text-xs text-[#bacabd] max-w-2xl leading-relaxed">
+            Every audit event contains the SHA-256 hash of its predecessor, establishing an immutable cryptographic hash chain rooted in the genesis block (<code className="text-[#d6eaa6] bg-[#1a4230] px-1 py-0.5 rounded font-mono">0000000000000000...</code>).
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <span className="font-mono text-xs text-[#d6eaa6] block font-semibold">
+            {logs.length} Blocks Linked
+          </span>
+          <span className="text-[11px] text-[#bacabd]">
+            Verified by: {verifiedBy || 'Administrator'}
+          </span>
+        </div>
+      </div>
 
       {/* Filter and Search Bar */}
       <div className="bg-white border border-[#dde4d9] rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
@@ -168,13 +174,12 @@ export function AdminAuditLogsPage() {
             onChange={(e) => setActionFilter(e.target.value)}
             className="px-3 py-2 bg-[#f4f7f1] border border-[#dde4d9] rounded-lg text-xs text-[#213c2b] focus:outline-none"
           >
-            <option value="all">All Action Types</option>
-            <option value="POLICY_UPDATE">POLICY_UPDATE</option>
-            <option value="REVIEW_DECISION_RECORDED">REVIEW_DECISION_RECORDED</option>
-            <option value="IN_SITU_PHOTO_UPLOAD">IN_SITU_PHOTO_UPLOAD</option>
-            <option value="MRV_RULES_EVALUATION">MRV_RULES_EVALUATION</option>
-            <option value="DUE_DILIGENCE_INQUIRY_SUBMITTED">DUE_DILIGENCE_INQUIRY_SUBMITTED</option>
-            <option value="DATA_ROOM_PERMIT_GRANTED">DATA_ROOM_PERMIT_GRANTED</option>
+            <option value="all">All Action Types ({actionTypes.length})</option>
+            {actionTypes.map((act) => (
+              <option key={act} value={act}>
+                {act}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -185,44 +190,67 @@ export function AdminAuditLogsPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#f9faf7] border-b border-[#dde4d9] text-[#708071] font-mono uppercase text-[10px]">
               <tr>
-                <th className="px-5 py-3.5">Log Reference</th>
+                <th className="px-5 py-3.5">Block / Ref</th>
                 <th className="px-5 py-3.5">Timestamp (UTC)</th>
-                <th className="px-5 py-3.5">Actor & Role</th>
+                <th className="px-5 py-3.5">Actor Identity</th>
                 <th className="px-5 py-3.5">Action Executed</th>
-                <th className="px-5 py-3.5">Target Resource</th>
-                <th className="px-5 py-3.5">Cryptographic SHA-256</th>
+                <th className="px-5 py-3.5">Entity / Target</th>
+                <th className="px-5 py-3.5">Previous SHA-256</th>
+                <th className="px-5 py-3.5">Event SHA-256</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#dde4d9]">
-              {filtered.map((log) => (
-                <tr key={log.id} className="hover:bg-[#f9faf7] transition-colors">
-                  <td className="px-5 py-3.5 font-mono text-xs font-bold text-[#193b2a]">
-                    {log.id}
-                  </td>
-                  <td className="px-5 py-3.5 font-mono text-[11px] text-[#708071]">
-                    {log.timestamp}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="font-semibold text-[#193b2a]">{log.actor}</div>
-                    <span className="font-mono text-[10px] text-[#5c7c46] uppercase">
-                      {log.role} (IP: {log.ipAddress})
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className="font-mono text-[11px] bg-[#f4f7f1] text-[#193b2a] px-2 py-0.5 rounded font-medium">
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 font-mono text-[11px] text-[#213c2b]">
-                    {log.resource}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className="font-mono text-[10px] text-[#708071] truncate max-w-[140px] block" title={log.sha256Hash}>
-                      {log.sha256Hash.substring(0, 16)}...
-                    </span>
+              {filtered.length > 0 ? (
+                filtered.map((log) => (
+                  <tr key={log.eventId} className="hover:bg-[#f9faf7] transition-colors">
+                    <td className="px-5 py-3.5 font-mono text-xs font-bold text-[#193b2a]">
+                      {log.eventId}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-[11px] text-[#708071]">
+                      {new Date(log.timestamp).toLocaleString([], {
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="font-semibold text-[#193b2a]">{log.actorId}</div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className="font-mono text-[11px] bg-[#f4f7f1] text-[#193b2a] px-2 py-0.5 rounded font-medium">
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-[11px] text-[#213c2b]">
+                      {log.entityType}: {log.entityId}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className="font-mono text-[10px] text-[#708071] truncate max-w-[100px] block"
+                        title={log.previousHash}
+                      >
+                        {log.previousHash.substring(0, 12)}...
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className="font-mono text-[10px] text-emerald-800 font-semibold truncate max-w-[100px] block"
+                        title={log.eventHash}
+                      >
+                        {log.eventHash.substring(0, 12)}...
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-[#708071]">
+                    {isLoading ? 'Loading cryptographic ledger records...' : 'No audit records match your search criteria.'}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

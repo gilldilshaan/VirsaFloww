@@ -61,3 +61,52 @@ def get_field(
             detail={"code": "NOT_FOUND", "message": f"Field '{field_id}' not found."},
         )
     return item
+
+@router.post("", response_model=FieldModel, status_code=status.HTTP_201_CREATED)
+def create_field(
+    body: FieldModel,
+    current_user: User = Depends(require_roles(
+        UserRole.ADMIN, UserRole.PROJECT_DEVELOPER, UserRole.FIELD_OFFICER, UserRole.FARMER
+    )),
+    container: AppContainer = Depends(get_container),
+):
+    """Registers a new field parcel with polygon geometry."""
+    existing = container.field_repo.get(body.id)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "ALREADY_EXISTS", "message": f"Field '{body.id}' already exists."},
+        )
+
+    # If farmer caller, auto-link to caller's account
+    if current_user.role == UserRole.FARMER:
+        if body.id not in current_user.assigned_field_ids:
+            updated_user = current_user.model_copy(
+                update={"assigned_field_ids": list(set(current_user.assigned_field_ids + [body.id]))}
+            )
+            container.user_repo.update(updated_user)
+
+    created = container.field_repo.create(body)
+    return created
+
+@router.put("/{field_id}", response_model=FieldModel)
+def update_field(
+    field_id: str,
+    body: FieldModel,
+    current_user: User = Depends(require_roles(
+        UserRole.ADMIN, UserRole.PROJECT_DEVELOPER, UserRole.FIELD_OFFICER, UserRole.FARMER
+    )),
+    evidence_service: EvidenceService = Depends(get_evidence_service),
+    container: AppContainer = Depends(get_container),
+):
+    """Updates an existing field parcel geometry and attributes."""
+    evidence_service.check_field_access(current_user, field_id)
+    existing = container.field_repo.get(field_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "NOT_FOUND", "message": f"Field '{field_id}' not found."},
+        )
+
+    updated = container.field_repo.update(body)
+    return updated

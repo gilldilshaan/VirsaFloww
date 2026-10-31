@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useRouterState, Outlet } from '@tanstack/react-router';
 import { useAuth } from '@/lib/auth/auth-context';
-import { DemoDataBadge } from '@/components/terra-ledger/shared/status-states';
+import { TccBrand } from '@/components/shared/tcc-brand';
 import {
   Sprout,
   MapPin,
@@ -13,13 +13,17 @@ import {
   X,
   LogOut,
   Home,
-  ShieldCheck,
+  Clock,
+  PlusCircle,
+  Globe,
+  FileCheck2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function FarmerLayout({ children }: { children?: ReactNode }) {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState<'pa' | 'en' | 'hi'>('pa');
 
   let currentPath = '';
   try {
@@ -29,44 +33,115 @@ export function FarmerLayout({ children }: { children?: ReactNode }) {
     // fallback
   }
 
+  const translations = {
+    pa: {
+      home: 'ਮੁੱਖ ਪੰਨਾ',
+      activities: 'ਗਤੀਵਿਧੀਆਂ',
+      evidence: 'ਸਬੂਤ ਅਪਲੋਡ',
+      registerField: 'ਖੇਤ ਸ਼ਾਮਲ ਕਰੋ',
+      history: 'ਇਤਿਹਾਸ',
+      notifications: 'ਸੂਚਨਾਵਾਂ',
+      profile: 'ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ',
+      signOut: 'ਬਾਹਰ ਜਾਓ',
+      greeting: 'ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ',
+    },
+    en: {
+      home: 'My Farm',
+      activities: 'Activities Log',
+      evidence: 'Upload Evidence',
+      registerField: 'Register Parcel',
+      history: 'History Trail',
+      notifications: 'Alerts',
+      profile: 'Farmer Profile',
+      signOut: 'Sign Out',
+      greeting: 'Welcome',
+    },
+    hi: {
+      home: 'मुख्य पृष्ठ',
+      activities: 'कृषि गतिविधियाँ',
+      evidence: 'प्रमाण अपलोड',
+      registerField: 'खेत जोड़ें',
+      history: 'इतिहास',
+      notifications: 'सूचनाएं',
+      profile: 'मेरी प्रोफाइल',
+      signOut: 'साइन आउट',
+      greeting: 'नमस्ते',
+    },
+  };
+
+  const t = translations[currentLang];
+
   const navItems = [
-    { label: 'Home', path: '/farmer/home', icon: Home },
-    { label: 'My Fields', path: '/farmer/fields', icon: MapPin },
-    { label: 'Crop Season', path: '/farmer/season', icon: Calendar },
-    { label: 'Evidence', path: '/farmer/evidence', icon: Camera },
-    { label: 'Notifications', path: '/farmer/notifications', icon: Bell },
-    { label: 'My Profile', path: '/farmer/profile', icon: User },
+    { label: t.home, path: '/farmer/dashboard', icon: Home },
+    { label: t.activities, path: '/farmer/activities', icon: Calendar },
+    { label: t.evidence, path: '/farmer/evidence', icon: Camera },
+    { label: t.registerField, path: '/farmer/register-field', icon: PlusCircle },
+    { label: t.history, path: '/farmer/history', icon: Clock },
+    { label: t.notifications, path: '/farmer/notifications', icon: Bell },
+    { label: t.profile, path: '/farmer/profile', icon: User },
+  ];
+
+  const bottomNavItems = [
+    { label: t.home, path: '/farmer/dashboard', icon: Home },
+    { label: t.activities, path: '/farmer/activities', icon: Calendar },
+    { label: t.evidence, path: '/farmer/evidence', icon: Camera },
+    { label: t.history, path: '/farmer/history', icon: Clock },
+    { label: t.profile, path: '/farmer/profile', icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f9f5] text-[#1c3926] flex flex-col font-sans pb-16 md:pb-0">
-      {/* Top Banner for Farmer Portal */}
-      <header className="bg-[#173a27] text-white sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div className="min-h-screen bg-[#F7F8F3] text-[#1B2B23] flex flex-col font-sans pb-20 md:pb-0">
+      {/* Top Bar for Farmer Portal */}
+      <header className="bg-[#123C2B] text-white sticky top-0 z-30 shadow-sm border-b border-[#1E4834]">
+        <div className="max-w-6xl mx-auto px-4 h-15 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/farmer/home" className="flex items-center gap-2">
-              <span className="font-serif text-xl tracking-tight text-[#f5f5e8]">
-                Virsa<strong className="text-[#d6eaa6] font-normal">Flow</strong>
-              </span>
-              <span className="text-[10px] bg-[#d6eaa6]/20 text-[#d6eaa6] px-1.5 py-0.5 rounded font-mono">
-                FARMER
-              </span>
-            </Link>
-            <DemoDataBadge isMock={true} sourceLabel="Punjab Farmer Mode" className="hidden sm:inline-flex" />
+            <TccBrand portalBadge="ਕਿਸਾਨ · FARMER" badgeVariant="farmer" theme="dark" size="sm" />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            {/* Language Switcher */}
+            <div className="inline-flex rounded-lg bg-[#0B261C] border border-[#285C45] p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setCurrentLang('pa')}
+                className={`px-2 py-1 rounded font-medium transition-all ${
+                  currentLang === 'pa'
+                    ? 'bg-[#D6EAA6] text-[#0B261C] font-semibold'
+                    : 'text-[#BACABD] hover:text-white'
+                }`}
+              >
+                ਪੰਜਾਬੀ
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentLang('en')}
+                className={`px-2 py-1 rounded font-medium transition-all ${
+                  currentLang === 'en'
+                    ? 'bg-[#D6EAA6] text-[#0B261C] font-semibold'
+                    : 'text-[#BACABD] hover:text-white'
+                }`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentLang('hi')}
+                className={`px-2 py-1 rounded font-medium transition-all ${
+                  currentLang === 'hi'
+                    ? 'bg-[#D6EAA6] text-[#0B261C] font-semibold'
+                    : 'text-[#BACABD] hover:text-white'
+                }`}
+              >
+                हिंदी
+              </button>
+            </div>
+
             <div className="text-right hidden sm:block">
-              <span className="text-[11px] block text-[#a7c5b1]">
-                Sat Sri Akal, <strong className="text-white">{user?.name || 'ਗੁਰਦੇਵ ਸਿੰਘ'}</strong>
-                {user?.isDemoUser && (
-                  <span className="ml-1 text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1 py-0.2 rounded font-mono">
-                    DEMO
-                  </span>
-                )}
+              <span className="text-xs block text-[#D6EAA6]">
+                {t.greeting}, <strong className="text-white">{user?.name || 'ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ'}</strong>
               </span>
-              <span className="text-[10px] text-[#809c88] font-mono">
-                {user?.farmerId ? `Parcel ${user.farmerId}` : 'Malwa FPO'}
+              <span className="text-[10px] text-[#8EA595] font-mono">
+                {user?.farmerId ? `Parcel ${user.farmerId}` : 'Malwa Progressive FPO'}
               </span>
             </div>
 
@@ -74,16 +149,16 @@ export function FarmerLayout({ children }: { children?: ReactNode }) {
               variant="ghost"
               size="sm"
               onClick={logout}
-              title="Sign Out"
-              className="text-[#d6eaa6] hover:text-white hover:bg-white/10 text-xs px-2 h-8"
+              title={t.signOut}
+              className="text-[#D6EAA6] hover:text-white hover:bg-white/10 text-xs px-2 h-8"
             >
               <LogOut size={14} className="sm:mr-1" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <span className="hidden sm:inline">{t.signOut}</span>
             </Button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 text-[#bacabd] hover:text-white"
+              className="md:hidden p-1.5 text-[#BACABD] hover:text-white rounded-md"
               aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -92,19 +167,21 @@ export function FarmerLayout({ children }: { children?: ReactNode }) {
         </div>
 
         {/* Desktop Nav Bar */}
-        <nav className="hidden md:flex border-t border-white/10 bg-[#122e1f]">
-          <div className="max-w-6xl mx-auto px-4 w-full flex items-center gap-1 py-1.5">
+        <nav className="hidden md:flex border-t border-white/10 bg-[#0B261C]">
+          <div className="max-w-6xl mx-auto px-4 w-full flex items-center gap-1 py-1.5 overflow-x-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path || (currentPath.startsWith(item.path) && item.path !== '/farmer/home');
+              const isActive =
+                currentPath === item.path ||
+                (currentPath.startsWith(item.path) && item.path !== '/farmer/dashboard');
               return (
                 <Link
                   key={item.path}
-                  to={item.path}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                  to={item.path as any}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shrink-0 ${
                     isActive
-                      ? 'bg-[#d6eaa6] text-[#173a27] font-semibold'
-                      : 'text-[#c2d4c6] hover:bg-white/10 hover:text-white'
+                      ? 'bg-[#D6EAA6] text-[#0B261C] font-semibold'
+                      : 'text-[#BACABD] hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <Icon size={14} />
@@ -117,22 +194,20 @@ export function FarmerLayout({ children }: { children?: ReactNode }) {
 
         {/* Mobile Dropdown Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-[#122e1f] px-4 py-3 space-y-1">
+          <div className="md:hidden border-t border-white/10 bg-[#0B261C] px-4 py-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path;
+              const isActive = currentPath === item.path || currentPath.startsWith(`${item.path}/`);
               return (
                 <Link
                   key={item.path}
-                  to={item.path}
+                  to={item.path as any}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2.5 transition-colors ${
-                    isActive
-                      ? 'bg-[#d6eaa6] text-[#173a27] font-semibold'
-                      : 'text-[#c2d4c6] hover:bg-white/10 hover:text-white'
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium ${
+                    isActive ? 'bg-[#D6EAA6] text-[#0B261C] font-semibold' : 'text-[#BACABD] hover:bg-white/10'
                   }`}
                 >
-                  <Icon size={15} />
+                  <Icon size={16} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -146,24 +221,31 @@ export function FarmerLayout({ children }: { children?: ReactNode }) {
         {children ?? <Outlet />}
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#d8e1d4] h-14 flex items-center justify-around px-2 z-40 shadow-lg">
-        {navItems.slice(0, 5).map((item) => {
-          const Icon = item.icon;
-          const isActive = currentPath === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${
-                isActive ? 'text-[#173a27] font-bold' : 'text-[#708071]'
-              }`}
-            >
-              <Icon size={18} className={isActive ? 'text-[#245b45]' : 'text-[#708071]'} />
-              <span className="truncate">{item.label}</span>
-            </Link>
-          );
-        })}
+      {/* Mobile-First Sticky Bottom Navigation Bar (Large touch targets for farmers) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0B261C] border-t border-[#1E4834] z-40 px-2 py-1.5 shadow-lg">
+        <div className="grid grid-cols-5 gap-1">
+          {bottomNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              currentPath === item.path ||
+              (currentPath.startsWith(item.path) && item.path !== '/farmer/dashboard');
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path as any}
+                className={`flex flex-col items-center justify-center py-1.5 rounded-lg text-[10px] font-medium transition-colors ${
+                  isActive
+                    ? 'text-[#D6EAA6] font-semibold bg-white/10'
+                    : 'text-[#8EA595] hover:text-[#BACABD]'
+                }`}
+              >
+                <Icon size={18} className="mb-0.5" />
+                <span className="truncate max-w-[60px] text-center">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );

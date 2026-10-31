@@ -13,6 +13,14 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
+      },
+    },
     optimizeDeps: {
       // maplibre-gl ships a separate worker entry the dep optimizer can't resolve;
       // excluding it stops the "maplibre-gl-worker.mjs missing" dev-server errors.

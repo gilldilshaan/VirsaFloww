@@ -28,15 +28,14 @@ export interface ApiError {
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
+  limit: number;
+  offset: number;
 }
 
 /**
  * API client configuration.
  * In production, baseUrl comes from environment.
- * Auth token is injected from the Supabase session.
+ * Auth token is injected from the active session.
  */
 interface ApiClientConfig {
   baseUrl: string;
@@ -45,7 +44,12 @@ interface ApiClientConfig {
 
 const defaultConfig: ApiClientConfig = {
   baseUrl: import.meta.env['VITE_API_BASE_URL'] ?? '/api',
-  getAuthToken: async () => null, // Will be replaced with Supabase session token
+  getAuthToken: async () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('virsaflow_access_token');
+    }
+    return null;
+  },
 };
 
 let clientConfig = defaultConfig;

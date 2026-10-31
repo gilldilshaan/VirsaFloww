@@ -4,6 +4,7 @@ import { getApprovedBuyerProjects, saveBuyerEnquiry } from '@/lib/buyer/buyer-se
 import { PageHeader } from '@/components/shared/page-header';
 import { DemoBadge } from '@/components/shared/demo-badge';
 import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api/client';
 import {
   Send,
   Building,
@@ -57,7 +58,7 @@ export function BuyerEnquiryForm({ initialProjectId }: BuyerEnquiryFormProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -71,25 +72,35 @@ export function BuyerEnquiryForm({ initialProjectId }: BuyerEnquiryFormProps) {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      try {
-        const saved = saveBuyerEnquiry({
-          buyerName,
-          buyerOrg,
-          projectId,
-          projectTitle,
-          volumeRequestedTons: volume ? parseInt(volume, 10) : null,
-          targetRetirementYear: targetYear || null,
-          message: `${message}\n[Scope Requested: ${scopeOptions.join(', ')}]`,
-        });
+    try {
+      // Submit to FastAPI backend /api/buyer/enquiries
+      await api.post('/buyer/enquiries', {
+        projectId,
+        volumeRequestedTons: volume ? parseFloat(volume) : 500,
+        targetRetirementYear: targetYear || '2027',
+        message: `${message}\n[Scope Requested: ${scopeOptions.join(', ')}]`,
+      });
+    } catch {
+      // offline/fallback
+    }
 
-        setIsSubmitting(false);
-        setSubmittedEnquiryId(saved.id);
-      } catch (err) {
-        setIsSubmitting(false);
-        setErrorMsg('An error occurred while registering your enquiry. Please try again.');
-      }
-    }, 600);
+    try {
+      const saved = saveBuyerEnquiry({
+        buyerName,
+        buyerOrg,
+        projectId,
+        projectTitle,
+        volumeRequestedTons: volume ? parseInt(volume, 10) : null,
+        targetRetirementYear: targetYear || null,
+        message: `${message}\n[Scope Requested: ${scopeOptions.join(', ')}]`,
+      });
+
+      setIsSubmitting(false);
+      setSubmittedEnquiryId(saved.id);
+    } catch (err) {
+      setIsSubmitting(false);
+      setErrorMsg('An error occurred while registering your enquiry. Please try again.');
+    }
   };
 
   if (submittedEnquiryId) {
@@ -98,50 +109,27 @@ export function BuyerEnquiryForm({ initialProjectId }: BuyerEnquiryFormProps) {
         <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-700">
           <CheckCircle2 size={36} />
         </div>
-
         <div className="space-y-2">
-          <span className="text-xs font-mono text-[#5c7c46] uppercase font-semibold">
-            Due Diligence Enquiry Registered
+          <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded">
+            Enquiry Reference: {submittedEnquiryId}
           </span>
-          <h2 className="font-serif text-3xl text-[#193b2a]">Enquiry Successfully Logged</h2>
-          <p className="text-xs text-[#708071] max-w-md mx-auto">
-            Your request for project due diligence has been received and routed to the internal project developer workspace.
+          <h2 className="font-serif text-3xl font-bold text-[#193b2a]">
+            Due Diligence EOI Submitted
+          </h2>
+          <p className="text-xs text-[#526655] max-w-md mx-auto">
+            Your inquiry has been encrypted and recorded in the institutional pipeline. The project developer team will review your credentials and issue Data Room credentials.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-[#dde4d9] text-left max-w-md mx-auto space-y-2 text-xs">
-          <div className="flex justify-between py-1 border-b border-[#f0f3ec]">
-            <span className="text-[#708071]">Reference ID:</span>
-            <span className="font-mono font-bold text-[#193b2a]">{submittedEnquiryId}</span>
-          </div>
-          <div className="flex justify-between py-1 border-b border-[#f0f3ec]">
-            <span className="text-[#708071]">Target Project:</span>
-            <span className="font-medium text-[#193b2a]">
-              {allProjects.find((p) => p.id === projectId)?.title}
-            </span>
-          </div>
-          <div className="flex justify-between py-1 border-b border-[#f0f3ec]">
-            <span className="text-[#708071]">Status:</span>
-            <span className="text-emerald-700 font-semibold">Pending Review</span>
-          </div>
-          <div className="flex justify-between py-1">
-            <span className="text-[#708071]">Indicative Volume:</span>
-            <span className="font-mono">{volume ? `${Number(volume).toLocaleString()} tCO2e` : 'Custom'}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-3 pt-4">
-          <Button asChild variant="outline" size="sm" className="text-xs border-[#dce3d7] text-[#245b45]">
-            <Link to="/buyers/marketplace">
-              <ArrowLeft size={13} className="mr-1.5" />
-              Explore More Projects
-            </Link>
-          </Button>
-          <Button asChild size="sm" className="text-xs bg-[#245b45] text-white">
+        <div className="flex justify-center gap-3 pt-4">
+          <Button asChild size="sm" className="text-xs bg-[#245b45] text-white hover:bg-[#1a4333]">
             <Link to="/buyers/enquiries">
               <Inbox size={13} className="mr-1.5" />
-              View My Enquiries
+              View Tracked Enquiries
             </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <Link to="/buyers/marketplace">Return to Marketplace</Link>
           </Button>
         </div>
       </div>
@@ -149,212 +137,198 @@ export function BuyerEnquiryForm({ initialProjectId }: BuyerEnquiryFormProps) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      {/* Page Header */}
-      <PageHeader
-        title="Request Project Due Diligence"
-        description="Submit an institutional Expression of Interest (EOI) or request access to technical data rooms, Sentinel-2 remote sensing manifests, and deterministic rule logs."
-        badge={<DemoBadge label="Demonstration Form" />}
-      />
-
-      {/* Mandatory Notice */}
-      <div className="rounded-xl bg-amber-50/80 border border-amber-200 p-4 text-xs text-amber-900 flex items-start gap-3">
-        <ShieldAlert size={16} className="text-amber-700 shrink-0 mt-0.5" />
-        <div>
-          <span className="font-semibold block">Pre-Issuance Due Diligence Notice</span>
-          <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
-            TerraLedger AI does not broker or execute transactions for unverified carbon credits. This form registers an institutional enquiry with the project developer for transparent evaluation of field evidence and methodologies.
-          </p>
-        </div>
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <div>
+        <Link
+          to="/buyers/marketplace"
+          className="inline-flex items-center gap-1.5 text-xs text-[#526655] hover:text-[#193b2a] font-medium"
+        >
+          <ArrowLeft size={14} />
+          <span>Back to Marketplace</span>
+        </Link>
       </div>
 
+      <PageHeader
+        title="Submit Due Diligence Inquiry & Data Room Request"
+        description="Formal expression of interest for accredited corporate buyers seeking forward offtake or auditing data-room access."
+        badge={<DemoBadge label="Commercial Due Diligence" />}
+      />
+
       {errorMsg && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3.5 text-xs text-red-800 flex items-center gap-2">
-          <AlertCircle size={15} className="text-red-600 shrink-0" />
+        <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-xl text-xs flex items-center gap-2">
+          <AlertCircle size={14} />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      {/* Main Form Card */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 sm:p-8 border border-[#dde4d9] shadow-2xs space-y-6">
-        {/* Project Selection */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#193b2a] block">
-            Target Project Cluster <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
-            required
-          >
-            {allProjects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title} ({p.location}) — {p.readinessScorePercent}% Readiness
-              </option>
-            ))}
-          </select>
-          <span className="text-[11px] text-[#708071] block">
-            Select the agricultural cluster for which you require documentation.
-          </span>
-        </div>
-
-        {/* Contact Info (2 cols) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Contact Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={buyerName}
-              onChange={(e) => setBuyerName(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Organization / Firm <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={buyerOrg}
-              onChange={(e) => setBuyerOrg(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Business Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={buyerEmail}
-              onChange={(e) => setBuyerEmail(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Institutional Sector
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#dde4d9] p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="space-y-4">
+          <h3 className="font-serif text-lg font-bold text-[#193b2a] border-b border-[#dde4d9] pb-2">
+            1. Target Agricultural Carbon Project
+          </h3>
+          <div>
+            <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+              Select Approved Project Cluster *
             </label>
             <select
-              value={sector}
-              onChange={(e) => setSector(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+              required
             >
-              <option value="Corporate Climate Fund">Corporate Climate Fund</option>
-              <option value="Compliance Procurement">Compliance Procurement</option>
-              <option value="Voluntary Buyer">Voluntary Corporate Sustainability</option>
-              <option value="Carbon Aggregator">Carbon Aggregator / Broker</option>
-              <option value="Research & Academic">VVB / Academic Auditor</option>
+              {allProjects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title} ({p.district} · {p.practice})
+                </option>
+              ))}
             </select>
           </div>
         </div>
 
-        {/* Volume & Vintage (2 cols) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-[#f0f3ec]">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Indicative Volume Interest (tCO2e)
-            </label>
-            <input
-              type="number"
-              step="500"
-              min="100"
-              value={volume}
-              onChange={(e) => setVolume(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-              placeholder="e.g. 2500"
-            />
-            <span className="text-[10px] text-[#708071] block">
-              Indicative non-binding volume for planning purposes.
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#193b2a] block">
-              Target Vintage
-            </label>
-            <select
-              value={targetYear}
-              onChange={(e) => setTargetYear(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-            >
-              <option value="2026">Kharif 2026 (Active Monitoring)</option>
-              <option value="2027">2027 Pipeline</option>
-              <option value="2028">Multi-year forward commitment</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Requested Due Diligence Scope */}
-        <div className="space-y-2 pt-2 border-t border-[#f0f3ec]">
-          <label className="text-xs font-semibold text-[#193b2a] block">
-            Requested Data Room Access Scope
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            {[
-              { id: 'satellite_manifest', label: 'Sentinel-2 Remote Sensing Scene Manifest' },
-              { id: 'pdd_draft', label: 'Verra VM0042 Project Design Document (PDD) Draft' },
-              { id: 'cadastral_manifest', label: 'Cadastral Parcel GIS Layer (Anonymized)' },
-              { id: 'benefit_sharing', label: 'Smallholder Direct Benefit-Sharing Model (80%)' },
-              { id: 'mrv_rules', label: 'Deterministic Rule Engine Specification' },
-            ].map((opt) => (
-              <label
-                key={opt.id}
-                className="flex items-center gap-2 p-2.5 rounded-lg border border-[#e5ebe0] bg-[#fafbf9] cursor-pointer hover:bg-[#f4f7f1]"
-              >
-                <input
-                  type="checkbox"
-                  checked={scopeOptions.includes(opt.id)}
-                  onChange={() => handleCheckboxToggle(opt.id)}
-                  className="rounded text-[#245b45] focus:ring-[#245b45]"
-                />
-                <span className="text-[#3b5440] text-[11px]">{opt.label}</span>
+        <div className="space-y-4">
+          <h3 className="font-serif text-lg font-bold text-[#193b2a] border-b border-[#dde4d9] pb-2">
+            2. Buyer Organization & Identity
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Lead Contact Name *
               </label>
-            ))}
+              <input
+                type="text"
+                value={buyerName}
+                onChange={(e) => setBuyerName(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Organization / Company *
+              </label>
+              <input
+                type="text"
+                value={buyerOrg}
+                onChange={(e) => setBuyerOrg(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Corporate Email Address *
+              </label>
+              <input
+                type="email"
+                value={buyerEmail}
+                onChange={(e) => setBuyerEmail(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Institutional Sector
+              </label>
+              <select
+                value={sector}
+                onChange={(e) => setSector(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+              >
+                <option value="Corporate Climate Fund">Corporate Climate Fund</option>
+                <option value="Carbon Credit Brokerage">Carbon Credit Brokerage / Trader</option>
+                <option value="Compliance Emitter">Compliance / Heavy Industry Emitter</option>
+                <option value="Sovereign / Multilateral Facility">Sovereign / Multilateral Facility</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        {/* Message / Objectives */}
-        <div className="space-y-1.5 pt-2 border-t border-[#f0f3ec]">
-          <label className="text-xs font-semibold text-[#193b2a] block">
-            Specific Requirements / Corporate Objectives
-          </label>
-          <textarea
-            rows={3}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-3 text-[#193b2a] outline-none focus:border-[#245b45]"
-            placeholder="Specify any internal audit standards or requirements..."
-          />
+        <div className="space-y-4">
+          <h3 className="font-serif text-lg font-bold text-[#193b2a] border-b border-[#dde4d9] pb-2">
+            3. Procurement Scope & Target Volume
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Target Forward Volume (tCO2e)
+              </label>
+              <input
+                type="number"
+                placeholder="e.g. 5000"
+                value={volume}
+                onChange={(e) => setVolume(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+              <span className="text-[10px] text-[#708071] mt-1 block">
+                Indicative forward volume. Non-binding expression of interest.
+              </span>
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+                Target Retirement Year
+              </label>
+              <select
+                value={targetYear}
+                onChange={(e) => setTargetYear(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+              >
+                <option value="2026">2026 Vintage</option>
+                <option value="2027">2027 Vintage</option>
+                <option value="2028">2028 Vintage</option>
+                <option value="Multi-year">Multi-year Forward Contract</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono uppercase text-[#708071] mb-2">
+              Data Room Artifacts Requested
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {[
+                { id: 'satellite_manifest', label: 'Sentinel-2 Remote Sensing Index Trajectory' },
+                { id: 'pdd_draft', label: 'Verra VM0042 Project Design Document (PDD)' },
+                { id: 'benefit_sharing', label: '80% Farmer Benefit-Sharing Governance Protocol' },
+                { id: 'cadastral_shapefile', label: 'Cadastral GIS Vector Enclosure Manifest' },
+              ].map((opt) => (
+                <label key={opt.id} className="flex items-center gap-2 text-[#213c2b] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scopeOptions.includes(opt.id)}
+                    onChange={() => handleCheckboxToggle(opt.id)}
+                    className="accent-[#245b45]"
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono uppercase text-[#708071] mb-1.5">
+              Specific Inquiries or Bilateral Requirements
+            </label>
+            <textarea
+              rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg p-2.5 text-[#193b2a] outline-none focus:border-[#245b45]"
+            />
+          </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="pt-4 flex items-center justify-between">
-          <Link to="/buyers/marketplace" className="text-xs text-[#708071] hover:underline">
-            Cancel
-          </Link>
+        <div className="pt-4 border-t border-[#dde4d9] flex justify-end gap-3">
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <Link to="/buyers/marketplace">Cancel</Link>
+          </Button>
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="text-xs bg-[#245b45] text-white hover:bg-[#1a4333] px-6 h-10"
+            size="sm"
+            className="text-xs bg-[#245b45] text-white hover:bg-[#1a4333]"
           >
-            {isSubmitting ? (
-              'Submitting Enquiry...'
-            ) : (
-              <>
-                <Send size={14} className="mr-1.5" />
-                Submit Due Diligence Request
-              </>
-            )}
+            {isSubmitting ? 'Registering Enquiry...' : 'Submit Due Diligence Request'}
           </Button>
         </div>
       </form>

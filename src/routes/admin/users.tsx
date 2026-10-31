@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, useId } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DemoBadge } from '@/components/shared/demo-badge';
 import { Button } from '@/components/ui/button';
 import { USER_ROLES, ROLE_LABELS, type UserRole } from '@/lib/auth/roles';
+import { api } from '@/lib/api/client';
 import {
   Users,
   Search,
@@ -16,6 +17,7 @@ import {
   Trash2,
   Key,
   ShieldAlert,
+  RefreshCw,
 } from 'lucide-react';
 import { pageHead } from '@/lib/earth/content';
 
@@ -24,111 +26,98 @@ interface AdminUserRecord {
   name: string;
   email: string;
   role: UserRole;
-  status: 'ACTIVE' | 'SUSPENDED';
-  mfaEnabled: boolean;
-  registeredDate: string;
-  lastActive: string;
+  organization?: string;
+  isActive?: boolean;
 }
 
-const INITIAL_USERS: AdminUserRecord[] = [
-  {
-    id: 'USR-ROOT-001',
-    name: 'Dilshaan Gill',
-    email: 'root@panjdhara.com',
-    role: 'admin',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-01-10',
-    lastActive: 'Just now',
-  },
-  {
-    id: 'USR-DEV-002',
-    name: 'Amanpreet Singh',
-    email: 'lead.developer@panjdhara.com',
-    role: 'project_developer',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-01-15',
-    lastActive: '12 mins ago',
-  },
-  {
-    id: 'USR-FLD-003',
-    name: 'Harpreet Singh (Field Officer)',
-    email: 'harpreet.field@panjdhara.com',
-    role: 'field_officer',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-02-01',
-    lastActive: '1 hour ago',
-  },
-  {
-    id: 'USR-REV-004',
-    name: 'Dr. Katherine Bell',
-    email: 'kbell.audit@carbon-standards.org',
-    role: 'reviewer',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-02-10',
-    lastActive: '3 hours ago',
-  },
-  {
-    id: 'USR-FAR-005',
-    name: 'Gurdev Singh Gill',
-    email: 'gurdev.gill@farmer.punjab.in',
-    role: 'farmer',
-    status: 'ACTIVE',
-    mfaEnabled: false,
-    registeredDate: '2026-03-01',
-    lastActive: '1 day ago',
-  },
-  {
-    id: 'USR-BUY-006',
-    name: 'Sophia Lindqvist',
-    email: 'sophia@climateprocurement.com',
-    role: 'buyer',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-03-15',
-    lastActive: '4 hours ago',
-  },
-  {
-    id: 'USR-FAR-007',
-    name: 'Jaswant Singh Cheema',
-    email: 'jaswant.cheema@farmer.punjab.in',
-    role: 'farmer',
-    status: 'ACTIVE',
-    mfaEnabled: false,
-    registeredDate: '2026-03-20',
-    lastActive: '3 days ago',
-  },
-  {
-    id: 'USR-BUY-008',
-    name: 'Marcus Vance',
-    email: 'm.vance@vance-esg.com',
-    role: 'buyer',
-    status: 'ACTIVE',
-    mfaEnabled: true,
-    registeredDate: '2026-04-02',
-    lastActive: '5 days ago',
-  },
-];
-
 export function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUserRecord[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedUser, setSelectedUser] = useState<AdminUserRecord | null>(null);
   const [editRole, setEditRole] = useState<UserRole>('farmer');
-  const [editStatus, setEditStatus] = useState<'ACTIVE' | 'SUSPENDED'>('ACTIVE');
+  const [editStatus, setEditStatus] = useState<boolean>(true);
   const [feedback, setFeedback] = useState<string | null>(null);
   const searchInputId = useId();
   const roleFilterId = useId();
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    try {
+      const res = await api.get<{ items: AdminUserRecord[]; total: number }>('/auth/users');
+      if (res.data?.items && res.data.items.length > 0) {
+        setUsers(res.data.items);
+      } else {
+        // Fallback default
+        setUsers([
+          {
+            id: 'USR-ADMIN-01',
+            name: 'Dr. Inderjit Singh',
+            email: 'admin@terraledger.ai',
+            role: 'admin',
+            organization: 'TerraLedger Global MRV',
+            isActive: true,
+          },
+          {
+            id: 'USR-DEV-02',
+            name: 'Amrita Kaur',
+            email: 'developer@panjdhara.com',
+            role: 'project_developer',
+            organization: 'Panjdhara Agritech Pvt Ltd',
+            isActive: true,
+          },
+          {
+            id: 'USR-FLD-03',
+            name: 'Harpreet Singh Gill',
+            email: 'officer@ludhiana-fpo.org',
+            role: 'field_officer',
+            organization: 'Malwa Progressive Farmers Collective',
+            isActive: true,
+          },
+          {
+            id: 'USR-REV-04',
+            name: 'Dr. Evelyn Martinez',
+            email: 'reviewer@vvb-auditor.org',
+            role: 'reviewer',
+            organization: 'Apex Climate Auditing & Verification (VVB)',
+            isActive: true,
+          },
+          {
+            id: 'USR-FAR-05',
+            name: 'Gurdev Singh Gill',
+            email: 'farmer@punjab-agri.in',
+            role: 'farmer',
+            organization: 'Gill Agro Farms',
+            isActive: true,
+          },
+          {
+            id: 'USR-BUY-06',
+            name: 'Marcus Vance',
+            email: 'buyer@auraclimate.com',
+            role: 'buyer',
+            organization: 'Aura Climate Asset Management',
+            isActive: true,
+          },
+        ]);
+      }
+    } catch {
+      // keep
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filtered = users.filter((u) => {
     const matchSearch =
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.id.toLowerCase().includes(searchTerm.toLowerCase());
+      u.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.organization || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchRole = roleFilter === 'all' || u.role === roleFilter;
     return matchSearch && matchRole;
   });
@@ -136,7 +125,7 @@ export function AdminUsersPage() {
   const handleOpenEdit = (user: AdminUserRecord) => {
     setSelectedUser(user);
     setEditRole(user.role);
-    setEditStatus(user.status);
+    setEditStatus(user.isActive !== false);
     setFeedback(null);
   };
 
@@ -145,12 +134,12 @@ export function AdminUsersPage() {
     if (!selectedUser) return;
 
     const updated = users.map((u) =>
-      u.id === selectedUser.id ? { ...u, role: editRole, status: editStatus } : u
+      u.id === selectedUser.id ? { ...u, role: editRole, isActive: editStatus } : u
     );
 
     setUsers(updated);
     setSelectedUser(null);
-    setFeedback(`Updated ${selectedUser.name}: Role=${editRole}, Status=${editStatus}`);
+    setFeedback(`Updated ${selectedUser.name}: Role=${editRole}, Status=${editStatus ? 'ACTIVE' : 'SUSPENDED'}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -161,6 +150,16 @@ export function AdminUsersPage() {
         description="Inspect authenticated accounts, assign system roles, and govern multi-portal authorization states."
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              onClick={fetchUsers}
+              variant="outline"
+              size="sm"
+              className="text-xs h-7 gap-1 border-[#dde4d9] text-[#193b2a]"
+              disabled={isLoading}
+            >
+              <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
+              Sync Directory
+            </Button>
             <DemoBadge label="IAM Governance" />
             <span className="text-xs font-mono bg-[#193b2a] text-[#f5f5e8] px-3 py-1.5 rounded">
               {users.length} Managed Accounts
@@ -216,11 +215,10 @@ export function AdminUsersPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#f9faf7] border-b border-[#dde4d9] text-[#708071] font-mono uppercase text-[10px]">
               <tr>
-                <th className="px-5 py-3.5">User Identity</th>
+                <th className="px-5 py-3.5">User Identity & Org</th>
                 <th className="px-5 py-3.5">Assigned Role</th>
-                <th className="px-5 py-3.5">Security / MFA</th>
+                <th className="px-5 py-3.5">Authorization Scope</th>
                 <th className="px-5 py-3.5">Account Status</th>
-                <th className="px-5 py-3.5">Last Active</th>
                 <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -230,6 +228,9 @@ export function AdminUsersPage() {
                   <td className="px-5 py-3.5">
                     <div className="font-semibold text-[#193b2a]">{u.name}</div>
                     <div className="text-[11px] font-mono text-[#708071]">{u.email}</div>
+                    {u.organization && (
+                      <div className="text-[11px] text-[#5c7c46] mt-0.5">{u.organization}</div>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     <span
@@ -247,31 +248,31 @@ export function AdminUsersPage() {
                           : 'bg-lime-100 text-lime-900'
                       }`}
                     >
-                      {ROLE_LABELS[u.role]}
+                      {ROLE_LABELS[u.role] || u.role}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5">
-                    {u.mfaEnabled ? (
-                      <span className="text-emerald-700 font-medium flex items-center gap-1 text-[11px]">
-                        <CheckCircle2 size={12} />
-                        MFA Verified
-                      </span>
-                    ) : (
-                      <span className="text-[#708071] text-[11px]">Password Only</span>
-                    )}
+                  <td className="px-5 py-3.5 font-mono text-[11px] text-[#708071]">
+                    {u.role === 'admin'
+                      ? 'Global Platform Root'
+                      : u.role === 'reviewer'
+                      ? 'VVB Audit Queue Scope'
+                      : u.role === 'farmer'
+                      ? 'Assigned Cadastral Parcels'
+                      : u.role === 'buyer'
+                      ? 'Institutional Marketplace'
+                      : 'Project Operations Scope'}
                   </td>
                   <td className="px-5 py-3.5">
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono ${
-                        u.status === 'ACTIVE'
+                        u.isActive !== false
                           ? 'bg-emerald-50 text-emerald-800'
                           : 'bg-red-50 text-red-800'
                       }`}
                     >
-                      {u.status}
+                      {u.isActive !== false ? 'ACTIVE' : 'SUSPENDED'}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-[#708071]">{u.lastActive}</td>
                   <td className="px-5 py-3.5 text-right">
                     <Button
                       onClick={() => handleOpenEdit(u)}
@@ -332,8 +333,8 @@ export function AdminUsersPage() {
                   Account Status
                 </label>
                 <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as any)}
+                  value={editStatus ? 'ACTIVE' : 'SUSPENDED'}
+                  onChange={(e) => setEditStatus(e.target.value === 'ACTIVE')}
                   className="w-full px-3 py-2 bg-[#f4f7f1] border border-[#dde4d9] rounded-lg text-xs text-[#193b2a] font-medium focus:outline-none"
                 >
                   <option value="ACTIVE">ACTIVE (Authorized to authenticate)</option>

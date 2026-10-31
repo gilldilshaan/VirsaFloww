@@ -19,17 +19,19 @@ import {
 export const DEMO_IDENTITIES: Record<UserRole, AuthUser> = {
   admin: {
     id: 'USR-DEMO-ADMIN-01',
-    email: 'admin@virsaflow.com',
-    name: 'Dilshaan Singh Gill',
+    email: 'admin@terraledger.ai',
+    name: 'Dr. Inderjit Singh',
     role: 'admin',
+    organization: 'TerraLedger Global MRV',
     permissions: ROLE_PERMISSIONS.admin,
     isDemoUser: true,
   },
   reviewer: {
     id: 'USR-DEMO-REVIEWER-01',
-    email: 'mankirat.auditor@virsaflow.com',
-    name: 'Mankirat Singh',
+    email: 'reviewer@vvb-auditor.org',
+    name: 'Dr. Evelyn Martinez',
     role: 'reviewer',
+    organization: 'Apex Climate Auditing & Verification (VVB)',
     permissions: ROLE_PERMISSIONS.reviewer,
     isDemoUser: true,
     scope: {
@@ -38,55 +40,68 @@ export const DEMO_IDENTITIES: Record<UserRole, AuthUser> = {
   },
   project_developer: {
     id: 'USR-DEMO-PROJECT-DEVELOPER-01',
-    email: 'developer@virsaflow.com',
-    name: 'Panjdhara Project Ops',
+    email: 'developer@panjdhara.com',
+    name: 'Amrita Kaur',
     role: 'project_developer',
+    organization: 'Panjdhara Agritech Pvt Ltd',
     permissions: ROLE_PERMISSIONS.project_developer,
     isDemoUser: true,
     scope: {
-      assignedProjectIds: ['PRJ-PB-DSR-01'],
+      assignedProjectIds: ['PRJ-PB-DSR-001'],
     },
   },
   field_officer: {
     id: 'USR-DEMO-FIELD-OFFICER-01',
-    email: 'harpreet.officer@virsaflow.com',
-    name: 'Harpreet Singh',
+    email: 'officer@ludhiana-fpo.org',
+    name: 'Harpreet Singh Gill',
     role: 'field_officer',
+    organization: 'Malwa Progressive Farmers Collective',
     fpoId: 'FPO-MALWA-01',
     permissions: ROLE_PERMISSIONS.field_officer,
     isDemoUser: true,
     scope: {
-      permittedFieldIds: ['PB-LUD-042', 'PB-SNG-018'],
-      assignedProjectIds: ['PRJ-PB-DSR-01'],
+      permittedFieldIds: ['PB-FIELD-001', 'PB-LUD-042', 'PB-SNG-018'],
+      assignedProjectIds: ['PRJ-PB-DSR-001'],
     },
   },
   farmer: {
     id: 'USR-DEMO-FARMER-01',
-    email: 'gurdev.singh@malwa-fpo.org',
+    email: 'farmer@punjab-agri.in',
     name: 'Gurdev Singh Gill',
     role: 'farmer',
-    farmerId: 'PB-LUD-042',
+    farmerId: 'PB-FIELD-001',
     fpoId: 'FPO-MALWA-01',
+    organization: 'Gill Agro Farms',
     permissions: ROLE_PERMISSIONS.farmer,
     isDemoUser: true,
     scope: {
-      farmerId: 'PB-LUD-042',
-      permittedFieldIds: ['PB-LUD-042'],
+      farmerId: 'PB-FIELD-001',
+      permittedFieldIds: ['PB-FIELD-001', 'PB-LUD-042'],
     },
   },
   buyer: {
     id: 'USR-DEMO-BUYER-01',
-    email: 'marcus.vance@auraclimate.com',
+    email: 'buyer@auraclimate.com',
     name: 'Marcus Vance',
     role: 'buyer',
     buyerOrgId: 'AURA-CLIMATE-ASSETS',
+    organization: 'Aura Climate Asset Management',
     permissions: ROLE_PERMISSIONS.buyer,
     isDemoUser: true,
     scope: {
       buyerOrgId: 'AURA-CLIMATE-ASSETS',
-      publishedProjectIds: ['PRJ-PB-DSR-01', 'PRJ-PB-RES-02', 'PRJ-PB-AWD-03'],
+      publishedProjectIds: ['PRJ-PB-DSR-001', 'PRJ-PB-RES-02', 'PRJ-PB-AWD-03'],
     },
   },
+};
+
+export const DEMO_CREDENTIALS: Record<UserRole, { email: string; password: string }> = {
+  admin: { email: 'admin@terraledger.ai', password: 'admin12345' },
+  reviewer: { email: 'reviewer@vvb-auditor.org', password: 'reviewer12345' },
+  project_developer: { email: 'developer@panjdhara.com', password: 'dev12345' },
+  field_officer: { email: 'officer@ludhiana-fpo.org', password: 'officer12345' },
+  farmer: { email: 'farmer@punjab-agri.in', password: 'farmer12345' },
+  buyer: { email: 'buyer@auraclimate.com', password: 'buyer12345' },
 };
 
 interface AuthContextType extends AuthState {
@@ -130,7 +145,7 @@ function validateStoredSession(stored: StoredSession | null): AuthUser | null {
     if (!trustedDemo) return null;
 
     // Verify identity ID matches trusted demo dictionary
-    if (stored.user.id !== trustedDemo.id) return null;
+    if (stored.user.id !== trustedDemo.id && stored.user.email !== trustedDemo.email) return null;
 
     // Re-hydrate permissions strictly from trusted matrix
     return {
@@ -141,12 +156,6 @@ function validateStoredSession(stored: StoredSession | null): AuthUser | null {
   }
 
   // Production session:
-  // If backend is unconfigured, production session cannot be validated; fail closed
-  const apiBaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_MRV_API_BASE_URL']) || '';
-  if (!apiBaseUrl || (apiBaseUrl as string).trim().length === 0) {
-    return null;
-  }
-
   // Ensure role is canonical and permissions are re-derived
   if (stored.user.role && ROLE_PERMISSIONS[stored.user.role]) {
     return {
@@ -160,9 +169,7 @@ function validateStoredSession(stored: StoredSession | null): AuthUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // CRITICAL SECURITY ENFORCEMENT:
-  // Fresh application sessions ALWAYS start unauthenticated (null).
-  // No user automatically becomes authenticated simply by loading the application.
+  // Fresh application sessions start unauthenticated unless valid local storage session exists
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -216,6 +223,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false };
     }
 
+    // Attempt to acquire real JWT from backend for this demo role
+    try {
+      const creds = DEMO_CREDENTIALS[role];
+      if (creds) {
+        const res = await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(creds),
+        });
+        if (res.ok) {
+          const body = await res.json();
+          if (body.accessToken && typeof window !== 'undefined') {
+            localStorage.setItem('virsaflow_access_token', body.accessToken);
+          }
+        }
+      }
+    } catch {
+      // Offline fallback: demo session proceeds locally
+    }
+
     const sessionUser: AuthUser = {
       ...demo,
       permissions: ROLE_PERMISSIONS[role],
@@ -245,35 +272,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // Live Backend Authentication
-        const apiBaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_MRV_API_BASE_URL']) || '';
-        if (apiBaseUrl && (apiBaseUrl as string).trim().length > 0) {
-          const res = await fetch(`${apiBaseUrl}/api/v1/auth/login`, {
+        try {
+          const res = await fetch('/api/auth/session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: credentials.email, password: credentials.password }),
           });
 
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            const msg = errData.message || `Authentication failed (HTTP ${res.status})`;
-            setError(msg);
+          if (res.ok) {
+            const body = await res.json();
+            if (body.accessToken && typeof window !== 'undefined') {
+              localStorage.setItem('virsaflow_access_token', body.accessToken);
+            }
+            const userRole = (body.user.role || 'farmer') as UserRole;
+            const authenticatedUser: AuthUser = {
+              id: body.user.id,
+              email: body.user.email,
+              name: body.user.name,
+              role: userRole,
+              organization: body.user.organization,
+              buyerOrgId: body.user.buyerCompanyId,
+              permissions: ROLE_PERMISSIONS[userRole] || [],
+              isDemoUser: false,
+            };
+
+            setUser(authenticatedUser);
             setIsLoading(false);
-            return { success: false, error: msg };
+            return { success: true, user: authenticatedUser };
           }
-
-          const body = await res.json();
-          const authenticatedUser: AuthUser = {
-            id: body.user.id,
-            email: body.user.email,
-            name: body.user.name,
-            role: body.user.role,
-            permissions: ROLE_PERMISSIONS[body.user.role as UserRole] || [],
-            isDemoUser: false,
-          };
-
-          setUser(authenticatedUser);
-          setIsLoading(false);
-          return { success: true, user: authenticatedUser };
+        } catch {
+          // Network failure to backend - proceed to fallback check
         }
 
         // Check if entered email matches a known demo identity
@@ -286,9 +314,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return await loginAsDemo(matchedDemo.role);
         }
 
-        // Unconfigured production backend:
         const unconfiguredMsg =
-          'Production authentication backend is not configured. For evaluation, please use one of the labelled Demo Identities below.';
+          'Authentication failed. Please verify credentials or select one of the Demo Identities.';
         setError(unconfiguredMsg);
         setIsLoading(false);
         return { success: false, error: unconfiguredMsg };
@@ -308,6 +335,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('virsaflow_access_token');
       } catch {
         // ignore
       }
@@ -315,15 +343,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const switchDemoRole = useCallback((role: UserRole) => {
-    if (DEMO_IDENTITIES[role]) {
-      const demoUser = DEMO_IDENTITIES[role];
-      setUser({
-        ...demoUser,
-        permissions: ROLE_PERMISSIONS[role],
-        isDemoUser: true,
-      });
-    }
-  }, []);
+    loginAsDemo(role);
+  }, [loginAsDemo]);
 
   const hasPermissionCallback = useCallback(
     (permission: Permission): boolean => {

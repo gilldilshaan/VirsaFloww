@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTerraLedger } from '@/lib/terra-ledger/store';
 import { SatelliteObservation } from '@/lib/terra-ledger/types';
+import { FieldMap } from '@/components/geospatial/field-map';
 import {
   Satellite,
   Calendar,
@@ -15,6 +16,7 @@ import {
   Check,
   Eye,
   Info,
+  MapPin,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -25,6 +27,7 @@ export function SatelliteIntelligence() {
   const [compareObsId, setCompareObsId] = useState<string>(satelliteObservations[0]?.id || 'S2A_20260614_PB');
   const [activeSpectralIndex, setActiveSpectralIndex] = useState<'NDVI' | 'NDWI' | 'RGB'>('NDVI');
   const [comparisonMode, setComparisonMode] = useState<boolean>(false);
+  const [viewFormat, setViewFormat] = useState<'maplibre' | 'spectral'>('maplibre');
   const [uiState, setUiState] = useState<'normal' | 'loading' | 'empty' | 'error'>('normal');
 
   const defaultObs = satelliteObservations[0] as SatelliteObservation;
@@ -48,41 +51,24 @@ export function SatelliteIntelligence() {
           </p>
         </div>
 
-        {/* UI State Controls (to test Loading, Empty, Error) */}
+        {/* View Mode Controls */}
         <div className="flex items-center gap-2">
           <div className="bg-white border border-[#dfe6d9] rounded-lg p-1 flex items-center gap-1 text-[11px] font-mono">
-            <span className="text-[#72816f] px-1.5">View State:</span>
             <button
-              onClick={() => setUiState('normal')}
-              className={`px-2 py-0.5 rounded ${
-                uiState === 'normal' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
+              onClick={() => setViewFormat('maplibre')}
+              className={`px-2.5 py-1 rounded transition-colors ${
+                viewFormat === 'maplibre' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
               }`}
             >
-              Live
+              MapLibre WebGL
             </button>
             <button
-              onClick={() => setUiState('loading')}
-              className={`px-2 py-0.5 rounded ${
-                uiState === 'loading' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
+              onClick={() => setViewFormat('spectral')}
+              className={`px-2.5 py-1 rounded transition-colors ${
+                viewFormat === 'spectral' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
               }`}
             >
-              Loading
-            </button>
-            <button
-              onClick={() => setUiState('empty')}
-              className={`px-2 py-0.5 rounded ${
-                uiState === 'empty' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
-              }`}
-            >
-              Empty
-            </button>
-            <button
-              onClick={() => setUiState('error')}
-              className={`px-2 py-0.5 rounded ${
-                uiState === 'error' ? 'bg-[#245b45] text-white font-medium' : 'text-[#72816f]'
-              }`}
-            >
-              Error
+              Spectral Raster
             </button>
           </div>
         </div>
@@ -192,7 +178,7 @@ export function SatelliteIntelligence() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#edf0e7] mb-4 gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-[#193b2a]">
-                    Spectral Visualizer: {activeSpectralIndex}
+                    {viewFormat === 'maplibre' ? 'Interactive MapLibre GL Layer' : `Spectral Visualizer: ${activeSpectralIndex}`}
                   </span>
                   <span className="text-[10px] font-mono bg-[#e8f4ea] text-[#245b45] px-2 py-0.5 rounded border border-[#c3e6cb]">
                     {selectedObs.date}
@@ -204,127 +190,126 @@ export function SatelliteIntelligence() {
                   )}
                 </div>
 
-                {/* Index Switcher Tabs */}
-                <div className="inline-flex rounded-md p-0.5 bg-[#f4f6f0] border border-[#dfe6d9] text-xs font-mono">
-                  <button
-                    onClick={() => setActiveSpectralIndex('NDVI')}
-                    className={`px-3 py-1 rounded transition-colors ${
-                      activeSpectralIndex === 'NDVI'
-                        ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
-                        : 'text-[#72816f] hover:text-[#213c2b]'
-                    }`}
-                  >
-                    NDVI (Vegetation)
-                  </button>
-                  <button
-                    onClick={() => setActiveSpectralIndex('NDWI')}
-                    className={`px-3 py-1 rounded transition-colors ${
-                      activeSpectralIndex === 'NDWI'
-                        ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
-                        : 'text-[#72816f] hover:text-[#213c2b]'
-                    }`}
-                  >
-                    NDWI (Moisture)
-                  </button>
-                  <button
-                    onClick={() => setActiveSpectralIndex('RGB')}
-                    className={`px-3 py-1 rounded transition-colors ${
-                      activeSpectralIndex === 'RGB'
-                        ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
-                        : 'text-[#72816f] hover:text-[#213c2b]'
-                    }`}
-                  >
-                    True Color RGB
-                  </button>
-                </div>
-              </div>
-
-              {/* Raster / Heatmap Canvas */}
-              <div className="relative w-full aspect-16/10 rounded-lg overflow-hidden border border-[#2b503e] bg-slate-900 flex items-center justify-center">
-                {/* Background Satellite Plate */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-60"
-                  style={{ backgroundImage: `url('/earth/platform-field-satellite.webp')` }}
-                />
-
-                {/* Simulated Spectral Heatmap Layer */}
-                <svg
-                  viewBox="0 0 600 380"
-                  className="relative z-10 w-full h-full p-4"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <defs>
-                    <linearGradient id="ndviGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#84cc16" stopOpacity="0.75" />
-                      <stop offset="50%" stopColor="#22c55e" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#15803d" stopOpacity="0.85" />
-                    </linearGradient>
-                    <linearGradient id="ndwiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.7" />
-                      <stop offset="60%" stopColor="#0284c7" stopOpacity="0.75" />
-                      <stop offset="100%" stopColor="#0369a1" stopOpacity="0.8" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Field Polygon filled with Index Gradient */}
-                  <polygon
-                    points="160,70 440,90 410,310 130,270"
-                    fill={
-                      activeSpectralIndex === 'NDVI'
-                        ? 'url(#ndviGradient)'
-                        : activeSpectralIndex === 'NDWI'
-                        ? 'url(#ndwiGradient)'
-                        : 'rgba(255, 255, 255, 0.15)'
-                    }
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                  />
-
-                  {/* Centroid Data Stamp */}
-                  <rect x="200" y="150" width="200" height="70" rx="8" fill="rgba(16, 46, 32, 0.88)" stroke="#d6eaa6" strokeWidth="1" />
-                  <text x="300" y="174" fill="#ffffff" fontSize="11" fontFamily="IBM Plex Mono" textAnchor="middle" fontWeight="bold">
-                    {activeSpectralIndex === 'NDVI'
-                      ? `NDVI: ${selectedObs.meanNdvi.toFixed(2)}`
-                      : activeSpectralIndex === 'NDWI'
-                      ? `NDWI: ${selectedObs.meanNdwi.toFixed(2)}`
-                      : 'RGB BOA Reflectance'}
-                  </text>
-                  <text x="300" y="192" fill="#d6eaa6" fontSize="10" fontFamily="IBM Plex Mono" textAnchor="middle">
-                    Tile: 43UFR · 10m Ground Res
-                  </text>
-                  <text x="300" y="208" fill="#a7f3d0" fontSize="9" fontFamily="IBM Plex Mono" textAnchor="middle">
-                    Cloud Cover: {selectedObs.cloudCoverPercent}%
-                  </text>
-
-                  {/* In comparison mode, show side badge */}
-                  {comparisonMode && (
-                    <g>
-                      <rect x="20" y="20" width="180" height="50" rx="6" fill="rgba(0, 0, 0, 0.75)" stroke="#38bdf8" />
-                      <text x="110" y="38" fill="#38bdf8" fontSize="10" fontFamily="IBM Plex Mono" textAnchor="middle">
-                        Δ {activeSpectralIndex}: {activeSpectralIndex === 'NDVI' ? (selectedObs.meanNdvi - compareObs.meanNdvi).toFixed(2) : (selectedObs.meanNdwi - compareObs.meanNdwi).toFixed(2)}
-                      </text>
-                      <text x="110" y="54" fill="#ffffff" fontSize="9" fontFamily="IBM Plex Mono" textAnchor="middle">
-                        Baseline: {compareObs.date}
-                      </text>
-                    </g>
-                  )}
-                </svg>
-
-                {/* Color Ramp Scale Bar */}
-                <div className="absolute bottom-3 left-4 right-4 bg-black/80 backdrop-blur-xs rounded-md px-4 py-2 flex items-center justify-between text-[10px] text-white font-mono">
-                  <span>-0.2 (Bare/Dry)</span>
-                  <div
-                    className="h-2 flex-1 mx-4 rounded-full"
-                    style={{
-                      background:
+                {viewFormat === 'spectral' && (
+                  <div className="inline-flex rounded-md p-0.5 bg-[#f4f6f0] border border-[#dfe6d9] text-xs font-mono">
+                    <button
+                      onClick={() => setActiveSpectralIndex('NDVI')}
+                      className={`px-3 py-1 rounded transition-colors ${
                         activeSpectralIndex === 'NDVI'
-                          ? 'linear-gradient(to right, #ef4444, #eab308, #84cc16, #15803d)'
-                          : 'linear-gradient(to right, #f97316, #e2e8f0, #38bdf8, #0369a1)',
-                    }}
-                  />
-                  <span>+0.85 (High {activeSpectralIndex === 'NDVI' ? 'Canopy' : 'Moisture'})</span>
-                </div>
+                          ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
+                          : 'text-[#72816f] hover:text-[#213c2b]'
+                      }`}
+                    >
+                      NDVI (Vegetation)
+                    </button>
+                    <button
+                      onClick={() => setActiveSpectralIndex('NDWI')}
+                      className={`px-3 py-1 rounded transition-colors ${
+                        activeSpectralIndex === 'NDWI'
+                          ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
+                          : 'text-[#72816f] hover:text-[#213c2b]'
+                      }`}
+                    >
+                      NDWI (Moisture)
+                    </button>
+                    <button
+                      onClick={() => setActiveSpectralIndex('RGB')}
+                      className={`px-3 py-1 rounded transition-colors ${
+                        activeSpectralIndex === 'RGB'
+                          ? 'bg-[#193b2a] text-[#d6eaa6] font-semibold'
+                          : 'text-[#72816f] hover:text-[#213c2b]'
+                      }`}
+                    >
+                      True Color RGB
+                    </button>
+                  </div>
+                )}
               </div>
+
+              {/* Viewport: Either MapLibre GL WebGL or Spectral SVG */}
+              {viewFormat === 'maplibre' ? (
+                <FieldMap height="360px" showSatellite={true} />
+              ) : (
+                <div className="relative w-full aspect-16/10 rounded-lg overflow-hidden border border-[#2b503e] bg-slate-900 flex items-center justify-center">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-60"
+                    style={{ backgroundImage: `url('/earth/platform-field-satellite.webp')` }}
+                  />
+
+                  <svg
+                    viewBox="0 0 600 380"
+                    className="relative z-10 w-full h-full p-4"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <defs>
+                      <linearGradient id="ndviGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#84cc16" stopOpacity="0.75" />
+                        <stop offset="50%" stopColor="#22c55e" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#15803d" stopOpacity="0.85" />
+                      </linearGradient>
+                      <linearGradient id="ndwiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.7" />
+                        <stop offset="60%" stopColor="#0284c7" stopOpacity="0.75" />
+                        <stop offset="100%" stopColor="#0369a1" stopOpacity="0.8" />
+                      </linearGradient>
+                    </defs>
+
+                    <polygon
+                      points="160,70 440,90 410,310 130,270"
+                      fill={
+                        activeSpectralIndex === 'NDVI'
+                          ? 'url(#ndviGradient)'
+                          : activeSpectralIndex === 'NDWI'
+                          ? 'url(#ndwiGradient)'
+                          : 'rgba(255, 255, 255, 0.15)'
+                      }
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                    />
+
+                    <rect x="200" y="150" width="200" height="70" rx="8" fill="rgba(16, 46, 32, 0.88)" stroke="#d6eaa6" strokeWidth="1" />
+                    <text x="300" y="174" fill="#ffffff" fontSize="11" fontFamily="IBM Plex Mono" textAnchor="middle" fontWeight="bold">
+                      {activeSpectralIndex === 'NDVI'
+                        ? `NDVI: ${selectedObs.meanNdvi.toFixed(2)}`
+                        : activeSpectralIndex === 'NDWI'
+                        ? `NDWI: ${selectedObs.meanNdwi.toFixed(2)}`
+                        : 'RGB BOA Reflectance'}
+                    </text>
+                    <text x="300" y="192" fill="#d6eaa6" fontSize="10" fontFamily="IBM Plex Mono" textAnchor="middle">
+                      Tile: 43UFR · 10m Ground Res
+                    </text>
+                    <text x="300" y="208" fill="#a7f3d0" fontSize="9" fontFamily="IBM Plex Mono" textAnchor="middle">
+                      Cloud Cover: {selectedObs.cloudCoverPercent}%
+                    </text>
+
+                    {comparisonMode && (
+                      <g>
+                        <rect x="20" y="20" width="180" height="50" rx="6" fill="rgba(0, 0, 0, 0.75)" stroke="#38bdf8" />
+                        <text x="110" y="38" fill="#38bdf8" fontSize="10" fontFamily="IBM Plex Mono" textAnchor="middle">
+                          Δ {activeSpectralIndex}: {activeSpectralIndex === 'NDVI' ? (selectedObs.meanNdvi - compareObs.meanNdvi).toFixed(2) : (selectedObs.meanNdwi - compareObs.meanNdwi).toFixed(2)}
+                        </text>
+                        <text x="110" y="54" fill="#ffffff" fontSize="9" fontFamily="IBM Plex Mono" textAnchor="middle">
+                          Baseline: {compareObs.date}
+                        </text>
+                      </g>
+                    )}
+                  </svg>
+
+                  <div className="absolute bottom-3 left-4 right-4 bg-black/80 backdrop-blur-xs rounded-md px-4 py-2 flex items-center justify-between text-[10px] text-white font-mono">
+                    <span>-0.2 (Bare/Dry)</span>
+                    <div
+                      className="h-2 flex-1 mx-4 rounded-full"
+                      style={{
+                        background:
+                          activeSpectralIndex === 'NDVI'
+                            ? 'linear-gradient(to right, #ef4444, #eab308, #84cc16, #15803d)'
+                            : 'linear-gradient(to right, #f97316, #e2e8f0, #38bdf8, #0369a1)',
+                      }}
+                    />
+                    <span>+0.85 (High {activeSpectralIndex === 'NDVI' ? 'Canopy' : 'Moisture'})</span>
+                  </div>
+                </div>
+              )}
 
               {/* Observation Scene Notes */}
               <div className="mt-3 p-3 bg-[#f9faf7] border border-[#edf0e7] rounded-lg text-xs text-[#213c2b]">
