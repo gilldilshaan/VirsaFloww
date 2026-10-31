@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-Dk72oS4N.js";import{o as t}from"./content-pages-5eggvxx-.js";var n=e(),r=()=>(0,n.jsx)(t,{type:`privacy`});export{r as component};

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-Dk72oS4N.js";import{t}from"./contact-_otySe0p.js";import{i as n}from"./content-pages-5eggvxx-.js";var r=e();function i(){let{interest:e}=t.useSearch();return(0,r.jsx)(n,{...e?{interest:e}:{}})}export{i as component};
