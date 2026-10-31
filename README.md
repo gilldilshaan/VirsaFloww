@@ -1,15 +1,15 @@
-# 🌱 The Carbon Credit
+# 🌱 VirsaFlow
 
-<h3 align="center">Making Every Field Count.</h3>
+<h3 align="center">Making Every Field Count with VirsaFlow.</h3>
 
 <p align="center">
   <strong>The intelligence layer for sustainable agriculture.</strong><br/>
-  We connect farmers, fields, satellite intelligence, and real-world evidence to make agricultural sustainability measurable and traceable.
+  VirsaFlow connects farmers, fields, satellite intelligence, and real-world evidence to make agricultural sustainability measurable and traceable.
 </p>
 
 <p align="center">
   <a href="https://thecarboncredit.in/">
-    <img src="https://img.shields.io/badge/Explore-Our%20Platform-245B45?style=for-the-badge&logo=earth&logoColor=white" alt="Explore The Carbon Credit"/>
+    <img src="https://img.shields.io/badge/Explore-VirsaFlow-245B45?style=for-the-badge&logo=earth&logoColor=white" alt="Explore VirsaFlow"/>
   </a>
   <img src="https://img.shields.io/badge/Focus-Agricultural%20MRV-88B04B?style=for-the-badge" alt="Agricultural MRV"/>
   <img src="https://img.shields.io/badge/Intelligence-Satellite%20%2B%20Ground%20Evidence-315A74?style=for-the-badge" alt="Satellite and ground evidence"/>
@@ -27,7 +27,7 @@ A field can look green in a satellite image. A farmer can report that a sustaina
 
 But how do we connect all three?
 
-**The Carbon Credit is building the missing link.**
+**VirsaFlow is building the missing link.**
 
 We are developing a digital agricultural MRV platform that connects field-level activities, satellite observations, and ground evidence into a traceable record of what happened, where it happened, and what can actually be verified.
 
@@ -38,7 +38,7 @@ MRV stands for **Measurement, Reporting and Verification**.
 
 In agriculture, it means documenting an activity, measuring relevant indicators, organising supporting evidence, and assessing whether the resulting claims are sufficiently supported.
 
-The Carbon Credit aims to make that workflow more connected, transparent, and scalable.
+VirsaFlow aims to make that workflow more connected, transparent, and scalable.
 
 </details>
 
@@ -202,7 +202,7 @@ CLAIM
               └── Traceable assessment
 ```
 
-The Carbon Credit is designed around three principles:
+VirsaFlow is designed around three principles:
 
 - **🔎 Traceability:** Understand where a record came from and which field it concerns.
 - **🧠 Context:** Interpret observations alongside relevant agricultural evidence.
@@ -241,16 +241,16 @@ If you are working on sustainable farming, agricultural monitoring, field verifi
 
 ---
 
-## 🚀 Explore The Carbon Credit
+## 🚀 Explore VirsaFlow
 
 <p align="center">
   <a href="https://thecarboncredit.in/">
-    <img src="https://img.shields.io/badge/Visit%20the%20Platform-245B45?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Visit the platform"/>
+    <img src="https://img.shields.io/badge/Visit%20VirsaFlow-245B45?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Visit VirsaFlow"/>
   </a>
 </p>
 
 <p align="center">
-  <strong>The Carbon Credit</strong><br/>
+  <strong>VirsaFlow</strong><br/>
   From agricultural activity to evidence-backed insight.<br/>
   🌱 Making every field count.
 </p>
@@ -258,5 +258,3 @@ If you are working on sustainable farming, agricultural monitoring, field verifi
 ---
 
 <sub>Built with a focus on agricultural intelligence, geospatial data, and evidence-based sustainability monitoring.</sub>
-#   V i r s a F l o w w  
- 

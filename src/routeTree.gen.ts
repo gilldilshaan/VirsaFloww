@@ -14,12 +14,15 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AgriculturalMrvRouteImport } from './routes/agricultural-mrv'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BusinessImpactRouteImport } from './routes/business-impact'
+import { Route as BuyersRouteImport } from './routes/buyers'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CarbonCreditsRouteImport } from './routes/carbon-credits'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FarmerRouteImport } from './routes/farmer'
 import { Route as FieldProgramsRouteImport } from './routes/field-programs'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as PartnersRouteImport } from './routes/partners'
@@ -29,23 +32,38 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as WorkspaceRouteRouteImport } from './routes/workspace/route'
+import { Route as WorkspaceRouteImport } from './routes/workspace'
+import { Route as BuyersIndexRouteImport } from './routes/buyers/index'
+import { Route as BuyersEnquiriesRouteImport } from './routes/buyers/enquiries'
+import { Route as BuyersEnquiryRouteImport } from './routes/buyers/enquiry'
+import { Route as BuyersMarketplaceRouteImport } from './routes/buyers/marketplace'
+import { Route as BuyersProfileRouteImport } from './routes/buyers/profile'
+import { Route as FarmerIndexRouteImport } from './routes/farmer/index'
+import { Route as FarmerHomeRouteImport } from './routes/farmer/home'
+import { Route as FarmerNotificationsRouteImport } from './routes/farmer/notifications'
+import { Route as FarmerProfileRouteImport } from './routes/farmer/profile'
 import { Route as WorkspaceIndexRouteImport } from './routes/workspace/index'
 import { Route as WorkspaceAssessmentsRouteImport } from './routes/workspace/assessments'
 import { Route as WorkspaceCommandRouteImport } from './routes/workspace/command'
 import { Route as WorkspaceDossierRouteImport } from './routes/workspace/dossier'
 import { Route as WorkspaceEvidenceRouteImport } from './routes/workspace/evidence'
 import { Route as WorkspaceFarmersRouteImport } from './routes/workspace/farmers'
-import { Route as WorkspaceFieldsRouteImport } from './routes/workspace/fields'
-import { Route as WorkspaceProjectsRouteImport } from './routes/workspace/projects'
-import { Route as WorkspaceReportsRouteImport } from './routes/workspace/reports'
 import { Route as WorkspaceReviewRouteImport } from './routes/workspace/review'
 import { Route as WorkspaceSatelliteRouteImport } from './routes/workspace/satellite'
 import { Route as WorkspaceTerraIntelligenceRouteImport } from './routes/workspace/terra-intelligence'
 import { Route as ApiPublicSchemesSyncRouteImport } from './routes/api/public/schemes-sync'
-import { Route as WorkspaceAssessmentsAssessmentIdRouteImport } from './routes/workspace/assessments.$assessmentId'
-import { Route as WorkspaceFieldsFieldIdRouteImport } from './routes/workspace/fields.$fieldId'
-import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/workspace/projects.$projectId'
+import { Route as BuyersProjectsProjectIdRouteImport } from './routes/buyers/projects/$projectId'
+import { Route as FarmerEvidenceIndexRouteImport } from './routes/farmer/evidence/index'
+import { Route as FarmerEvidenceHistoryRouteImport } from './routes/farmer/evidence/history'
+import { Route as FarmerFieldsIndexRouteImport } from './routes/farmer/fields/index'
+import { Route as FarmerFieldsFieldIdRouteImport } from './routes/farmer/fields/$fieldId'
+import { Route as FarmerFieldsRegisterRouteImport } from './routes/farmer/fields/register'
+import { Route as FarmerSeasonIndexRouteImport } from './routes/farmer/season/index'
+import { Route as FarmerSeasonAddRouteImport } from './routes/farmer/season/add'
+import { Route as WorkspaceFieldsIndexRouteImport } from './routes/workspace/fields/index'
+import { Route as WorkspaceFieldsFieldIdRouteImport } from './routes/workspace/fields/$fieldId'
+import { Route as WorkspaceProjectsIndexRouteImport } from './routes/workspace/projects/index'
+import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/workspace/projects/$projectId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -72,6 +90,11 @@ const BusinessImpactRoute = BusinessImpactRouteImport.update({
   path: '/business-impact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuyersRoute = BuyersRouteImport.update({
+  id: '/buyers',
+  path: '/buyers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalculatorRoute = CalculatorRouteImport.update({
   id: '/calculator',
   path: '/calculator',
@@ -92,6 +115,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmerRoute = FarmerRouteImport.update({
+  id: '/farmer',
+  path: '/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FieldProgramsRoute = FieldProgramsRouteImport.update({
   id: '/field-programs',
   path: '/field-programs',
@@ -100,6 +128,11 @@ const FieldProgramsRoute = FieldProgramsRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceRoute = MarketplaceRouteImport.update({
@@ -147,108 +180,184 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspaceRouteRoute = WorkspaceRouteRouteImport.update({
+const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuyersIndexRoute = BuyersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const BuyersEnquiriesRoute = BuyersEnquiriesRouteImport.update({
+  id: '/enquiries',
+  path: '/enquiries',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const BuyersEnquiryRoute = BuyersEnquiryRouteImport.update({
+  id: '/enquiry',
+  path: '/enquiry',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const BuyersMarketplaceRoute = BuyersMarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const BuyersProfileRoute = BuyersProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const FarmerIndexRoute = FarmerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerHomeRoute = FarmerHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerNotificationsRoute = FarmerNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerProfileRoute = FarmerProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => FarmerRoute,
+} as any)
 const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceAssessmentsRoute = WorkspaceAssessmentsRouteImport.update({
   id: '/assessments',
   path: '/assessments',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceCommandRoute = WorkspaceCommandRouteImport.update({
   id: '/command',
   path: '/command',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceDossierRoute = WorkspaceDossierRouteImport.update({
   id: '/dossier',
   path: '/dossier',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceEvidenceRoute = WorkspaceEvidenceRouteImport.update({
   id: '/evidence',
   path: '/evidence',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceFarmersRoute = WorkspaceFarmersRouteImport.update({
   id: '/farmers',
   path: '/farmers',
-  getParentRoute: () => WorkspaceRouteRoute,
-} as any)
-const WorkspaceFieldsRoute = WorkspaceFieldsRouteImport.update({
-  id: '/fields',
-  path: '/fields',
-  getParentRoute: () => WorkspaceRouteRoute,
-} as any)
-const WorkspaceProjectsRoute = WorkspaceProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => WorkspaceRouteRoute,
-} as any)
-const WorkspaceReportsRoute = WorkspaceReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceReviewRoute = WorkspaceReviewRouteImport.update({
   id: '/review',
   path: '/review',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceSatelliteRoute = WorkspaceSatelliteRouteImport.update({
   id: '/satellite',
   path: '/satellite',
-  getParentRoute: () => WorkspaceRouteRoute,
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceTerraIntelligenceRoute =
   WorkspaceTerraIntelligenceRouteImport.update({
     id: '/terra-intelligence',
     path: '/terra-intelligence',
-    getParentRoute: () => WorkspaceRouteRoute,
+    getParentRoute: () => WorkspaceRoute,
   } as any)
 const ApiPublicSchemesSyncRoute = ApiPublicSchemesSyncRouteImport.update({
   id: '/api/public/schemes-sync',
   path: '/api/public/schemes-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkspaceAssessmentsAssessmentIdRoute =
-  WorkspaceAssessmentsAssessmentIdRouteImport.update({
-    id: '/$assessmentId',
-    path: '/$assessmentId',
-    getParentRoute: () => WorkspaceAssessmentsRoute,
-  } as any)
+const BuyersProjectsProjectIdRoute = BuyersProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
+  getParentRoute: () => BuyersRoute,
+} as any)
+const FarmerEvidenceIndexRoute = FarmerEvidenceIndexRouteImport.update({
+  id: '/evidence/',
+  path: '/evidence/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerEvidenceHistoryRoute = FarmerEvidenceHistoryRouteImport.update({
+  id: '/evidence/history',
+  path: '/evidence/history',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerFieldsIndexRoute = FarmerFieldsIndexRouteImport.update({
+  id: '/fields/',
+  path: '/fields/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerFieldsFieldIdRoute = FarmerFieldsFieldIdRouteImport.update({
+  id: '/fields/$fieldId',
+  path: '/fields/$fieldId',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerFieldsRegisterRoute = FarmerFieldsRegisterRouteImport.update({
+  id: '/fields/register',
+  path: '/fields/register',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerSeasonIndexRoute = FarmerSeasonIndexRouteImport.update({
+  id: '/season/',
+  path: '/season/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerSeasonAddRoute = FarmerSeasonAddRouteImport.update({
+  id: '/season/add',
+  path: '/season/add',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const WorkspaceFieldsIndexRoute = WorkspaceFieldsIndexRouteImport.update({
+  id: '/fields/',
+  path: '/fields/',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceFieldsFieldIdRoute = WorkspaceFieldsFieldIdRouteImport.update({
-  id: '/$fieldId',
-  path: '/$fieldId',
-  getParentRoute: () => WorkspaceFieldsRoute,
+  id: '/fields/$fieldId',
+  path: '/fields/$fieldId',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceProjectsIndexRoute = WorkspaceProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceProjectsProjectIdRoute =
   WorkspaceProjectsProjectIdRouteImport.update({
-    id: '/$projectId',
-    path: '/$projectId',
-    getParentRoute: () => WorkspaceProjectsRoute,
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => WorkspaceRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/workspace': typeof WorkspaceRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/agricultural-mrv': typeof AgriculturalMrvRoute
   '/auth': typeof AuthRoute
   '/business-impact': typeof BusinessImpactRoute
+  '/buyers': typeof BuyersRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/carbon-credits': typeof CarbonCreditsRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/farmer': typeof FarmerRouteWithChildren
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
@@ -258,22 +367,38 @@ export interface FileRoutesByFullPath {
   '/research': typeof ResearchRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
-  '/workspace/assessments': typeof WorkspaceAssessmentsRouteWithChildren
+  '/workspace': typeof WorkspaceRouteWithChildren
+  '/buyers/enquiries': typeof BuyersEnquiriesRoute
+  '/buyers/enquiry': typeof BuyersEnquiryRoute
+  '/buyers/marketplace': typeof BuyersMarketplaceRoute
+  '/buyers/profile': typeof BuyersProfileRoute
+  '/farmer/home': typeof FarmerHomeRoute
+  '/farmer/notifications': typeof FarmerNotificationsRoute
+  '/farmer/profile': typeof FarmerProfileRoute
+  '/workspace/assessments': typeof WorkspaceAssessmentsRoute
   '/workspace/command': typeof WorkspaceCommandRoute
   '/workspace/dossier': typeof WorkspaceDossierRoute
   '/workspace/evidence': typeof WorkspaceEvidenceRoute
   '/workspace/farmers': typeof WorkspaceFarmersRoute
-  '/workspace/fields': typeof WorkspaceFieldsRouteWithChildren
-  '/workspace/projects': typeof WorkspaceProjectsRouteWithChildren
-  '/workspace/reports': typeof WorkspaceReportsRoute
   '/workspace/review': typeof WorkspaceReviewRoute
   '/workspace/satellite': typeof WorkspaceSatelliteRoute
   '/workspace/terra-intelligence': typeof WorkspaceTerraIntelligenceRoute
+  '/buyers/': typeof BuyersIndexRoute
+  '/farmer/': typeof FarmerIndexRoute
   '/workspace/': typeof WorkspaceIndexRoute
   '/api/public/schemes-sync': typeof ApiPublicSchemesSyncRoute
-  '/workspace/assessments/$assessmentId': typeof WorkspaceAssessmentsAssessmentIdRoute
+  '/buyers/projects/$projectId': typeof BuyersProjectsProjectIdRoute
+  '/farmer/evidence/history': typeof FarmerEvidenceHistoryRoute
+  '/farmer/fields/$fieldId': typeof FarmerFieldsFieldIdRoute
+  '/farmer/fields/register': typeof FarmerFieldsRegisterRoute
+  '/farmer/season/add': typeof FarmerSeasonAddRoute
   '/workspace/fields/$fieldId': typeof WorkspaceFieldsFieldIdRoute
   '/workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/farmer/evidence/': typeof FarmerEvidenceIndexRoute
+  '/farmer/fields/': typeof FarmerFieldsIndexRoute
+  '/farmer/season/': typeof FarmerSeasonIndexRoute
+  '/workspace/fields/': typeof WorkspaceFieldsIndexRoute
+  '/workspace/projects/': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -287,6 +412,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
@@ -296,37 +422,54 @@ export interface FileRoutesByTo {
   '/research': typeof ResearchRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
-  '/workspace/assessments': typeof WorkspaceAssessmentsRouteWithChildren
+  '/buyers/enquiries': typeof BuyersEnquiriesRoute
+  '/buyers/enquiry': typeof BuyersEnquiryRoute
+  '/buyers/marketplace': typeof BuyersMarketplaceRoute
+  '/buyers/profile': typeof BuyersProfileRoute
+  '/farmer/home': typeof FarmerHomeRoute
+  '/farmer/notifications': typeof FarmerNotificationsRoute
+  '/farmer/profile': typeof FarmerProfileRoute
+  '/workspace/assessments': typeof WorkspaceAssessmentsRoute
   '/workspace/command': typeof WorkspaceCommandRoute
   '/workspace/dossier': typeof WorkspaceDossierRoute
   '/workspace/evidence': typeof WorkspaceEvidenceRoute
   '/workspace/farmers': typeof WorkspaceFarmersRoute
-  '/workspace/fields': typeof WorkspaceFieldsRouteWithChildren
-  '/workspace/projects': typeof WorkspaceProjectsRouteWithChildren
-  '/workspace/reports': typeof WorkspaceReportsRoute
   '/workspace/review': typeof WorkspaceReviewRoute
   '/workspace/satellite': typeof WorkspaceSatelliteRoute
   '/workspace/terra-intelligence': typeof WorkspaceTerraIntelligenceRoute
+  '/buyers': typeof BuyersIndexRoute
+  '/farmer': typeof FarmerIndexRoute
   '/workspace': typeof WorkspaceIndexRoute
   '/api/public/schemes-sync': typeof ApiPublicSchemesSyncRoute
-  '/workspace/assessments/$assessmentId': typeof WorkspaceAssessmentsAssessmentIdRoute
+  '/buyers/projects/$projectId': typeof BuyersProjectsProjectIdRoute
+  '/farmer/evidence/history': typeof FarmerEvidenceHistoryRoute
+  '/farmer/fields/$fieldId': typeof FarmerFieldsFieldIdRoute
+  '/farmer/fields/register': typeof FarmerFieldsRegisterRoute
+  '/farmer/season/add': typeof FarmerSeasonAddRoute
   '/workspace/fields/$fieldId': typeof WorkspaceFieldsFieldIdRoute
   '/workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/farmer/evidence': typeof FarmerEvidenceIndexRoute
+  '/farmer/fields': typeof FarmerFieldsIndexRoute
+  '/farmer/season': typeof FarmerSeasonIndexRoute
+  '/workspace/fields': typeof WorkspaceFieldsIndexRoute
+  '/workspace/projects': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/workspace': typeof WorkspaceRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/agricultural-mrv': typeof AgriculturalMrvRoute
   '/auth': typeof AuthRoute
   '/business-impact': typeof BusinessImpactRoute
+  '/buyers': typeof BuyersRouteWithChildren
   '/calculator': typeof CalculatorRoute
   '/carbon-credits': typeof CarbonCreditsRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/farmer': typeof FarmerRouteWithChildren
   '/field-programs': typeof FieldProgramsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/methodology': typeof MethodologyRoute
   '/partners': typeof PartnersRoute
@@ -336,38 +479,56 @@ export interface FileRoutesById {
   '/research': typeof ResearchRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
-  '/workspace/assessments': typeof WorkspaceAssessmentsRouteWithChildren
+  '/workspace': typeof WorkspaceRouteWithChildren
+  '/buyers/enquiries': typeof BuyersEnquiriesRoute
+  '/buyers/enquiry': typeof BuyersEnquiryRoute
+  '/buyers/marketplace': typeof BuyersMarketplaceRoute
+  '/buyers/profile': typeof BuyersProfileRoute
+  '/farmer/home': typeof FarmerHomeRoute
+  '/farmer/notifications': typeof FarmerNotificationsRoute
+  '/farmer/profile': typeof FarmerProfileRoute
+  '/workspace/assessments': typeof WorkspaceAssessmentsRoute
   '/workspace/command': typeof WorkspaceCommandRoute
   '/workspace/dossier': typeof WorkspaceDossierRoute
   '/workspace/evidence': typeof WorkspaceEvidenceRoute
   '/workspace/farmers': typeof WorkspaceFarmersRoute
-  '/workspace/fields': typeof WorkspaceFieldsRouteWithChildren
-  '/workspace/projects': typeof WorkspaceProjectsRouteWithChildren
-  '/workspace/reports': typeof WorkspaceReportsRoute
   '/workspace/review': typeof WorkspaceReviewRoute
   '/workspace/satellite': typeof WorkspaceSatelliteRoute
   '/workspace/terra-intelligence': typeof WorkspaceTerraIntelligenceRoute
+  '/buyers/': typeof BuyersIndexRoute
+  '/farmer/': typeof FarmerIndexRoute
   '/workspace/': typeof WorkspaceIndexRoute
   '/api/public/schemes-sync': typeof ApiPublicSchemesSyncRoute
-  '/workspace/assessments/$assessmentId': typeof WorkspaceAssessmentsAssessmentIdRoute
+  '/buyers/projects/$projectId': typeof BuyersProjectsProjectIdRoute
+  '/farmer/evidence/history': typeof FarmerEvidenceHistoryRoute
+  '/farmer/fields/$fieldId': typeof FarmerFieldsFieldIdRoute
+  '/farmer/fields/register': typeof FarmerFieldsRegisterRoute
+  '/farmer/season/add': typeof FarmerSeasonAddRoute
   '/workspace/fields/$fieldId': typeof WorkspaceFieldsFieldIdRoute
   '/workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/farmer/evidence/': typeof FarmerEvidenceIndexRoute
+  '/farmer/fields/': typeof FarmerFieldsIndexRoute
+  '/farmer/season/': typeof FarmerSeasonIndexRoute
+  '/workspace/fields/': typeof WorkspaceFieldsIndexRoute
+  '/workspace/projects/': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/workspace'
     | '/about'
     | '/agricultural-mrv'
     | '/auth'
     | '/business-impact'
+    | '/buyers'
     | '/calculator'
     | '/carbon-credits'
     | '/contact'
     | '/dashboard'
+    | '/farmer'
     | '/field-programs'
     | '/how-it-works'
+    | '/login'
     | '/marketplace'
     | '/methodology'
     | '/partners'
@@ -377,22 +538,38 @@ export interface FileRouteTypes {
     | '/research'
     | '/solutions'
     | '/terms'
+    | '/workspace'
+    | '/buyers/enquiries'
+    | '/buyers/enquiry'
+    | '/buyers/marketplace'
+    | '/buyers/profile'
+    | '/farmer/home'
+    | '/farmer/notifications'
+    | '/farmer/profile'
     | '/workspace/assessments'
     | '/workspace/command'
     | '/workspace/dossier'
     | '/workspace/evidence'
     | '/workspace/farmers'
-    | '/workspace/fields'
-    | '/workspace/projects'
-    | '/workspace/reports'
     | '/workspace/review'
     | '/workspace/satellite'
     | '/workspace/terra-intelligence'
+    | '/buyers/'
+    | '/farmer/'
     | '/workspace/'
     | '/api/public/schemes-sync'
-    | '/workspace/assessments/$assessmentId'
+    | '/buyers/projects/$projectId'
+    | '/farmer/evidence/history'
+    | '/farmer/fields/$fieldId'
+    | '/farmer/fields/register'
+    | '/farmer/season/add'
     | '/workspace/fields/$fieldId'
     | '/workspace/projects/$projectId'
+    | '/farmer/evidence/'
+    | '/farmer/fields/'
+    | '/farmer/season/'
+    | '/workspace/fields/'
+    | '/workspace/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -406,6 +583,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/field-programs'
     | '/how-it-works'
+    | '/login'
     | '/marketplace'
     | '/methodology'
     | '/partners'
@@ -415,36 +593,53 @@ export interface FileRouteTypes {
     | '/research'
     | '/solutions'
     | '/terms'
+    | '/buyers/enquiries'
+    | '/buyers/enquiry'
+    | '/buyers/marketplace'
+    | '/buyers/profile'
+    | '/farmer/home'
+    | '/farmer/notifications'
+    | '/farmer/profile'
     | '/workspace/assessments'
     | '/workspace/command'
     | '/workspace/dossier'
     | '/workspace/evidence'
     | '/workspace/farmers'
-    | '/workspace/fields'
-    | '/workspace/projects'
-    | '/workspace/reports'
     | '/workspace/review'
     | '/workspace/satellite'
     | '/workspace/terra-intelligence'
+    | '/buyers'
+    | '/farmer'
     | '/workspace'
     | '/api/public/schemes-sync'
-    | '/workspace/assessments/$assessmentId'
+    | '/buyers/projects/$projectId'
+    | '/farmer/evidence/history'
+    | '/farmer/fields/$fieldId'
+    | '/farmer/fields/register'
+    | '/farmer/season/add'
     | '/workspace/fields/$fieldId'
     | '/workspace/projects/$projectId'
+    | '/farmer/evidence'
+    | '/farmer/fields'
+    | '/farmer/season'
+    | '/workspace/fields'
+    | '/workspace/projects'
   id:
     | '__root__'
     | '/'
-    | '/workspace'
     | '/about'
     | '/agricultural-mrv'
     | '/auth'
     | '/business-impact'
+    | '/buyers'
     | '/calculator'
     | '/carbon-credits'
     | '/contact'
     | '/dashboard'
+    | '/farmer'
     | '/field-programs'
     | '/how-it-works'
+    | '/login'
     | '/marketplace'
     | '/methodology'
     | '/partners'
@@ -454,37 +649,55 @@ export interface FileRouteTypes {
     | '/research'
     | '/solutions'
     | '/terms'
+    | '/workspace'
+    | '/buyers/enquiries'
+    | '/buyers/enquiry'
+    | '/buyers/marketplace'
+    | '/buyers/profile'
+    | '/farmer/home'
+    | '/farmer/notifications'
+    | '/farmer/profile'
     | '/workspace/assessments'
     | '/workspace/command'
     | '/workspace/dossier'
     | '/workspace/evidence'
     | '/workspace/farmers'
-    | '/workspace/fields'
-    | '/workspace/projects'
-    | '/workspace/reports'
     | '/workspace/review'
     | '/workspace/satellite'
     | '/workspace/terra-intelligence'
+    | '/buyers/'
+    | '/farmer/'
     | '/workspace/'
     | '/api/public/schemes-sync'
-    | '/workspace/assessments/$assessmentId'
+    | '/buyers/projects/$projectId'
+    | '/farmer/evidence/history'
+    | '/farmer/fields/$fieldId'
+    | '/farmer/fields/register'
+    | '/farmer/season/add'
     | '/workspace/fields/$fieldId'
     | '/workspace/projects/$projectId'
+    | '/farmer/evidence/'
+    | '/farmer/fields/'
+    | '/farmer/season/'
+    | '/workspace/fields/'
+    | '/workspace/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  WorkspaceRouteRoute: typeof WorkspaceRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AgriculturalMrvRoute: typeof AgriculturalMrvRoute
   AuthRoute: typeof AuthRoute
   BusinessImpactRoute: typeof BusinessImpactRoute
+  BuyersRoute: typeof BuyersRouteWithChildren
   CalculatorRoute: typeof CalculatorRoute
   CarbonCreditsRoute: typeof CarbonCreditsRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
+  FarmerRoute: typeof FarmerRouteWithChildren
   FieldProgramsRoute: typeof FieldProgramsRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MethodologyRoute: typeof MethodologyRoute
   PartnersRoute: typeof PartnersRoute
@@ -494,6 +707,7 @@ export interface RootRouteChildren {
   ResearchRoute: typeof ResearchRoute
   SolutionsRoute: typeof SolutionsRoute
   TermsRoute: typeof TermsRoute
+  WorkspaceRoute: typeof WorkspaceRouteWithChildren
   ApiPublicSchemesSyncRoute: typeof ApiPublicSchemesSyncRoute
 }
 
@@ -534,6 +748,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessImpactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buyers': {
+      id: '/buyers'
+      path: '/buyers'
+      fullPath: '/buyers'
+      preLoaderRoute: typeof BuyersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calculator': {
       id: '/calculator'
       path: '/calculator'
@@ -562,6 +783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmer': {
+      id: '/farmer'
+      path: '/farmer'
+      fullPath: '/farmer'
+      preLoaderRoute: typeof FarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/field-programs': {
       id: '/field-programs'
       path: '/field-programs'
@@ -574,6 +802,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace': {
@@ -643,92 +878,134 @@ declare module '@tanstack/react-router' {
       id: '/workspace'
       path: '/workspace'
       fullPath: '/workspace'
-      preLoaderRoute: typeof WorkspaceRouteRouteImport
+      preLoaderRoute: typeof WorkspaceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/buyers/': {
+      id: '/buyers/'
+      path: '/'
+      fullPath: '/buyers/'
+      preLoaderRoute: typeof BuyersIndexRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/buyers/enquiries': {
+      id: '/buyers/enquiries'
+      path: '/enquiries'
+      fullPath: '/buyers/enquiries'
+      preLoaderRoute: typeof BuyersEnquiriesRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/buyers/enquiry': {
+      id: '/buyers/enquiry'
+      path: '/enquiry'
+      fullPath: '/buyers/enquiry'
+      preLoaderRoute: typeof BuyersEnquiryRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/buyers/marketplace': {
+      id: '/buyers/marketplace'
+      path: '/marketplace'
+      fullPath: '/buyers/marketplace'
+      preLoaderRoute: typeof BuyersMarketplaceRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/buyers/profile': {
+      id: '/buyers/profile'
+      path: '/profile'
+      fullPath: '/buyers/profile'
+      preLoaderRoute: typeof BuyersProfileRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/farmer/': {
+      id: '/farmer/'
+      path: '/'
+      fullPath: '/farmer/'
+      preLoaderRoute: typeof FarmerIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/home': {
+      id: '/farmer/home'
+      path: '/home'
+      fullPath: '/farmer/home'
+      preLoaderRoute: typeof FarmerHomeRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/notifications': {
+      id: '/farmer/notifications'
+      path: '/notifications'
+      fullPath: '/farmer/notifications'
+      preLoaderRoute: typeof FarmerNotificationsRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/profile': {
+      id: '/farmer/profile'
+      path: '/profile'
+      fullPath: '/farmer/profile'
+      preLoaderRoute: typeof FarmerProfileRouteImport
+      parentRoute: typeof FarmerRoute
     }
     '/workspace/': {
       id: '/workspace/'
       path: '/'
       fullPath: '/workspace/'
       preLoaderRoute: typeof WorkspaceIndexRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/assessments': {
       id: '/workspace/assessments'
       path: '/assessments'
       fullPath: '/workspace/assessments'
       preLoaderRoute: typeof WorkspaceAssessmentsRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/command': {
       id: '/workspace/command'
       path: '/command'
       fullPath: '/workspace/command'
       preLoaderRoute: typeof WorkspaceCommandRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/dossier': {
       id: '/workspace/dossier'
       path: '/dossier'
       fullPath: '/workspace/dossier'
       preLoaderRoute: typeof WorkspaceDossierRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/evidence': {
       id: '/workspace/evidence'
       path: '/evidence'
       fullPath: '/workspace/evidence'
       preLoaderRoute: typeof WorkspaceEvidenceRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/farmers': {
       id: '/workspace/farmers'
       path: '/farmers'
       fullPath: '/workspace/farmers'
       preLoaderRoute: typeof WorkspaceFarmersRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
-    }
-    '/workspace/fields': {
-      id: '/workspace/fields'
-      path: '/fields'
-      fullPath: '/workspace/fields'
-      preLoaderRoute: typeof WorkspaceFieldsRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
-    }
-    '/workspace/projects': {
-      id: '/workspace/projects'
-      path: '/projects'
-      fullPath: '/workspace/projects'
-      preLoaderRoute: typeof WorkspaceProjectsRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
-    }
-    '/workspace/reports': {
-      id: '/workspace/reports'
-      path: '/reports'
-      fullPath: '/workspace/reports'
-      preLoaderRoute: typeof WorkspaceReportsRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/review': {
       id: '/workspace/review'
       path: '/review'
       fullPath: '/workspace/review'
       preLoaderRoute: typeof WorkspaceReviewRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/satellite': {
       id: '/workspace/satellite'
       path: '/satellite'
       fullPath: '/workspace/satellite'
       preLoaderRoute: typeof WorkspaceSatelliteRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/terra-intelligence': {
       id: '/workspace/terra-intelligence'
       path: '/terra-intelligence'
       fullPath: '/workspace/terra-intelligence'
       preLoaderRoute: typeof WorkspaceTerraIntelligenceRouteImport
-      parentRoute: typeof WorkspaceRouteRoute
+      parentRoute: typeof WorkspaceRoute
     }
     '/api/public/schemes-sync': {
       id: '/api/public/schemes-sync'
@@ -737,111 +1014,196 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSchemesSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workspace/assessments/$assessmentId': {
-      id: '/workspace/assessments/$assessmentId'
-      path: '/$assessmentId'
-      fullPath: '/workspace/assessments/$assessmentId'
-      preLoaderRoute: typeof WorkspaceAssessmentsAssessmentIdRouteImport
-      parentRoute: typeof WorkspaceAssessmentsRoute
+    '/buyers/projects/$projectId': {
+      id: '/buyers/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/buyers/projects/$projectId'
+      preLoaderRoute: typeof BuyersProjectsProjectIdRouteImport
+      parentRoute: typeof BuyersRoute
+    }
+    '/farmer/evidence/': {
+      id: '/farmer/evidence/'
+      path: '/evidence'
+      fullPath: '/farmer/evidence/'
+      preLoaderRoute: typeof FarmerEvidenceIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/evidence/history': {
+      id: '/farmer/evidence/history'
+      path: '/evidence/history'
+      fullPath: '/farmer/evidence/history'
+      preLoaderRoute: typeof FarmerEvidenceHistoryRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/fields/': {
+      id: '/farmer/fields/'
+      path: '/fields'
+      fullPath: '/farmer/fields/'
+      preLoaderRoute: typeof FarmerFieldsIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/fields/$fieldId': {
+      id: '/farmer/fields/$fieldId'
+      path: '/fields/$fieldId'
+      fullPath: '/farmer/fields/$fieldId'
+      preLoaderRoute: typeof FarmerFieldsFieldIdRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/fields/register': {
+      id: '/farmer/fields/register'
+      path: '/fields/register'
+      fullPath: '/farmer/fields/register'
+      preLoaderRoute: typeof FarmerFieldsRegisterRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/season/': {
+      id: '/farmer/season/'
+      path: '/season'
+      fullPath: '/farmer/season/'
+      preLoaderRoute: typeof FarmerSeasonIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/season/add': {
+      id: '/farmer/season/add'
+      path: '/season/add'
+      fullPath: '/farmer/season/add'
+      preLoaderRoute: typeof FarmerSeasonAddRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/workspace/fields/': {
+      id: '/workspace/fields/'
+      path: '/fields'
+      fullPath: '/workspace/fields/'
+      preLoaderRoute: typeof WorkspaceFieldsIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/fields/$fieldId': {
       id: '/workspace/fields/$fieldId'
-      path: '/$fieldId'
+      path: '/fields/$fieldId'
       fullPath: '/workspace/fields/$fieldId'
       preLoaderRoute: typeof WorkspaceFieldsFieldIdRouteImport
-      parentRoute: typeof WorkspaceFieldsRoute
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/workspace/projects/': {
+      id: '/workspace/projects/'
+      path: '/projects'
+      fullPath: '/workspace/projects/'
+      preLoaderRoute: typeof WorkspaceProjectsIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/workspace/projects/$projectId': {
       id: '/workspace/projects/$projectId'
-      path: '/$projectId'
+      path: '/projects/$projectId'
       fullPath: '/workspace/projects/$projectId'
       preLoaderRoute: typeof WorkspaceProjectsProjectIdRouteImport
-      parentRoute: typeof WorkspaceProjectsRoute
+      parentRoute: typeof WorkspaceRoute
     }
   }
 }
 
-interface WorkspaceAssessmentsRouteChildren {
-  WorkspaceAssessmentsAssessmentIdRoute: typeof WorkspaceAssessmentsAssessmentIdRoute
+interface BuyersRouteChildren {
+  BuyersEnquiriesRoute: typeof BuyersEnquiriesRoute
+  BuyersEnquiryRoute: typeof BuyersEnquiryRoute
+  BuyersMarketplaceRoute: typeof BuyersMarketplaceRoute
+  BuyersProfileRoute: typeof BuyersProfileRoute
+  BuyersIndexRoute: typeof BuyersIndexRoute
+  BuyersProjectsProjectIdRoute: typeof BuyersProjectsProjectIdRoute
 }
 
-const WorkspaceAssessmentsRouteChildren: WorkspaceAssessmentsRouteChildren = {
-  WorkspaceAssessmentsAssessmentIdRoute: WorkspaceAssessmentsAssessmentIdRoute,
+const BuyersRouteChildren: BuyersRouteChildren = {
+  BuyersEnquiriesRoute: BuyersEnquiriesRoute,
+  BuyersEnquiryRoute: BuyersEnquiryRoute,
+  BuyersMarketplaceRoute: BuyersMarketplaceRoute,
+  BuyersProfileRoute: BuyersProfileRoute,
+  BuyersIndexRoute: BuyersIndexRoute,
+  BuyersProjectsProjectIdRoute: BuyersProjectsProjectIdRoute,
 }
 
-const WorkspaceAssessmentsRouteWithChildren =
-  WorkspaceAssessmentsRoute._addFileChildren(WorkspaceAssessmentsRouteChildren)
+const BuyersRouteWithChildren =
+  BuyersRoute._addFileChildren(BuyersRouteChildren)
 
-interface WorkspaceFieldsRouteChildren {
-  WorkspaceFieldsFieldIdRoute: typeof WorkspaceFieldsFieldIdRoute
+interface FarmerRouteChildren {
+  FarmerHomeRoute: typeof FarmerHomeRoute
+  FarmerNotificationsRoute: typeof FarmerNotificationsRoute
+  FarmerProfileRoute: typeof FarmerProfileRoute
+  FarmerIndexRoute: typeof FarmerIndexRoute
+  FarmerEvidenceHistoryRoute: typeof FarmerEvidenceHistoryRoute
+  FarmerFieldsFieldIdRoute: typeof FarmerFieldsFieldIdRoute
+  FarmerFieldsRegisterRoute: typeof FarmerFieldsRegisterRoute
+  FarmerSeasonAddRoute: typeof FarmerSeasonAddRoute
+  FarmerEvidenceIndexRoute: typeof FarmerEvidenceIndexRoute
+  FarmerFieldsIndexRoute: typeof FarmerFieldsIndexRoute
+  FarmerSeasonIndexRoute: typeof FarmerSeasonIndexRoute
 }
 
-const WorkspaceFieldsRouteChildren: WorkspaceFieldsRouteChildren = {
-  WorkspaceFieldsFieldIdRoute: WorkspaceFieldsFieldIdRoute,
+const FarmerRouteChildren: FarmerRouteChildren = {
+  FarmerHomeRoute: FarmerHomeRoute,
+  FarmerNotificationsRoute: FarmerNotificationsRoute,
+  FarmerProfileRoute: FarmerProfileRoute,
+  FarmerIndexRoute: FarmerIndexRoute,
+  FarmerEvidenceHistoryRoute: FarmerEvidenceHistoryRoute,
+  FarmerFieldsFieldIdRoute: FarmerFieldsFieldIdRoute,
+  FarmerFieldsRegisterRoute: FarmerFieldsRegisterRoute,
+  FarmerSeasonAddRoute: FarmerSeasonAddRoute,
+  FarmerEvidenceIndexRoute: FarmerEvidenceIndexRoute,
+  FarmerFieldsIndexRoute: FarmerFieldsIndexRoute,
+  FarmerSeasonIndexRoute: FarmerSeasonIndexRoute,
 }
 
-const WorkspaceFieldsRouteWithChildren = WorkspaceFieldsRoute._addFileChildren(
-  WorkspaceFieldsRouteChildren,
-)
+const FarmerRouteWithChildren =
+  FarmerRoute._addFileChildren(FarmerRouteChildren)
 
-interface WorkspaceProjectsRouteChildren {
-  WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
-}
-
-const WorkspaceProjectsRouteChildren: WorkspaceProjectsRouteChildren = {
-  WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
-}
-
-const WorkspaceProjectsRouteWithChildren =
-  WorkspaceProjectsRoute._addFileChildren(WorkspaceProjectsRouteChildren)
-
-interface WorkspaceRouteRouteChildren {
-  WorkspaceAssessmentsRoute: typeof WorkspaceAssessmentsRouteWithChildren
+interface WorkspaceRouteChildren {
+  WorkspaceAssessmentsRoute: typeof WorkspaceAssessmentsRoute
   WorkspaceCommandRoute: typeof WorkspaceCommandRoute
   WorkspaceDossierRoute: typeof WorkspaceDossierRoute
   WorkspaceEvidenceRoute: typeof WorkspaceEvidenceRoute
   WorkspaceFarmersRoute: typeof WorkspaceFarmersRoute
-  WorkspaceFieldsRoute: typeof WorkspaceFieldsRouteWithChildren
-  WorkspaceProjectsRoute: typeof WorkspaceProjectsRouteWithChildren
-  WorkspaceReportsRoute: typeof WorkspaceReportsRoute
   WorkspaceReviewRoute: typeof WorkspaceReviewRoute
   WorkspaceSatelliteRoute: typeof WorkspaceSatelliteRoute
   WorkspaceTerraIntelligenceRoute: typeof WorkspaceTerraIntelligenceRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
+  WorkspaceFieldsFieldIdRoute: typeof WorkspaceFieldsFieldIdRoute
+  WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
+  WorkspaceFieldsIndexRoute: typeof WorkspaceFieldsIndexRoute
+  WorkspaceProjectsIndexRoute: typeof WorkspaceProjectsIndexRoute
 }
 
-const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
-  WorkspaceAssessmentsRoute: WorkspaceAssessmentsRouteWithChildren,
+const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceAssessmentsRoute: WorkspaceAssessmentsRoute,
   WorkspaceCommandRoute: WorkspaceCommandRoute,
   WorkspaceDossierRoute: WorkspaceDossierRoute,
   WorkspaceEvidenceRoute: WorkspaceEvidenceRoute,
   WorkspaceFarmersRoute: WorkspaceFarmersRoute,
-  WorkspaceFieldsRoute: WorkspaceFieldsRouteWithChildren,
-  WorkspaceProjectsRoute: WorkspaceProjectsRouteWithChildren,
-  WorkspaceReportsRoute: WorkspaceReportsRoute,
   WorkspaceReviewRoute: WorkspaceReviewRoute,
   WorkspaceSatelliteRoute: WorkspaceSatelliteRoute,
   WorkspaceTerraIntelligenceRoute: WorkspaceTerraIntelligenceRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
+  WorkspaceFieldsFieldIdRoute: WorkspaceFieldsFieldIdRoute,
+  WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
+  WorkspaceFieldsIndexRoute: WorkspaceFieldsIndexRoute,
+  WorkspaceProjectsIndexRoute: WorkspaceProjectsIndexRoute,
 }
 
-const WorkspaceRouteRouteWithChildren = WorkspaceRouteRoute._addFileChildren(
-  WorkspaceRouteRouteChildren,
+const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
+  WorkspaceRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  WorkspaceRouteRoute: WorkspaceRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AgriculturalMrvRoute: AgriculturalMrvRoute,
   AuthRoute: AuthRoute,
   BusinessImpactRoute: BusinessImpactRoute,
+  BuyersRoute: BuyersRouteWithChildren,
   CalculatorRoute: CalculatorRoute,
   CarbonCreditsRoute: CarbonCreditsRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
+  FarmerRoute: FarmerRouteWithChildren,
   FieldProgramsRoute: FieldProgramsRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   MethodologyRoute: MethodologyRoute,
   PartnersRoute: PartnersRoute,
@@ -851,6 +1213,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResearchRoute: ResearchRoute,
   SolutionsRoute: SolutionsRoute,
   TermsRoute: TermsRoute,
+  WorkspaceRoute: WorkspaceRouteWithChildren,
   ApiPublicSchemesSyncRoute: ApiPublicSchemesSyncRoute,
 }
 export const routeTree = rootRouteImport

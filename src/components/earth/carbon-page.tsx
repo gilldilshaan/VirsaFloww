@@ -383,7 +383,7 @@ export function CarbonCreditsPage() {
             </h1>
             <p>
               Flooded rice fields can release methane as microorganisms break down organic matter in
-              oxygen-depleted soils. The Carbon Credit connects farming practices, field records and
+              oxygen-depleted soils. VirsaFlow connects farming practices, field records and
               geospatial observations through methodology-specific MRV workflows. Our initial
               agricultural project focus is Direct Seeded Rice in Punjab.
             </p>
@@ -418,7 +418,7 @@ export function CarbonCreditsPage() {
               under an applicable methodology.
             </p>
             <p className="carbon-role">
-              The Carbon Credit’s role: connect those records into an evidence trail that can be
+              VirsaFlow’s role: connect those records into an evidence trail that can be
               assessed and independently reviewed.
             </p>
           </div>
@@ -494,7 +494,7 @@ export function CarbonCreditsPage() {
           <SectionHeading
             label="THE EVIDENCE BEHIND A CARBON CREDIT"
             title="A credit is only as credible as its evidence."
-            description="Projects need a defined boundary, a baseline, monitoring evidence, calculations and independent assessment. The Carbon Credit keeps gaps and assumptions visible."
+            description="Projects need a defined boundary, a baseline, monitoring evidence, calculations and independent assessment. VirsaFlow keeps gaps and assumptions visible."
           />
           <div className="earth-carbon-evidence">
             {evidence.map(([t, d], i) => (
@@ -566,7 +566,7 @@ export function CarbonCreditsPage() {
           <SectionHeading label="WHAT WE DO AND DON’T CLAIM" title="Clear about our role." />
           <div className="earth-two-grid">
             <article>
-              <h3>What The Carbon Credit does</h3>
+              <h3>What VirsaFlow does</h3>
               <ul className="carbon-checks">
                 {[
                   "Organises field records and consent documentation",
@@ -584,7 +584,7 @@ export function CarbonCreditsPage() {
               </ul>
             </article>
             <article>
-              <h3>What The Carbon Credit does not do</h3>
+              <h3>What VirsaFlow does not do</h3>
               <ul className="carbon-checks no">
                 {[
                   "Issue or certify carbon credits",
@@ -640,7 +640,7 @@ export function CarbonCreditsPage() {
               <span className="earth-label">START WITH A CONVERSATION</span>
               <h2>Build a clearer picture of agricultural impact.</h2>
               <p>
-                Talk with The Carbon Credit about a DSR program, field evidence requirements,
+                Talk with VirsaFlow about a DSR program, field evidence requirements,
                 research collaboration or a potential project partnership.
               </p>
               <div className="carbon-hero-actions">
@@ -665,7 +665,7 @@ export function CarbonCreditsPage() {
               </small>
             </div>
             <div className="carbon-final-brand-panel">
-              <span className="earth-label">THE CARBON CREDIT · PUNJAB, INDIA</span>
+              <span className="earth-label">VIRSAFLOW · PUNJAB, INDIA</span>
               <AcreonBrand className="carbon-final-brand" />
               <p>Making agricultural climate impact measurable, verifiable and valuable.</p>
               <span className="carbon-final-rule"><i /> LAND TODAY · OPPORTUNITIES TOMORROW <i /></span>

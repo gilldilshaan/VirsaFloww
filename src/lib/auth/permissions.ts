@@ -1,114 +1,220 @@
-import { Permission, WorkspaceRole, UserSession } from "../types/workspace";
+import { Permission, UserRole, AuthUser, PortalType } from './types';
 
-export const ALL_PERMISSIONS: Permission[] = [
-  "workspace:view",
-  "workspace:projects:read",
-  "workspace:projects:manage",
-  "workspace:farmers:read",
-  "workspace:farmers:manage",
-  "workspace:fields:read",
-  "workspace:fields:manage",
-  "workspace:evidence:read",
-  "workspace:evidence:upload",
-  "workspace:evidence:review",
-  "workspace:assessments:read",
-  "workspace:assessments:create",
-  "workspace:assessments:approve",
-  "workspace:geospatial:view",
-  "workspace:reports:view",
-  "workspace:reports:export",
-];
+/**
+ * Explicit Least-Privilege Role-to-Permission Matrix
+ * 
+ * Strict access controls:
+ * - Admin: Server-authorized administrative operations across all portals
+ * - Project Developer: Project management, field mapping, farmer oversight, evidence upload (CANNOT review/approve own work)
+ * - Reviewer: Evidence review, assessment inspection, satellite auditing (CANNOT access unanonymized farmer PII or manage projects)
+ * - Field Officer: Field registration, evidence collection, farmer onboarding (CANNOT perform reviewer-only approval actions)
+ * - Farmer: Scoped strictly to personal field records and evidence submission (ZERO internal workspace access)
+ * - Buyer: Scoped strictly to public/approved marketplace offtake and inquiries (ZERO internal workspace or farmer portal access)
+ */
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  admin: [
+    'dashboard.read',
+    'projects.read',
+    'projects.manage',
+    'fields.read',
+    'fields.manage',
+    'farmers.read',
+    'evidence.read',
+    'evidence.upload',
+    'evidence.review',
+    'assessments.read',
+    'assessments.manage',
+    'satellite.read',
+    'marketplace.read',
+    'enquiries.create',
+    'enquiries.manage',
+    'buyer_profile.manage',
+    'users.manage',
+  ],
 
-export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
-  admin: [...ALL_PERMISSIONS],
   project_developer: [
-    "workspace:view",
-    "workspace:projects:read",
-    "workspace:projects:manage",
-    "workspace:farmers:read",
-    "workspace:farmers:manage",
-    "workspace:fields:read",
-    "workspace:fields:manage",
-    "workspace:evidence:read",
-    "workspace:evidence:upload",
-    "workspace:assessments:read",
-    "workspace:assessments:create",
-    "workspace:geospatial:view",
-    "workspace:reports:view",
-    "workspace:reports:export",
+    'dashboard.read',
+    'projects.read',
+    'projects.manage',
+    'fields.read',
+    'fields.manage',
+    'farmers.read',
+    'evidence.read',
+    'evidence.upload',
+    'assessments.read',
+    'satellite.read',
+    'marketplace.read',
   ],
-  field_officer: [
-    "workspace:view",
-    "workspace:farmers:read",
-    "workspace:farmers:manage",
-    "workspace:fields:read",
-    "workspace:fields:manage",
-    "workspace:evidence:read",
-    "workspace:evidence:upload",
-    "workspace:geospatial:view",
-  ],
+
   reviewer: [
-    "workspace:view",
-    "workspace:projects:read",
-    "workspace:fields:read",
-    "workspace:evidence:read",
-    "workspace:evidence:review",
-    "workspace:assessments:read",
-    "workspace:assessments:approve",
-    "workspace:geospatial:view",
-    "workspace:reports:view",
+    'dashboard.read',
+    'projects.read',
+    'fields.read',
+    'evidence.read',
+    'evidence.review',
+    'assessments.read',
+    'satellite.read',
   ],
-  buyer: [],
-  farmer: [],
+
+  field_officer: [
+    'dashboard.read',
+    'projects.read',
+    'fields.read',
+    'fields.manage',
+    'farmers.read',
+    'evidence.read',
+    'evidence.upload',
+    'satellite.read',
+  ],
+
+  farmer: [
+    'fields.read',
+    'evidence.read',
+    'evidence.upload',
+  ],
+
+  buyer: [
+    'marketplace.read',
+    'enquiries.create',
+    'enquiries.manage',
+    'buyer_profile.manage',
+  ],
 };
 
-export function hasPermission(user: UserSession | null, permission: Permission): boolean {
-  if (!user) return false;
-  return user.permissions.includes(permission);
+/**
+ * Check whether a user has a specific granular permission.
+ * Fails closed if user is null or role is invalid.
+ */
+export function hasPermission(user: AuthUser | null, permission: Permission): boolean {
+  if (!user || !user.role) return false;
+  const userPerms = user.permissions || ROLE_PERMISSIONS[user.role] || [];
+  return userPerms.includes(permission);
 }
 
-export function hasAnyPermission(user: UserSession | null, permissions: Permission[]): boolean {
-  if (!user) return false;
-  return permissions.some((p) => user.permissions.includes(p));
+/**
+ * Check whether a user has all of the requested permissions.
+ */
+export function hasAllPermissions(user: AuthUser | null, permissions: Permission[]): boolean {
+  if (!user || !user.role) return false;
+  const userPerms = user.permissions || ROLE_PERMISSIONS[user.role] || [];
+  return permissions.every((p) => userPerms.includes(p));
 }
 
-export function hasAllPermissions(user: UserSession | null, permissions: Permission[]): boolean {
-  if (!user) return false;
-  return permissions.every((p) => user.permissions.includes(p));
+/**
+ * Check whether a user has at least one of the requested permissions.
+ */
+export function hasAnyPermission(user: AuthUser | null, permissions: Permission[]): boolean {
+  if (!user || !user.role) return false;
+  const userPerms = user.permissions || ROLE_PERMISSIONS[user.role] || [];
+  return permissions.some((p) => userPerms.includes(p));
 }
 
-export function canAccessWorkspace(user: UserSession | null): boolean {
-  if (!user) return false;
-  return ["admin", "project_developer", "field_officer", "reviewer"].includes(user.role);
-}
+/**
+ * Determine portal-level authorization.
+ * 
+ * Rules:
+ * - Farmer Portal: accessible only to 'farmer' and 'admin'
+ * - Internal Workspace: accessible only to 'admin', 'project_developer', 'reviewer', 'field_officer'
+ * - Buyer Portal: accessible only to 'buyer' and 'admin'
+ */
+export function canAccessPortal(user: AuthUser | null, portal: PortalType): boolean {
+  if (!user || !user.role) return false;
 
-export function canAccessWorkspaceRoute(user: UserSession | null, routeSegment: string): boolean {
-  if (!canAccessWorkspace(user)) return false;
-  if (!user) return false;
-  if (user.role === "admin") return true;
+  if (user.role === 'admin') return true;
 
-  switch (routeSegment) {
-    case "command":
-    case "satellite":
-    case "terra-intelligence":
-      return true;
-    case "projects":
-      return hasPermission(user, "workspace:projects:read");
-    case "farmers":
-      return hasPermission(user, "workspace:farmers:read");
-    case "fields":
-      return hasPermission(user, "workspace:fields:read");
-    case "evidence":
-      return hasPermission(user, "workspace:evidence:read");
-    case "review":
-      return hasPermission(user, "workspace:evidence:review") || user.role === "project_developer";
-    case "assessments":
-      return hasPermission(user, "workspace:assessments:read");
-    case "dossier":
-      return user.role === "project_developer" || user.role === "reviewer";
-    case "reports":
-      return hasPermission(user, "workspace:reports:view");
+  switch (portal) {
+    case 'farmer':
+      return user.role === 'farmer';
+    case 'workspace':
+      return ['project_developer', 'reviewer', 'field_officer'].includes(user.role);
+    case 'buyer':
+      return user.role === 'buyer';
     default:
-      return true;
+      return false;
   }
+}
+
+/**
+ * Resource-Level Authorization Helpers
+ * 
+ * IMPORTANT ARCHITECTURAL DISTINCTION:
+ * Frontend resource-level checks are UX guardrails that prevent displaying 
+ * inaccessible data or triggering guaranteed 403 API errors.
+ * 
+ * In production, true security boundaries MUST be enforced authoritatively
+ * by the backend API via Row-Level Security (RLS) / attribute-based access control (ABAC).
+ */
+
+/**
+ * Enforce field-level scoping:
+ * - Farmers: own farmerId or assigned fieldIds only
+ * - Field Officers: assigned fieldIds only
+ * - Buyers: ZERO field access
+ */
+export function canAccessFieldResource(user: AuthUser | null, fieldId: string): boolean {
+  if (!user) return false;
+  if (user.role === 'buyer') return false; // Zero internal field records for buyers
+  if (user.role === 'admin') return true;  // Subject to backend authorization
+
+  if (user.role === 'farmer') {
+    if (user.farmerId && user.farmerId === fieldId) return true;
+    if (user.scope?.permittedFieldIds && user.scope.permittedFieldIds.includes(fieldId)) return true;
+    return false;
+  }
+
+  if (user.role === 'field_officer') {
+    if (user.scope?.permittedFieldIds) {
+      return user.scope.permittedFieldIds.includes(fieldId);
+    }
+    return hasPermission(user, 'fields.read');
+  }
+
+  return hasPermission(user, 'fields.read');
+}
+
+/**
+ * Enforce project-level scoping:
+ * - Buyers: published projects only
+ * - Project Developers: assigned projects only
+ * - Farmers: ZERO project dossier access
+ */
+export function canAccessProjectResource(
+  user: AuthUser | null,
+  projectId: string,
+  isPublished: boolean = true
+): boolean {
+  if (!user) return false;
+  if (user.role === 'farmer') return false; // Farmers do not manage project dossiers
+
+  if (user.role === 'buyer') {
+    if (!isPublished) return false;
+    if (user.scope?.publishedProjectIds) {
+      return user.scope.publishedProjectIds.includes(projectId);
+    }
+    return true;
+  }
+
+  if (user.role === 'admin') return true;
+
+  if (user.role === 'project_developer') {
+    if (user.scope?.assignedProjectIds) {
+      return user.scope.assignedProjectIds.includes(projectId);
+    }
+    return hasPermission(user, 'projects.read');
+  }
+
+  return hasPermission(user, 'projects.read');
+}
+
+/**
+ * Enforce buyer enquiry scoping:
+ * - Buyers: can only manage enquiries belonging to their own organization
+ */
+export function canAccessEnquiryResource(user: AuthUser | null, enquiryOrgId: string): boolean {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  if (user.role === 'buyer') {
+    return Boolean(user.buyerOrgId && user.buyerOrgId === enquiryOrgId);
+  }
+  return false;
 }

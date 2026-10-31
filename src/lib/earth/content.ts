@@ -48,7 +48,7 @@ export function pageHead(
   path: string,
   options: { indexable?: boolean; image?: string } = {},
 ) {
-  const fullTitle = `The Carbon Credit | ${title}`;
+  const fullTitle = `VirsaFlow | ${title}`;
   const canonical = new URL(path, `${PRODUCTION_SITE_URL}/`).toString();
   const image = options.image ?? `${PRODUCTION_SITE_URL}/social-card.jpg`;
   const privateWorkspacePath = /^\/(?:dashboard(?:\/|$)|farmer\/dashboard(?:\/|$))/.test(path);
@@ -61,7 +61,7 @@ export function pageHead(
                 '@context': 'https://schema.org',
                 '@type': 'Organization',
                 '@id': `${PRODUCTION_SITE_URL}/#organization`,
-                name: 'The Carbon Credit',
+                name: 'VirsaFlow',
                 legalName: 'Panjdhara Private Limited',
                 url: `${PRODUCTION_SITE_URL}/`,
                 logo: `${PRODUCTION_SITE_URL}/brand/the-carbon-credit-logo.png`,
@@ -73,7 +73,7 @@ export function pageHead(
                 '@context': 'https://schema.org',
                 '@type': 'WebSite',
                 '@id': `${PRODUCTION_SITE_URL}/#website`,
-                name: 'The Carbon Credit',
+                name: 'VirsaFlow',
                 url: `${PRODUCTION_SITE_URL}/`,
                 publisher: { '@id': `${PRODUCTION_SITE_URL}/#organization` },
                 inLanguage: 'en',
@@ -114,13 +114,13 @@ export function pageHead(
       { title: fullTitle },
       { name: 'description', content: description },
       ...(indexable ? [] : [{ name: 'robots', content: 'noindex, nofollow' }]),
-      { property: 'og:site_name', content: 'The Carbon Credit' },
+      { property: 'og:site_name', content: 'VirsaFlow' },
       { property: 'og:title', content: fullTitle },
       { property: 'og:description', content: description },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: canonical },
       { property: 'og:image', content: image },
-      { property: 'og:image:alt', content: 'The Carbon Credit — agricultural evidence and MRV' },
+      { property: 'og:image:alt', content: 'VirsaFlow — agricultural evidence and MRV' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: fullTitle },
       { name: 'twitter:description', content: description },

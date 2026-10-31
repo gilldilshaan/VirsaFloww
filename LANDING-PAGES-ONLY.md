@@ -1,11 +1,19 @@
-# The Carbon Credit — Landing Pages Only
+# VirsaFlow — Agricultural MRV Platform
 
-This package contains the public marketing website and subordinate public content pages. Dashboard routes, authentication pages, backend/server integrations, environment secrets, and operations UI have been excluded.
+This repository contains the VirsaFlow marketing website and full agricultural MRV demonstration workspace, including the Command Centre, Satellite Intelligence viewer, Evidence Explorer, Project Passport/Dossier, and Marketplace.
+
+## Navigation Routes
+* `/` — Public landing page.
+* `/auth?next=/dashboard` — Workspace authentication & instant demo access.
+* `/dashboard` — VirsaFlow Command Centre (live MRV synthesis, satellite monitoring, evidence graphs).
+* `/marketplace` — Agricultural MRV Project Directory & Offtake Pipeline.
+* `/passport` — Project Passport & Institutional Due Diligence Dossier.
 
 ## Run locally
 1. Install Node.js LTS and npm.
 2. Run `npm install`.
 3. Run `npm run dev`.
-4. Open the local URL printed by Vite.
+4. Open the local URL printed by Vite (typically http://localhost:8080).
 
-This is a frontend-only extraction. Forms or features that originally relied on server actions, authentication, Supabase, or email delivery may need to be connected to a backend separately.
+## Demonstration Mode
+Authentication and verification features run in preconfigured demonstration mode. No live backend authentication or operational credentials are required for auditor access.

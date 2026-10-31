@@ -27,7 +27,7 @@ export function MarketplacePage() {
 export const Route = createFileRoute('/marketplace')({
   head: () =>
     pageHead(
-      'Agricultural Carbon Marketplace | TerraLedger AI',
+      'Agricultural Carbon Marketplace | VirsaFlow',
       'Institutional directory of verified agricultural carbon projects and due diligence data rooms in Punjab.',
       '/marketplace'
     ),

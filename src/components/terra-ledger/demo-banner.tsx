@@ -13,7 +13,7 @@ export function DemoBanner() {
         <div className="flex items-center flex-wrap gap-2">
           <div className="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-mono px-2 py-0.5 rounded text-[11px] font-semibold tracking-wider uppercase">
             <Sparkles size={12} className="text-emerald-400 animate-pulse" />
-            TerraLedger AI Demo
+            VirsaFlow Demo
           </div>
 
           <span className="text-slate-400 hidden sm:inline">|</span>

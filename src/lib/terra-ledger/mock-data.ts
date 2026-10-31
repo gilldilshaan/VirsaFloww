@@ -1,4 +1,14 @@
-import { FieldParcel, SatelliteObservation, MarketplaceProject, DueDiligenceItem, EvidenceItem } from './types';
+import {
+  FieldParcel,
+  SatelliteObservation,
+  MarketplaceProject,
+  DueDiligenceItem,
+  EvidenceItem,
+  ReviewQueueItem,
+  CommandCentreMetrics,
+  ActionableTask,
+  PhenologyDataPoint,
+} from './types';
 
 export const PRIMARY_FIELD: FieldParcel = {
   id: 'PB-LUD-042',
@@ -24,6 +34,13 @@ export const PRIMARY_FIELD: FieldParcel = {
     [30.9078, 75.8352],
   ],
   targetEmissionReductionTonnes: 23.04,
+  projectId: 'PRJ-PB-DSR-01',
+  fpoName: 'Malwa Agro-Farmer Producer Org',
+  cropSeason: 'Kharif 2026',
+  geometrySource: 'Cadastral Revenue Record',
+  evidenceCount: 5,
+  assessmentStatus: 'UNVERIFIED',
+  lastObservationDate: '2026-08-15',
 };
 
 export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
@@ -39,6 +56,7 @@ export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
     qualityRating: 'High',
     surfaceWaterDetected: false,
     notes: 'Pre-seeding dry seedbed preparation. No standing water detected, consistent with direct seeding baseline.',
+    fieldId: 'PB-LUD-042',
   },
   {
     id: 'S2B_20260702_PB',
@@ -52,6 +70,7 @@ export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
     qualityRating: 'High',
     surfaceWaterDetected: true,
     notes: 'Early vegetative flushing irrigation. Brief NDWI rise indicating controlled moisture application.',
+    fieldId: 'PB-LUD-042',
   },
   {
     id: 'S2A_20260728_PB',
@@ -65,6 +84,7 @@ export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
     qualityRating: 'High',
     surfaceWaterDetected: false,
     notes: 'AWD mid-season drying phase. NDWI dropped negative while NDVI surged, validating alternate aeration without crop moisture stress.',
+    fieldId: 'PB-LUD-042',
   },
   {
     id: 'S2B_20260815_PB',
@@ -78,6 +98,7 @@ export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
     qualityRating: 'High',
     surfaceWaterDetected: false,
     notes: 'Full panicle initiation canopy closure. Peak biomass development consistent with healthy DSR adoption.',
+    fieldId: 'PB-LUD-042',
   },
 ];
 
@@ -90,6 +111,8 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
     status: 'verified',
     description: 'Government certified land tenancy and title deed verified against Punjab Revenue portal.',
     timestamp: '2026-05-18 10:30 UTC',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
     provenance: {
       author: 'Revenue Department, Govt of Punjab',
       source: 'State Land Records (Digital Jamabandi API)',
@@ -101,6 +124,15 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
       sizeKb: 412,
       mime: 'application/pdf',
     },
+    ruleResults: [
+      {
+        ruleId: 'RULE-LAND-01',
+        ruleName: 'Government Title Deed Validation',
+        status: 'pass',
+        message: 'Cryptographic digital signature matches Punjab State Revenue Registrar.',
+        timestamp: '2026-05-18 10:31 UTC',
+      },
+    ],
   },
   {
     id: 'EV-002',
@@ -110,6 +142,8 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
     status: 'verified',
     description: 'Calibrated BOA surface reflectance spectral profiles confirming vegetation progression without continuous flooding.',
     timestamp: '2026-08-16 04:15 UTC',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
     provenance: {
       author: 'European Space Agency (ESA) Copernicus Hub',
       source: 'Sentinel-2 Level-2A Processing',
@@ -121,6 +155,15 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
       sizeKb: 18450,
       mime: 'image/tiff',
     },
+    ruleResults: [
+      {
+        ruleId: 'RULE-SAT-01',
+        ruleName: 'Cloud Occlusion Threshold (< 10%)',
+        status: 'pass',
+        message: 'Mean parcel cloud cover: 2.2% across 4 tiles.',
+        timestamp: '2026-08-16 04:16 UTC',
+      },
+    ],
   },
   {
     id: 'EV-003',
@@ -130,6 +173,8 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
     status: 'flagged',
     description: 'Seeding photograph captured with DSR drill machine. Flagged: EXIF geotag coordinates fall 420 meters outside the parcel boundary polygon.',
     timestamp: '2026-06-15 08:42 UTC',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
     provenance: {
       author: 'Gurdev Singh (Farmer mobile client)',
       source: 'Samsung Galaxy A52s camera EXIF',
@@ -148,6 +193,17 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
       sizeKb: 3820,
       mime: 'image/jpeg',
     },
+    ruleResults: [
+      {
+        ruleId: 'RULE-GEO-01',
+        ruleName: 'Parcel Spatial Enclosure Check',
+        status: 'fail',
+        message: 'EXIF coordinates 30.9178N, 75.8424E are 420m outside cadastral boundary polygon.',
+        metricObserved: '420m offset',
+        thresholdApplied: '< 5m tolerance',
+        timestamp: '2026-06-15 08:43 UTC',
+      },
+    ],
   },
   {
     id: 'EV-004',
@@ -157,11 +213,22 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
     status: 'missing',
     description: 'Mandatory field soil-moisture log tracking water level depth below ground (AWD protocol requirement).',
     timestamp: 'Unrecorded',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
     provenance: {
       author: 'Field Agent / Farmer',
       source: 'Missing field observation log',
       reviewStatus: 'Mandatory Evidence Missing',
     },
+    ruleResults: [
+      {
+        ruleId: 'RULE-PRAC-02',
+        ruleName: 'AWD Tube Inspection Continuity',
+        status: 'fail',
+        message: 'Zero field water table depth observations registered for vegetative window.',
+        timestamp: '2026-06-20 00:00 UTC',
+      },
+    ],
   },
   {
     id: 'EV-005',
@@ -171,11 +238,22 @@ export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
     status: 'missing',
     description: 'High-resolution in-boundary photograph with GPS accuracy < 5m showing DSR rice line emergence.',
     timestamp: 'Unrecorded',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
     provenance: {
       author: 'Field Inspector or Farmer App',
       source: 'Required replacement for flagged EV-003',
       reviewStatus: 'Awaiting Verified Upload',
     },
+    ruleResults: [
+      {
+        ruleId: 'RULE-GEO-02',
+        ruleName: 'In-Boundary Emergence Ground Truth',
+        status: 'warn',
+        message: 'Required ground photograph pending field team submission.',
+        timestamp: '2026-06-25 00:00 UTC',
+      },
+    ],
   },
 ];
 
@@ -187,11 +265,13 @@ export const ADDED_IRRIGATION_LOG: EvidenceItem = {
   status: 'verified',
   description: 'Daily water level recordings showing 15cm drying depth intervals between irrigations, explaining July drydown cycles.',
   timestamp: '2026-07-29 11:20 UTC',
+  fieldId: 'PB-LUD-042',
+  fieldCode: 'PB-LUD-042',
   provenance: {
     author: 'Harpreet Singh (FPO Extension Agent)',
-    source: 'TerraLedger Mobile Offline Sync',
+    source: 'VirsaFlow Mobile Offline Sync',
     sha256: '72c3d10526017b8f9e2cf44b581023a968d901764ebaf231a47b19df52c1e847',
-    device: 'TerraLedger Field App v2.4 (Android)',
+    device: 'VirsaFlow Field App v2.4 (Android)',
     reviewStatus: 'Corroborated with Sentinel-2 NDWI series',
   },
   fileDetails: {
@@ -199,6 +279,15 @@ export const ADDED_IRRIGATION_LOG: EvidenceItem = {
     sizeKb: 64,
     mime: 'text/csv',
   },
+  ruleResults: [
+    {
+      ruleId: 'RULE-PRAC-02',
+      ruleName: 'AWD Tube Inspection Continuity',
+      status: 'pass',
+      message: '18 sequential piezometer depth entries recorded. Drying depth reaches -15cm, matching NDWI moisture drop.',
+      timestamp: '2026-07-29 11:21 UTC',
+    },
+  ],
 };
 
 export const ADDED_IN_BOUNDARY_PHOTO: EvidenceItem = {
@@ -209,9 +298,12 @@ export const ADDED_IN_BOUNDARY_PHOTO: EvidenceItem = {
   status: 'verified',
   description: 'High precision geotagged photograph taken inside parcel boundary showing direct drill rows without puddle crust.',
   timestamp: '2026-07-14 09:12 UTC',
+  fieldId: 'PB-LUD-042',
+  fieldCode: 'PB-LUD-042',
+  supersedesId: 'EV-003',
   provenance: {
     author: 'Gurdev Singh (Farmer)',
-    source: 'TerraLedger Camera with Boundary Enclosure Check',
+    source: 'VirsaFlow Camera with Boundary Enclosure Check',
     sha256: '55bc2990f2304918e77c592b217036a441e976db570183e29f032870197d6482',
     device: 'Samsung Galaxy A52s SM-A528B',
     gpsCoordinates: {
@@ -227,6 +319,17 @@ export const ADDED_IN_BOUNDARY_PHOTO: EvidenceItem = {
     sizeKb: 4210,
     mime: 'image/jpeg',
   },
+  ruleResults: [
+    {
+      ruleId: 'RULE-GEO-01',
+      ruleName: 'Parcel Spatial Enclosure Check',
+      status: 'pass',
+      message: 'Photo point 30.9112N, 75.8374E verified inside PB-LUD-042 boundary (tolerance 0.0m).',
+      metricObserved: '0.0m offset',
+      thresholdApplied: '< 5m tolerance',
+      timestamp: '2026-07-14 09:13 UTC',
+    },
+  ],
 };
 
 export const MARKETPLACE_PROJECTS: MarketplaceProject[] = [
@@ -259,6 +362,8 @@ export const MARKETPLACE_PROJECTS: MarketplaceProject[] = [
       groundPhotos: 342,
       waterLogs: 178,
     },
+    fieldIds: ['PB-LUD-042', 'PB-SNG-018'],
+    owner: 'Panjdhara Agritech Operations',
   },
   {
     id: 'PRJ-PB-CRM-02',
@@ -289,6 +394,8 @@ export const MARKETPLACE_PROJECTS: MarketplaceProject[] = [
       groundPhotos: 280,
       waterLogs: 95,
     },
+    fieldIds: ['PB-BTH-105'],
+    owner: 'Punjab Clean Air Agro-Alliance',
   },
   {
     id: 'PRJ-PB-AWD-03',
@@ -319,6 +426,8 @@ export const MARKETPLACE_PROJECTS: MarketplaceProject[] = [
       groundPhotos: 195,
       waterLogs: 210,
     },
+    fieldIds: ['PB-PTL-077'],
+    owner: 'Indus Water & Carbon Initiatives',
   },
   {
     id: 'PRJ-PB-AFR-04',
@@ -349,6 +458,8 @@ export const MARKETPLACE_PROJECTS: MarketplaceProject[] = [
       groundPhotos: 140,
       waterLogs: 45,
     },
+    fieldIds: ['PB-HSP-023'],
+    owner: 'Green Punjab Ecological FPO',
   },
 ];
 
@@ -386,4 +497,329 @@ export const INITIAL_DUE_DILIGENCE_PIPELINE: DueDiligenceItem[] = [
     targetRetirementYear: '2026',
     status: 'Active',
   },
+];
+
+// ============================================================================
+// STAGE 2 EXTENSIONS: CLEARLY LABELLED MOCK FIXTURES FOR FLEET & REGISTRIES
+// ============================================================================
+
+export const ALL_FIELDS: FieldParcel[] = [
+  PRIMARY_FIELD,
+  {
+    id: 'PB-SNG-018',
+    code: 'PB-SNG-018',
+    name: 'Dhillon Agro Parcel 2',
+    farmerName: 'Balwinder Singh Dhillon',
+    farmerNameLocal: 'ਬਲਵਿੰਦਰ ਸਿੰਘ ਢਿੱਲੋਂ',
+    district: 'Sangrur',
+    state: 'Punjab',
+    areaHa: 6.2,
+    areaAcres: 15.32,
+    practice: 'Direct Seeded Rice (DSR) + AWD',
+    crop: 'PR-126 Basmati',
+    season: 'Kharif 2026',
+    coordinates: {
+      lat: 30.245,
+      lng: 75.842,
+    },
+    boundaryPolygon: [
+      [30.2475, 75.8395],
+      [30.2482, 75.8445],
+      [30.2425, 75.8452],
+      [30.2418, 75.8402],
+    ],
+    targetEmissionReductionTonnes: 29.76,
+    projectId: 'PRJ-PB-DSR-01',
+    fpoName: 'Sangrur Progressive Farmers Society',
+    cropSeason: 'Kharif 2026',
+    geometrySource: 'Cadastral Revenue Record',
+    evidenceCount: 7,
+    assessmentStatus: 'READY_FOR_VERIFICATION',
+    lastObservationDate: '2026-08-14',
+  },
+  {
+    id: 'PB-BTH-105',
+    code: 'PB-BTH-105',
+    name: 'Sidhu Multi-Crop Plot',
+    farmerName: 'Amrik Singh Sidhu',
+    farmerNameLocal: 'ਅਮਰੀਕ ਸਿੰਘ ਸਿੱਧੂ',
+    district: 'Bathinda',
+    state: 'Punjab',
+    areaHa: 8.5,
+    areaAcres: 21.0,
+    practice: 'Crop Residue Management (Happy Seeder)',
+    crop: 'Wheat (HD-3086) / Rice Residue',
+    season: 'Rabi 2026',
+    coordinates: {
+      lat: 30.211,
+      lng: 74.945,
+    },
+    boundaryPolygon: [
+      [30.214, 74.941],
+      [30.215, 74.949],
+      [30.207, 74.95],
+      [30.206, 74.942],
+    ],
+    targetEmissionReductionTonnes: 39.95,
+    projectId: 'PRJ-PB-CRM-02',
+    fpoName: 'Malwa Clean Air Producers Cooperative',
+    cropSeason: 'Rabi 2026',
+    geometrySource: 'DGPS Ground Survey',
+    evidenceCount: 4,
+    assessmentStatus: 'NEEDS_REVIEW',
+    lastObservationDate: '2026-08-12',
+  },
+  {
+    id: 'PB-PTL-077',
+    code: 'PB-PTL-077',
+    name: 'Nabha Basin Piezometer Parcel',
+    farmerName: 'Jagjit Singh Brar',
+    farmerNameLocal: 'ਜਗਜੀਤ ਸਿੰਘ ਬਰਾੜ',
+    district: 'Patiala',
+    state: 'Punjab',
+    areaHa: 5.4,
+    areaAcres: 13.34,
+    practice: 'Alternate Wetting & Drying (AWD)',
+    crop: 'Pusa-44 / Basmati',
+    season: 'Kharif 2026',
+    coordinates: {
+      lat: 30.375,
+      lng: 76.155,
+    },
+    boundaryPolygon: [
+      [30.378, 76.152],
+      [30.379, 76.159],
+      [30.371, 76.158],
+      [30.37, 76.151],
+    ],
+    targetEmissionReductionTonnes: 25.92,
+    projectId: 'PRJ-PB-AWD-03',
+    fpoName: 'Patiala River Basin Irrigation Union',
+    cropSeason: 'Kharif 2026',
+    geometrySource: 'Cadastral Revenue Record',
+    evidenceCount: 6,
+    assessmentStatus: 'READY_FOR_VERIFICATION',
+    lastObservationDate: '2026-08-16',
+  },
+  {
+    id: 'PB-HSP-023',
+    code: 'PB-HSP-023',
+    name: 'Kandi Sub-Mount Poplar Belt',
+    farmerName: 'Karamjit Singh Saini',
+    farmerNameLocal: 'ਕਰਮਜੀਤ ਸਿੰਘ ਸੈਣੀ',
+    district: 'Hoshiarpur',
+    state: 'Punjab',
+    areaHa: 3.2,
+    areaAcres: 7.9,
+    practice: 'Agroforestry & Boundary Poplar Trees',
+    crop: 'Populus deltoides + Fodder Intercrop',
+    season: 'Multi-year 2025-2029',
+    coordinates: {
+      lat: 31.527,
+      lng: 75.918,
+    },
+    boundaryPolygon: [
+      [31.53, 75.915],
+      [31.531, 75.922],
+      [31.523, 75.921],
+      [31.522, 75.914],
+    ],
+    targetEmissionReductionTonnes: 19.2,
+    projectId: 'PRJ-PB-AFR-04',
+    fpoName: 'Green Punjab Ecological FPO',
+    cropSeason: 'Multi-year 2025-2029',
+    geometrySource: 'Remote Sensing Delineation',
+    evidenceCount: 3,
+    assessmentStatus: 'NEEDS_REVIEW',
+    lastObservationDate: '2026-08-10',
+  },
+];
+
+export const REVIEW_QUEUE_ITEMS: ReviewQueueItem[] = [
+  {
+    id: 'REV-2026-001',
+    evidenceId: 'EV-003',
+    evidenceTitle: 'Field Drill Activity Photograph (Spatial Anomaly)',
+    evidenceType: 'photo',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
+    projectId: 'PRJ-PB-DSR-01',
+    farmerName: 'Gurdev Singh Gill',
+    submittedAt: '2026-06-15 08:42 UTC',
+    status: 'pending',
+    priority: 'high',
+    assignedReviewer: 'Mankirat Singh (Senior MRV Auditor)',
+    rules: [
+      {
+        ruleId: 'RULE-GEO-01',
+        ruleName: 'Cadastral Enclosure Verification',
+        status: 'fail',
+        message: 'Point is 420m outside polygon PB-LUD-042.',
+        timestamp: '2026-06-15 08:43 UTC',
+        metricObserved: '420m offset',
+        thresholdApplied: '< 5.0m threshold',
+      },
+      {
+        ruleId: 'RULE-TIME-01',
+        ruleName: 'Acquisition Date Window',
+        status: 'pass',
+        message: 'Date matches announced sowing window June 01 - June 20.',
+        timestamp: '2026-06-15 08:43 UTC',
+      },
+    ],
+    reviewNotes: 'Farmer phone GPS experienced drift. Request new in-boundary photograph with boundary assist.',
+  },
+  {
+    id: 'REV-2026-002',
+    evidenceId: 'EV-004',
+    evidenceTitle: 'Perforated PVC Water Tube (AWD) Soil Moisture Log',
+    evidenceType: 'log',
+    fieldId: 'PB-LUD-042',
+    fieldCode: 'PB-LUD-042',
+    projectId: 'PRJ-PB-DSR-01',
+    farmerName: 'Gurdev Singh Gill',
+    submittedAt: '2026-06-20 00:00 UTC',
+    status: 'pending',
+    priority: 'high',
+    assignedReviewer: 'Mankirat Singh (Senior MRV Auditor)',
+    rules: [
+      {
+        ruleId: 'RULE-LOG-01',
+        ruleName: 'Continuous Observation Continuity',
+        status: 'fail',
+        message: 'Required field log file has not been attached.',
+        timestamp: '2026-06-20 00:00 UTC',
+      },
+    ],
+    reviewNotes: 'Piezometer reading records missing for early vegetative phase.',
+  },
+  {
+    id: 'REV-2026-003',
+    evidenceId: 'EV-CRM-012',
+    evidenceTitle: 'Happy Seeder Operating Telemetry Log',
+    evidenceType: 'log',
+    fieldId: 'PB-BTH-105',
+    fieldCode: 'PB-BTH-105',
+    projectId: 'PRJ-PB-CRM-02',
+    farmerName: 'Amrik Singh Sidhu',
+    submittedAt: '2026-08-11 14:22 UTC',
+    status: 'in_review',
+    priority: 'medium',
+    assignedReviewer: 'Field Operations Desk',
+    rules: [
+      {
+        ruleId: 'RULE-TELEM-01',
+        ruleName: 'Tractor Telemetry Geospatial Match',
+        status: 'pass',
+        message: 'Canbus hours match 8.5 ha seeding duration.',
+        timestamp: '2026-08-11 14:25 UTC',
+      },
+      {
+        ruleId: 'RULE-THERMAL-01',
+        ruleName: 'VIIRS Thermal Fire Anomaly Check',
+        status: 'warn',
+        message: 'MODIS thermal anomaly flagged within 2km on Nov 04.',
+        timestamp: '2026-08-11 14:25 UTC',
+        metricObserved: '1 thermal anomaly detected',
+        thresholdApplied: '0 anomalies within 500m',
+      },
+    ],
+    reviewNotes: 'Need second pass high-res optical imagery to ensure fire was off-parcel.',
+  },
+  {
+    id: 'REV-2026-004',
+    evidenceId: 'EV-AFR-008',
+    evidenceTitle: 'Poplar Belt DBH Diameter Circumference Record',
+    evidenceType: 'document',
+    fieldId: 'PB-HSP-023',
+    fieldCode: 'PB-HSP-023',
+    projectId: 'PRJ-PB-AFR-04',
+    farmerName: 'Karamjit Singh Saini',
+    submittedAt: '2026-08-09 10:15 UTC',
+    status: 'pending',
+    priority: 'low',
+    rules: [
+      {
+        ruleId: 'RULE-TREE-01',
+        ruleName: 'Biomass Allometric Equation Compliance',
+        status: 'pass',
+        message: 'Tree girth measurements conform to Forest Research Institute allometric tables.',
+        timestamp: '2026-08-09 10:18 UTC',
+      },
+    ],
+  },
+];
+
+export const ACTIONABLE_TASKS_MOCK: ActionableTask[] = [
+  {
+    id: 'TSK-01',
+    title: 'Resolve Spatial Mismatch for Parcel PB-LUD-042',
+    category: 'spatial_anomaly',
+    priority: 'high',
+    fieldCode: 'PB-LUD-042',
+    projectId: 'PRJ-PB-DSR-01',
+    actionLabel: 'Inspect Coordinate Offset',
+    targetTab: 'evidence',
+    createdAt: '2026-06-15',
+  },
+  {
+    id: 'TSK-02',
+    title: 'Review AWD Perforated Tube Irrigation Data',
+    category: 'missing_evidence',
+    priority: 'high',
+    fieldCode: 'PB-LUD-042',
+    projectId: 'PRJ-PB-DSR-01',
+    actionLabel: 'Attach AWD CSV Log',
+    targetTab: 'command',
+    createdAt: '2026-06-20',
+  },
+  {
+    id: 'TSK-03',
+    title: 'Thermal Anomaly Verification in Bathinda Residue Hub',
+    category: 'review',
+    priority: 'medium',
+    fieldCode: 'PB-BTH-105',
+    projectId: 'PRJ-PB-CRM-02',
+    actionLabel: 'Review Satellite Thermal Pass',
+    targetTab: 'review',
+    createdAt: '2026-08-11',
+  },
+  {
+    id: 'TSK-04',
+    title: 'Audit Project Dossier for Patiala Basin Precision AWD',
+    category: 'dossier',
+    priority: 'low',
+    fieldCode: 'PB-PTL-077',
+    projectId: 'PRJ-PB-AWD-03',
+    actionLabel: 'Open Due Diligence Data Room',
+    targetTab: 'dossier',
+    createdAt: '2026-08-16',
+  },
+];
+
+export const COMMAND_CENTRE_METRICS_MOCK: CommandCentreMetrics = {
+  totalProjects: 4,
+  enrolledFarmers: 601,
+  enrolledFields: 663,
+  totalHectares: 5600,
+  pendingReviewQueueCount: 4,
+  missingEvidenceCount: 2,
+  activeAnomaliesCount: 1,
+  readinessDistribution: {
+    unverified: 1,
+    needsReview: 2,
+    readyForVerification: 1,
+  },
+  actionableTasks: ACTIONABLE_TASKS_MOCK,
+};
+
+export const PHENOLOGY_TIME_SERIES_MOCK: PhenologyDataPoint[] = [
+  { date: '2026-06-05', ndvi: 0.14, ndwi: -0.25, baselineNdvi: 0.12, qualityFlag: 'High' },
+  { date: '2026-06-14', ndvi: 0.18, ndwi: -0.22, baselineNdvi: 0.16, qualityFlag: 'High' },
+  { date: '2026-06-25', ndvi: 0.26, ndwi: 0.05, baselineNdvi: 0.22, qualityFlag: 'High' },
+  { date: '2026-07-02', ndvi: 0.34, ndwi: 0.12, baselineNdvi: 0.30, qualityFlag: 'High' },
+  { date: '2026-07-15', ndvi: 0.46, ndwi: -0.02, baselineNdvi: 0.42, qualityFlag: 'High' },
+  { date: '2026-07-28', ndvi: 0.58, ndwi: -0.08, baselineNdvi: 0.54, qualityFlag: 'High' },
+  { date: '2026-08-05', ndvi: 0.68, ndwi: 0.02, baselineNdvi: 0.62, qualityFlag: 'High' },
+  { date: '2026-08-15', ndvi: 0.76, ndwi: 0.04, baselineNdvi: 0.71, qualityFlag: 'High' },
 ];

@@ -66,8 +66,8 @@ export function SiteShell({ children, home = false }: { children: ReactNode; hom
               </Link>
             </Button>
             <Button asChild variant="earth" className="earth-contact-button">
-              <Link to="/contact">
-                Partner with us <ArrowUpRight />
+              <Link to="/auth" search={{ next: "/dashboard" }}>
+                Get Started <ArrowUpRight />
               </Link>
             </Button>
             <Button
@@ -134,7 +134,7 @@ export function SiteShell({ children, home = false }: { children: ReactNode; hom
           </div>
         </div>
         <div className="earth-container earth-footer-bottom">
-          <span>© 2026 The Carbon Credit · Panjdhara Private Limited</span>
+          <span>© 2026 VirsaFlow · Panjdhara Private Limited</span>
           <span>
             Built around evidence. Rooted in Punjab.{" "}
             <span lang="pa" className="earth-punjabi-inline">
@@ -373,7 +373,7 @@ export function FinalCTA({
             of agricultural impact.
           </h2>
           <p className="earth-final-copy">
-            Talk with The Carbon Credit about a DSR program, field evidence requirements, research
+            Talk with VirsaFlow about a DSR program, field evidence requirements, research
             collaboration or a potential project partnership.
           </p>
           <div className="earth-cta-links">
@@ -391,7 +391,7 @@ export function FinalCTA({
           </div>
         </div>
         {showBrand && (
-          <aside className="earth-final-brand-panel" aria-label="The Carbon Credit">
+          <aside className="earth-final-brand-panel" aria-label="VirsaFlow">
             <AcreonBrand className="earth-final-brand" />
             <span>Land today <i /> Opportunities tomorrow</span>
           </aside>

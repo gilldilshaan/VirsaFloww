@@ -102,7 +102,7 @@ export function Marketplace() {
         <div>
           <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#5c7c46] uppercase tracking-wider mb-1">
             <Store size={13} />
-            TerraLedger Marketplace & Offtake Pipeline
+            VirsaFlow Marketplace & Offtake Pipeline
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-[#193b2a] tracking-tight">
             Agricultural MRV Project Directory

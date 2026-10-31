@@ -62,7 +62,7 @@ export function EvidenceExplorer() {
       },
       provenance: {
         author: 'Field Investigator (Demo)',
-        source: 'TerraLedger Field App v2.4',
+        source: 'VirsaFlow Field App v2.4',
         sha256: Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
         reviewStatus: 'Cryptographic Hash Stamped & Attached to Parcel',
       },

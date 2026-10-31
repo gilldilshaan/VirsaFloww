@@ -3,7 +3,7 @@ import { punjabDistricts, punjabViewBox } from '@/lib/earth/punjab-districts';
 
 const places = [
   { id: 'faridkot', name: 'Faridkot', pa: 'ਫ਼ਰੀਦਕੋਟ', tag: 'WHERE WE GREW UP', x: 149.7, y: 345.6, district: 'Faridkot',
-    story: 'Our roots are in Faridkot, in the Malwa belt. Here the year follows paddy and wheat: canal water on the fields in summer, straw decisions after harvest, and long talks at the mandi about prices and credit. We grew up seeing how much work farmers do that never gets written down. The Carbon Credit started with that question: how do we make good practices on the field visible and trusted?' },
+    story: 'Our roots are in Faridkot, in the Malwa belt. Here the year follows paddy and wheat: canal water on the fields in summer, straw decisions after harvest, and long talks at the mandi about prices and credit. We grew up seeing how much work farmers do that never gets written down. VirsaFlow started with that question: how do we make good practices on the field visible and trusted?' },
   { id: 'mohali', name: 'Mohali (SAS Nagar)', pa: 'ਮੋਹਾਲੀ', tag: 'WHERE WE BUILD NOW', x: 455.9, y: 340.6, district: 'Rupnagar',
     story: 'Today we work from Mohali, close to Chandigarh’s universities, research institutes and start-up community. This is where field notes from home become software: evidence records, maps and review workflows. We still go back to the villages often, because the platform only works if it works for the farmer first.' },
 ] as const;

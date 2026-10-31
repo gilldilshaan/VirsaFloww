@@ -167,7 +167,7 @@ export function OpportunityEstimator() {
         />
         <div className="opp-hero-scrim" />
         <div className="earth-container opp-hero-copy earth-hero-copy">
-          <span className="earth-label">THE CARBON CREDIT · FARMER OPPORTUNITY ESTIMATOR</span>
+          <span className="earth-label">VIRSAFLOW · FARMER OPPORTUNITY ESTIMATOR</span>
           <h1>
             Your land. Your practices. <em>Your potential opportunities.</em>
           </h1>
@@ -278,7 +278,7 @@ export function OpportunityEstimator() {
             <i style={{ width: `${Math.min(100, (Number(acres) || 0) * 2)}%` }} />
           </div>
           <p>
-            Illustrative scenario using The Carbon Credit’s current planning assumptions (
+            Illustrative scenario using VirsaFlow’s current planning assumptions (
             {scenarioDefaults.creditsPerAcre[crop] ?? "—"} credits per acre,{" "}
             {inr(scenarioDefaults.pricePerCredit)} per credit). Not a promise of income — actual
             credits need eligible practices, monitoring, verification and a buyer. Edit any value
@@ -640,7 +640,7 @@ export function OpportunityEstimator() {
         <div className="earth-section-heading">
           <div>
             <span className="earth-label">ASSUMPTIONS & METHODOLOGY</span>
-            <h2>What The Carbon Credit still needs to validate.</h2>
+            <h2>What VirsaFlow still needs to validate.</h2>
           </div>
           <p>
             Before showing real farm estimates, each parameter needs a documented source. Until
@@ -722,7 +722,7 @@ export function OpportunityEstimator() {
             ],
             [
               "Where do the carbon numbers come from?",
-              "From The Carbon Credit’s current planning assumptions per crop pattern, credit price and farmer share. They are not yet validated against a methodology or real project terms, so you can change any of them.",
+              "From VirsaFlow’s current planning assumptions per crop pattern, credit price and farmer share. They are not yet validated against a methodology or real project terms, so you can change any of them.",
             ],
             [
               "Does my district change the estimate?",
@@ -796,8 +796,8 @@ function AssessmentRequest({
       return setError("Enter a valid email address or phone number.");
     if (!consent) return setError("Please agree to be contacted.");
     setError("");
-    const body = `Name: ${name.trim()}\nContact: ${contact.trim()}\nLocation: ${district}\nApproximate acreage: ${acres}\nCrop pattern: ${crop}\nPractices: ${practicesText}\nAssistance wanted: ${help}\n\nI agree to be contacted by The Carbon Credit about this request.`;
-    const url = `mailto:${enquiryDestination}?subject=${encodeURIComponent("The Carbon Credit | Farm assessment request")}&body=${encodeURIComponent(body)}`;
+    const body = `Name: ${name.trim()}\nContact: ${contact.trim()}\nLocation: ${district}\nApproximate acreage: ${acres}\nCrop pattern: ${crop}\nPractices: ${practicesText}\nAssistance wanted: ${help}\n\nI agree to be contacted by VirsaFlow about this request.`;
+    const url = `mailto:${enquiryDestination}?subject=${encodeURIComponent("VirsaFlow | Farm assessment request")}&body=${encodeURIComponent(body)}`;
     setMailto(url);
     window.location.href = url;
   };
@@ -837,7 +837,7 @@ function AssessmentRequest({
         </label>
         <label className="opp-consent">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />{" "}
-          I agree to be contacted by The Carbon Credit about this request.
+          I agree to be contacted by VirsaFlow about this request.
         </label>
         {error && (
           <em role="alert" className="opp-error">

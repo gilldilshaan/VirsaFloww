@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { TerraIntelligenceView } from "@/components/workspace/terra-intelligence-view";
-import { pageHead } from "@/lib/earth/content";
+import { createFileRoute } from '@tanstack/react-router';
+import { SatelliteIntelligence } from '@/components/terra-ledger/satellite-intelligence';
+import { pageHead } from '@/lib/earth/content';
 
-export const Route = createFileRoute("/workspace/terra-intelligence")({
+export const Route = createFileRoute('/workspace/terra-intelligence')({
   head: () =>
     pageHead(
-      "Terra Intelligence GIS Studio | TerraLedger AI",
-      "Dedicated geospatial workspace with multi-spectral satellite layers, timeline analysis and data-quality indicators.",
-      "/workspace/terra-intelligence",
+      'Terra Intelligence | VirsaFlow Workspace',
+      'Geospatial multi-spectral investigation interface for Punjab agricultural land clusters.',
+      '/workspace/terra-intelligence'
     ),
-  component: TerraIntelligenceView,
+  component: SatelliteIntelligence,
 });

@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CommandCentre } from "@/components/terra-ledger/command-centre";
-import { pageHead } from "@/lib/earth/content";
+import { createFileRoute } from '@tanstack/react-router';
+import { CommandCentre } from '@/components/terra-ledger/command-centre';
+import { pageHead } from '@/lib/earth/content';
 
-export const Route = createFileRoute("/workspace/command")({
+export const Route = createFileRoute('/workspace/command')({
   head: () =>
     pageHead(
-      "Operational Command Centre | TerraLedger AI",
-      "Field assessment command centre synthesizing ground evidence, remote sensing and review status.",
-      "/workspace/command",
+      'Command Centre | VirsaFlow Workspace',
+      'Field evidence synthesis, spatial enclosure analysis, and automated verification checklist for Punjab.',
+      '/workspace/command'
     ),
   component: CommandCentre,
 });

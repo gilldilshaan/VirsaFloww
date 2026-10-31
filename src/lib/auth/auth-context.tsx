@@ -1,124 +1,388 @@
-import { createContext, useContext, useState, useMemo, ReactNode } from "react";
-import { UserSession, WorkspaceRole } from "../types/workspace";
-import { ROLE_PERMISSIONS } from "./permissions";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { AuthUser, AuthState, UserRole, Permission, PortalType, LoginCredentials, StoredSession } from './types';
+import {
+  ROLE_PERMISSIONS,
+  hasPermission as checkPermission,
+  canAccessPortal as checkPortal,
+  canAccessFieldResource as checkField,
+  canAccessProjectResource as checkProject,
+  canAccessEnquiryResource as checkEnquiry,
+} from './permissions';
 
-export const DEMO_ACCOUNTS: Record<WorkspaceRole, UserSession> = {
+/**
+ * Preconfigured Trusted Demo User Identities
+ * 
+ * Strict Security Guardrail:
+ * Demo roles come strictly from this immutable dictionary and their permissions are strictly
+ * bounded by ROLE_PERMISSIONS. Users cannot invent custom permissions in the client.
+ */
+export const DEMO_IDENTITIES: Record<UserRole, AuthUser> = {
   admin: {
-    id: "USR-ADMIN-01",
-    name: "Dr. Inderjit Singh",
-    email: "inderjit.singh@terraledger.ai",
-    role: "admin",
-    organization: "TerraLedger Global MRV",
-    district: "Ludhiana",
+    id: 'USR-DEMO-ADMIN-01',
+    email: 'admin@virsaflow.com',
+    name: 'Dilshaan Singh Gill',
+    role: 'admin',
     permissions: ROLE_PERMISSIONS.admin,
-  },
-  project_developer: {
-    id: "USR-DEV-02",
-    name: "Amrita Kaur",
-    email: "amrita.kaur@panjdhara.com",
-    role: "project_developer",
-    organization: "Panjdhara Agritech Pvt Ltd",
-    district: "Ludhiana & Sangrur",
-    permissions: ROLE_PERMISSIONS.project_developer,
-  },
-  field_officer: {
-    id: "USR-FLD-03",
-    name: "Harpreet Singh Gill",
-    email: "harpreet.gill@malwa-fpo.org",
-    role: "field_officer",
-    organization: "Malwa Progressive Farmer Collective",
-    fpoAffiliation: "Malwa FPO Cluster #4",
-    district: "Ludhiana",
-    permissions: ROLE_PERMISSIONS.field_officer,
+    isDemoUser: true,
   },
   reviewer: {
-    id: "USR-REV-04",
-    name: "Dr. Evelyn Martinez",
-    email: "e.martinez@sustainability-vvb.org",
-    role: "reviewer",
-    organization: "Apex Climate Auditing & Verification",
-    district: "Global / Remote VVB",
+    id: 'USR-DEMO-REVIEWER-01',
+    email: 'mankirat.auditor@virsaflow.com',
+    name: 'Mankirat Singh',
+    role: 'reviewer',
     permissions: ROLE_PERMISSIONS.reviewer,
+    isDemoUser: true,
+    scope: {
+      assignedReviewQueueIds: ['REV-2026-001', 'REV-2026-002', 'REV-2026-003'],
+    },
   },
-  buyer: {
-    id: "USR-BUY-05",
-    name: "Marcus Vance",
-    email: "m.vance@auraclimate.com",
-    role: "buyer",
-    organization: "Aura Climate Asset Management Ltd.",
-    permissions: ROLE_PERMISSIONS.buyer,
+  project_developer: {
+    id: 'USR-DEMO-PROJECT-DEVELOPER-01',
+    email: 'developer@virsaflow.com',
+    name: 'Panjdhara Project Ops',
+    role: 'project_developer',
+    permissions: ROLE_PERMISSIONS.project_developer,
+    isDemoUser: true,
+    scope: {
+      assignedProjectIds: ['PRJ-PB-DSR-01'],
+    },
+  },
+  field_officer: {
+    id: 'USR-DEMO-FIELD-OFFICER-01',
+    email: 'harpreet.officer@virsaflow.com',
+    name: 'Harpreet Singh',
+    role: 'field_officer',
+    fpoId: 'FPO-MALWA-01',
+    permissions: ROLE_PERMISSIONS.field_officer,
+    isDemoUser: true,
+    scope: {
+      permittedFieldIds: ['PB-LUD-042', 'PB-SNG-018'],
+      assignedProjectIds: ['PRJ-PB-DSR-01'],
+    },
   },
   farmer: {
-    id: "USR-FAR-06",
-    name: "Gurdev Singh Gill",
-    email: "gurdev.gill@farmer.punjab",
-    role: "farmer",
-    organization: "Gill Agro Farms",
-    district: "Ludhiana",
-    village: "Gill Kalan",
+    id: 'USR-DEMO-FARMER-01',
+    email: 'gurdev.singh@malwa-fpo.org',
+    name: 'Gurdev Singh Gill',
+    role: 'farmer',
+    farmerId: 'PB-LUD-042',
+    fpoId: 'FPO-MALWA-01',
     permissions: ROLE_PERMISSIONS.farmer,
+    isDemoUser: true,
+    scope: {
+      farmerId: 'PB-LUD-042',
+      permittedFieldIds: ['PB-LUD-042'],
+    },
+  },
+  buyer: {
+    id: 'USR-DEMO-BUYER-01',
+    email: 'marcus.vance@auraclimate.com',
+    name: 'Marcus Vance',
+    role: 'buyer',
+    buyerOrgId: 'AURA-CLIMATE-ASSETS',
+    permissions: ROLE_PERMISSIONS.buyer,
+    isDemoUser: true,
+    scope: {
+      buyerOrgId: 'AURA-CLIMATE-ASSETS',
+      publishedProjectIds: ['PRJ-PB-DSR-01', 'PRJ-PB-RES-02', 'PRJ-PB-AWD-03'],
+    },
   },
 };
 
-interface AuthContextType {
-  currentUser: UserSession | null;
-  currentRole: WorkspaceRole;
-  switchRole: (role: WorkspaceRole) => void;
-  loginAs: (role: WorkspaceRole) => void;
+interface AuthContextType extends AuthState {
+  login: (credentials: LoginCredentials) => Promise<{ success: boolean; user?: AuthUser; error?: string }>;
+  loginAsDemo: (role: UserRole) => Promise<{ success: boolean; user?: AuthUser }>;
   logout: () => void;
-  isAuthenticated: boolean;
+  hasPermission: (permission: Permission) => boolean;
+  canAccessPortal: (portal: PortalType) => boolean;
+  canAccessField: (fieldId: string) => boolean;
+  canAccessProject: (projectId: string, isPublished?: boolean) => boolean;
+  canAccessEnquiry: (enquiryOrgId: string) => boolean;
+  switchDemoRole: (role: UserRole) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({
-  children,
-  defaultRole = "admin",
-}: {
-  children: ReactNode;
-  defaultRole?: WorkspaceRole;
-}) {
-  const [currentUser, setCurrentUser] = useState<UserSession | null>(DEMO_ACCOUNTS[defaultRole]);
+const STORAGE_KEY = 'virsaflow_auth_session_v2';
+const DEMO_SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-  const switchRole = (role: WorkspaceRole) => {
-    setCurrentUser(DEMO_ACCOUNTS[role] || null);
-  };
+/**
+ * Validates a stored session.
+ * Fails closed if expired, tampered with, or unverified.
+ */
+function validateStoredSession(stored: StoredSession | null): AuthUser | null {
+  if (!stored || !stored.user || !stored.expiresAt || !stored.sessionType) {
+    return null;
+  }
 
-  const loginAs = (role: WorkspaceRole) => {
-    setCurrentUser(DEMO_ACCOUNTS[role] || null);
-  };
+  // Session expiry check
+  if (Date.now() > stored.expiresAt) {
+    return null;
+  }
 
-  const logout = () => {
-    setCurrentUser(null);
-  };
+  if (stored.sessionType === 'demo') {
+    const role = stored.user.role;
+    const trustedDemo = DEMO_IDENTITIES[role];
+    if (!trustedDemo) return null;
 
-  const value = useMemo(
-    () => ({
-      currentUser,
-      currentRole: currentUser?.role || "admin",
-      switchRole,
-      loginAs,
-      logout,
-      isAuthenticated: currentUser !== null,
-    }),
-    [currentUser],
+    // Verify identity ID matches trusted demo dictionary
+    if (stored.user.id !== trustedDemo.id) return null;
+
+    // Re-hydrate permissions strictly from trusted matrix
+    return {
+      ...trustedDemo,
+      permissions: ROLE_PERMISSIONS[role],
+      isDemoUser: true,
+    };
+  }
+
+  // Production session:
+  // If backend is unconfigured, production session cannot be validated; fail closed
+  const apiBaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_MRV_API_BASE_URL']) || '';
+  if (!apiBaseUrl || (apiBaseUrl as string).trim().length === 0) {
+    return null;
+  }
+
+  // Ensure role is canonical and permissions are re-derived
+  if (stored.user.role && ROLE_PERMISSIONS[stored.user.role]) {
+    return {
+      ...stored.user,
+      permissions: ROLE_PERMISSIONS[stored.user.role],
+      isDemoUser: false,
+    };
+  }
+
+  return null;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  // CRITICAL SECURITY ENFORCEMENT:
+  // Fresh application sessions ALWAYS start unauthenticated (null).
+  // No user automatically becomes authenticated simply by loading the application.
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached) as StoredSession;
+          return validateStoredSession(parsed);
+        }
+      } catch {
+        // Storage corrupt or unreadable -> fail closed
+      }
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Sync session changes to storage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (user) {
+          const session: StoredSession = {
+            user,
+            issuedAt: Date.now(),
+            expiresAt: Date.now() + DEMO_SESSION_TTL_MS,
+            sessionType: user.isDemoUser ? 'demo' : 'production',
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        // Storage write failed
+      }
+    }
+  }, [user]);
+
+  /**
+   * Explicit Demo Login
+   */
+  const loginAsDemo = useCallback(async (role: UserRole): Promise<{ success: boolean; user?: AuthUser }> => {
+    setIsLoading(true);
+    setError(null);
+
+    const demo = DEMO_IDENTITIES[role];
+    if (!demo) {
+      setIsLoading(false);
+      setError(`Invalid demo role: ${role}`);
+      return { success: false };
+    }
+
+    const sessionUser: AuthUser = {
+      ...demo,
+      permissions: ROLE_PERMISSIONS[role],
+      isDemoUser: true,
+    };
+
+    setUser(sessionUser);
+    setIsLoading(false);
+    return { success: true, user: sessionUser };
+  }, []);
+
+  /**
+   * Universal Login Handler
+   */
+  const login = useCallback(
+    async (credentials: LoginCredentials): Promise<{ success: boolean; user?: AuthUser; error?: string }> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Handle explicit demo role request
+        if (credentials.isDemoRequest || credentials.requestedDemoRole) {
+          const requestedRole = credentials.requestedDemoRole;
+          if (requestedRole && DEMO_IDENTITIES[requestedRole]) {
+            return await loginAsDemo(requestedRole);
+          }
+        }
+
+        // Live Backend Authentication
+        const apiBaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_MRV_API_BASE_URL']) || '';
+        if (apiBaseUrl && (apiBaseUrl as string).trim().length > 0) {
+          const res = await fetch(`${apiBaseUrl}/api/v1/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            const msg = errData.message || `Authentication failed (HTTP ${res.status})`;
+            setError(msg);
+            setIsLoading(false);
+            return { success: false, error: msg };
+          }
+
+          const body = await res.json();
+          const authenticatedUser: AuthUser = {
+            id: body.user.id,
+            email: body.user.email,
+            name: body.user.name,
+            role: body.user.role,
+            permissions: ROLE_PERMISSIONS[body.user.role as UserRole] || [],
+            isDemoUser: false,
+          };
+
+          setUser(authenticatedUser);
+          setIsLoading(false);
+          return { success: true, user: authenticatedUser };
+        }
+
+        // Check if entered email matches a known demo identity
+        const normalizedEmail = credentials.email.toLowerCase().trim();
+        const matchedDemo = Object.values(DEMO_IDENTITIES).find(
+          (id) => id.email.toLowerCase() === normalizedEmail
+        );
+
+        if (matchedDemo) {
+          return await loginAsDemo(matchedDemo.role);
+        }
+
+        // Unconfigured production backend:
+        const unconfiguredMsg =
+          'Production authentication backend is not configured. For evaluation, please use one of the labelled Demo Identities below.';
+        setError(unconfiguredMsg);
+        setIsLoading(false);
+        return { success: false, error: unconfiguredMsg };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Login failed';
+        setError(msg);
+        setIsLoading(false);
+        return { success: false, error: msg };
+      }
+    },
+    [loginAsDemo]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = useCallback(() => {
+    setUser(null);
+    setError(null);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  const switchDemoRole = useCallback((role: UserRole) => {
+    if (DEMO_IDENTITIES[role]) {
+      const demoUser = DEMO_IDENTITIES[role];
+      setUser({
+        ...demoUser,
+        permissions: ROLE_PERMISSIONS[role],
+        isDemoUser: true,
+      });
+    }
+  }, []);
+
+  const hasPermissionCallback = useCallback(
+    (permission: Permission): boolean => {
+      return checkPermission(user, permission);
+    },
+    [user]
+  );
+
+  const canAccessPortalCallback = useCallback(
+    (portal: PortalType): boolean => {
+      return checkPortal(user, portal);
+    },
+    [user]
+  );
+
+  const canAccessFieldCallback = useCallback(
+    (fieldId: string): boolean => {
+      return checkField(user, fieldId);
+    },
+    [user]
+  );
+
+  const canAccessProjectCallback = useCallback(
+    (projectId: string, isPublished?: boolean): boolean => {
+      return checkProject(user, projectId, isPublished);
+    },
+    [user]
+  );
+
+  const canAccessEnquiryCallback = useCallback(
+    (enquiryOrgId: string): boolean => {
+      return checkEnquiry(user, enquiryOrgId);
+    },
+    [user]
+  );
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: Boolean(user),
+        isLoading,
+        error,
+        login,
+        loginAsDemo,
+        logout,
+        hasPermission: hasPermissionCallback,
+        canAccessPortal: canAccessPortalCallback,
+        canAccessField: canAccessFieldCallback,
+        canAccessProject: canAccessProjectCallback,
+        canAccessEnquiry: canAccessEnquiryCallback,
+        switchDemoRole,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (!context) {
-    // Return a default fallback if outside provider to ensure resilience
-    return {
-      currentUser: DEMO_ACCOUNTS.admin,
-      currentRole: "admin" as WorkspaceRole,
-      switchRole: () => {},
-      loginAs: () => {},
-      logout: () => {},
-      isAuthenticated: true,
-    };
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

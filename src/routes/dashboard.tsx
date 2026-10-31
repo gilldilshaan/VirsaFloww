@@ -39,7 +39,7 @@ export function DashboardPage() {
 export const Route = createFileRoute('/dashboard')({
   head: () =>
     pageHead(
-      'TerraLedger AI | Agricultural MRV Command Centre',
+      'VirsaFlow | Agricultural MRV Command Centre',
       'Field evidence, satellite intelligence, and institutional due diligence platform for agricultural carbon projects in Punjab.',
       '/dashboard'
     ),

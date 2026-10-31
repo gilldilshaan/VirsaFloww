@@ -58,11 +58,16 @@ export function HomePage() {
             Turn better farming practices into <em>measurable climate impact.</em>
           </h1>
           <p>
-            The Carbon Credit connects field activity, geospatial observations and rigorous MRV
+            VirsaFlow connects field activity, geospatial observations and rigorous MRV
             workflows to help build credible agricultural carbon projects.
           </p>
           <div className="earth-hero-actions">
             <Button asChild variant="earth">
+              <Link to="/auth" search={{ next: "/dashboard" }}>
+                Get Started <ArrowUpRight />
+              </Link>
+            </Button>
+            <Button asChild variant="glass">
               <Link to="/platform">
                 Explore our approach <ArrowUpRight />
               </Link>
@@ -291,7 +296,7 @@ export function HomePage() {
         <TextLink to="/how-it-works">See the project workflow</TextLink>
       </section>
 
-      <DetailSections sections={platformCapabilities} label="THE CARBON CREDIT PLATFORM" />
+      <DetailSections sections={platformCapabilities} label="THE VIRSAFLOW PLATFORM" />
       <section className="earth-section earth-programs-photo">
         <img
           className="earth-programs-background"

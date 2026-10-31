@@ -1,26 +1,35 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
+import { TerraLedgerProvider, useTerraLedger } from '@/lib/terra-ledger/store';
+import { WorkspaceLayout } from '@/components/terra-ledger/workspace-layout';
+import { ProjectDossier } from '@/components/terra-ledger/project-dossier';
 import { useEffect } from 'react';
 import { pageHead } from '@/lib/earth/content';
 
-export function PassportRedirect() {
-  const navigate = useNavigate();
+function PassportView() {
+  const { setActiveTab } = useTerraLedger();
   useEffect(() => {
-    navigate({ to: '/dashboard' });
-  }, [navigate]);
+    setActiveTab('dossier');
+  }, [setActiveTab]);
 
+  return <ProjectDossier />;
+}
+
+export function PassportPage() {
   return (
-    <div className="min-h-screen bg-[#102e20] text-white flex items-center justify-center font-mono text-xs">
-      Loading Field Passport into TerraLedger Workspace...
-    </div>
+    <TerraLedgerProvider>
+      <WorkspaceLayout>
+        <PassportView />
+      </WorkspaceLayout>
+    </TerraLedgerProvider>
   );
 }
 
 export const Route = createFileRoute('/passport')({
   head: () =>
     pageHead(
-      'Field Passport | TerraLedger AI',
+      'Project Passport & Dossier | VirsaFlow',
       'Field parcel passport, cadastral boundaries, and agricultural MRV audit record.',
       '/passport'
     ),
-  component: PassportRedirect,
+  component: PassportPage,
 });

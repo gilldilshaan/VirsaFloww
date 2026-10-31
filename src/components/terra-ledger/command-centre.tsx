@@ -268,7 +268,7 @@ export function CommandCentre() {
           <div className="bg-[#173a2b] text-[#f5f5e8] border border-[#2b503e] rounded-xl p-5 shadow-xs">
             <div className="flex items-center gap-2 text-xs font-mono text-[#d6eaa6] mb-2 uppercase">
               <Sparkles size={14} className="animate-spin text-[#d6eaa6]" />
-              TerraLedger AI Diagnostics
+              VirsaFlow AI Diagnostics
             </div>
             <h3 className="font-serif text-lg font-medium text-white mb-2">
               {aiExplanation.headline}
