@@ -1,0 +1,34 @@
+[
+  {
+    "id": "PB-FIELD-001",
+    "code": "PB-FIELD-001",
+    "name": "Gill Demonstration Parcel 1",
+    "farmerId": "FARM-PB-001",
+    "farmerName": "Gurdev Singh Gill",
+    "farmerNameLocal": "ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ",
+    "district": "Ludhiana",
+    "state": "Punjab",
+    "areaHa": 4.8,
+    "areaAcres": 11.86,
+    "practice": "Direct Seeded Rice (DSR)",
+    "crop": "PR-126 Basmati / Paddy",
+    "season": "Kharif 2026",
+    "coordinates": {
+      "lat": 30.911,
+      "lng": 75.837
+    },
+    "boundaryPolygon": [
+      [30.9135, 75.8345],
+      [30.9142, 75.8388],
+      [30.9085, 75.8395],
+      [30.9078, 75.8352]
+    ],
+    "geometrySource": "demo-placeholder",
+    "targetEmissionReductionTonnes": null,
+    "emissionReductionNote": "Preliminary estimate: not computed",
+    "assignedOfficerId": "USR-FLD-03",
+    "projectId": "PRJ-PB-DSR-001",
+    "isDemo": true,
+    "dataLabel": "Demo data"
+  }
+]

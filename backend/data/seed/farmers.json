@@ -1,0 +1,19 @@
+[
+  {
+    "id": "FARM-PB-001",
+    "userId": "USR-FAR-05",
+    "name": "Gurdev Singh Gill",
+    "nameLocal": "ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ",
+    "phoneMasked": "+91 98765-XXXX1",
+    "district": "Ludhiana",
+    "tehsil": "Samrala",
+    "village": "Gill Kalan",
+    "fpoId": "FPO-MALWA-01",
+    "fpoName": "Malwa Progressive Rice FPO",
+    "enrolledHectares": 4.8,
+    "aadhaarConsentProvided": true,
+    "bankAccountVerified": true,
+    "isDemo": true,
+    "dataLabel": "Demo data"
+  }
+]

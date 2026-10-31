@@ -1,0 +1,44 @@
+[
+  {
+    "id": "EV-2026-001",
+    "fieldId": "PB-FIELD-001",
+    "activityId": "ACT-2026-001",
+    "title": "Field Drill Sowing Photograph (Spatial Offset)",
+    "type": "photo",
+    "category": "contradicting",
+    "status": "flagged",
+    "description": "Seeding photograph captured with DSR seed drill. Flagged: EXIF geotag coordinates fall outside the parcel boundary.",
+    "capturedAt": "2026-06-15T08:42:00Z",
+    "submittedAt": "2026-06-15T09:10:00Z",
+    "submitterId": "USR-FAR-05",
+    "provenance": {
+      "author": "Gurdev Singh Gill",
+      "source": "Farmer Mobile Camera",
+      "sha256": "381a8b94091ca2857410f92b774c8de5320e8b15d29033e08f230234714d2491",
+      "device": "Android Mobile Device",
+      "gpsCoordinates": {
+        "lat": 30.9178,
+        "lng": 75.8424,
+        "accuracyMeters": 4.2
+      },
+      "spatialDistanceMeters": 420.0,
+      "reviewStatus": "Flagged: Coordinate Mismatch (+420m)"
+    },
+    "fileDetails": {
+      "name": "IMG_20260615_Seeding_DSR.jpg",
+      "sizeKb": 128.0,
+      "mime": "image/jpeg"
+    },
+    "statusHistory": [
+      {
+        "timestamp": "2026-06-15T09:10:00Z",
+        "previousStatus": "received",
+        "newStatus": "flagged",
+        "actorId": "SYSTEM-RULES",
+        "reason": "Rule R3: Photo coordinate outside parcel boundary"
+      }
+    ],
+    "isDemo": true,
+    "dataLabel": "Demo data"
+  }
+]

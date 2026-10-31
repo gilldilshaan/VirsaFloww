@@ -1,0 +1,69 @@
+[
+  {
+    "id": "USR-ADMIN-01",
+    "email": "admin@terraledger.ai",
+    "name": "Dr. Inderjit Singh",
+    "role": "admin",
+    "organization": "TerraLedger Global MRV",
+    "assignedProjectIds": [],
+    "assignedFieldIds": [],
+    "passwordHash": "7caac505cdaf7958f2731f659f08ea379f64e9cd22764ac386fca75007d3b5ae5e5e06bc896e245fd84831278762ca5b2ca8f5e2a143bd3e5292b832b8b513fe",
+    "isActive": true
+  },
+  {
+    "id": "USR-DEV-02",
+    "email": "developer@panjdhara.com",
+    "name": "Amrita Kaur",
+    "role": "project_developer",
+    "organization": "Panjdhara Agritech Pvt Ltd",
+    "assignedProjectIds": ["PRJ-PB-DSR-001"],
+    "assignedFieldIds": ["PB-FIELD-001"],
+    "passwordHash": "7def5a2e604d510e5925a6d8ce94db3f5e4b1a671809b1ac800aa25e4a0a8e0e4169a9308c47effaee3e1371b2f4bf7cc97eed85613a5a2be68328c801680f7f",
+    "isActive": true
+  },
+  {
+    "id": "USR-FLD-03",
+    "email": "officer@ludhiana-fpo.org",
+    "name": "Harpreet Singh Gill",
+    "role": "field_officer",
+    "organization": "Malwa Progressive Farmers Collective",
+    "assignedProjectIds": [],
+    "assignedFieldIds": ["PB-FIELD-001"],
+    "passwordHash": "be3d6261d0c1a100378b3ccd18c04bdedc2aff695c1137f3fa4a9d00263b638327fe93606edd128131cd92ac1e5ae368f9d04597f2662a0de3d76e6a0559a352",
+    "isActive": true
+  },
+  {
+    "id": "USR-REV-04",
+    "email": "reviewer@vvb-auditor.org",
+    "name": "Dr. Evelyn Martinez",
+    "role": "reviewer",
+    "organization": "Apex Climate Auditing & Verification (VVB)",
+    "assignedProjectIds": [],
+    "assignedFieldIds": [],
+    "passwordHash": "1d3ceaf32986d4e41433f5b8e8566fd05c0d820228b57b44527d982ae0d5137fbd3807501cb398ba7a72c75f7cb43f7649428b0ca8605fb6a5f33eda0aecb9e2",
+    "isActive": true
+  },
+  {
+    "id": "USR-FAR-05",
+    "email": "farmer@punjab-agri.in",
+    "name": "Gurdev Singh Gill",
+    "role": "farmer",
+    "organization": "Gill Agro Farms",
+    "assignedProjectIds": [],
+    "assignedFieldIds": ["PB-FIELD-001"],
+    "passwordHash": "6c70ace2545647c79399929eb110c073d4d5945850c7511fb89773fabfd835150d18defea540328e1123e5723cf2f7612576a308dda72f83a18eef9bc193912a",
+    "isActive": true
+  },
+  {
+    "id": "USR-BUY-06",
+    "email": "buyer@auraclimate.com",
+    "name": "Marcus Vance",
+    "role": "buyer",
+    "organization": "Aura Climate Asset Management Ltd.",
+    "buyerCompanyId": "COMP-AURA-01",
+    "assignedProjectIds": [],
+    "assignedFieldIds": [],
+    "passwordHash": "7b45e74c9d51218b625f42ed197c6a79c8b113acef43730c1499b2dc0d442e792eea5017e4abf428e45125ffd8a33aef4659d26168cdffc60c839d0077527f99",
+    "isActive": true
+  }
+]

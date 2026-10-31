@@ -1,0 +1,11 @@
+{
+  "eventId": "EVT-SAMPLE-001",
+  "actorId": "USR-ADMIN-01",
+  "action": "USER_LOGIN",
+  "entityType": "USER",
+  "entityId": "USR-ADMIN-01",
+  "timestamp": "2026-06-15T09:10:00Z",
+  "details": null,
+  "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "eventHash": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+}

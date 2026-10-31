@@ -1,0 +1,35 @@
+[
+  {
+    "id": "PRJ-PB-DSR-001",
+    "title": "Punjab Direct Seeded Rice MRV Cluster #1",
+    "slug": "punjab-dsr-cluster-1",
+    "location": "Ludhiana & Sangrur, Punjab",
+    "district": "Ludhiana",
+    "practice": "Direct Seeded Rice (DSR) + AWD",
+    "methodology": "Methodology: pending confirmation",
+    "developer": "Panjdhara Agritech Private Limited",
+    "enrolledHectares": 1450.0,
+    "eligibleHectares": null,
+    "enrolledParcels": 180,
+    "assessmentStatus": "UNVERIFIED",
+    "statusLabel": "Unverified",
+    "outstandingVerification": [
+      "Independent field visit",
+      "Independent review"
+    ],
+    "vintage": "Kharif 2026",
+    "description": "Smallholder farmer cluster adopting dry direct-seeding with tractor seed drills in Punjab.",
+    "highlights": [
+      "Zero puddling replaces flooded baselines",
+      "AWD water management monitored with field water tubes",
+      "Sentinel-2 multi-spectral verification pipeline"
+    ],
+    "evidenceDepth": {
+      "satellitePasses": 0,
+      "groundPhotos": 1,
+      "waterLogs": 0
+    },
+    "isDemo": true,
+    "dataLabel": "Demo data"
+  }
+]
