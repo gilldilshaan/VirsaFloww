@@ -1,0 +1,17 @@
+[
+  {
+    "id": "REV-2026-001",
+    "parcelId": "PB-FIELD-001",
+    "fieldId": "PB-FIELD-001",
+    "title": "Spatial Offset Flag on Sowing Photo EV-2026-001",
+    "description": "Seeding photograph GPS EXIF falls outside parcel boundary polygon. In-boundary emergence corroboration required.",
+    "severity": "high",
+    "status": "pending_review",
+    "reportedDate": "2026-06-16",
+    "dueDate": "2026-07-01",
+    "assignedTo": "Dr. Evelyn Martinez (Reviewer)",
+    "evidenceRefId": "EV-2026-001",
+    "isDemo": true,
+    "dataLabel": "Demo data"
+  }
+]

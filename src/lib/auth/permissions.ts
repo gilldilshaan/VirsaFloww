@@ -117,21 +117,68 @@ export function hasAnyPermission(user: AuthUser | null, permissions: Permission[
  * - Internal Workspace: accessible only to 'admin', 'project_developer', 'reviewer', 'field_officer'
  * - Buyer Portal: accessible only to 'buyer' and 'admin'
  */
-export function canAccessPortal(user: AuthUser | null, portal: PortalType): boolean {
-  if (!user || !user.role) return false;
+export function canAccessPortal(userOrRole: AuthUser | UserRole | null, portal: PortalType): boolean {
+  if (!userOrRole) return false;
+  const role: UserRole = typeof userOrRole === 'string' ? userOrRole : userOrRole.role;
+  if (!role) return false;
 
-  if (user.role === 'admin') return true;
+  if (role === 'admin') return true;
 
   switch (portal) {
     case 'farmer':
-      return user.role === 'farmer';
+      return role === 'farmer';
     case 'workspace':
-      return ['project_developer', 'reviewer', 'field_officer'].includes(user.role);
+      return ['project_developer', 'reviewer', 'field_officer'].includes(role);
     case 'buyer':
-      return user.role === 'buyer';
+      return role === 'buyer';
     default:
       return false;
   }
+}
+
+/**
+ * Extract portal name from a pathname.
+ * Returns 'farmer' | 'workspace' | 'buyers' | null
+ */
+export function getPortalFromPath(pathname: string): 'farmer' | 'workspace' | 'buyers' | null {
+  if (pathname.startsWith('/farmer')) return 'farmer';
+  if (pathname.startsWith('/workspace')) return 'workspace';
+  if (pathname.startsWith('/buyers')) return 'buyers';
+  return null;
+}
+
+/**
+ * Check whether a role or user can access a specific route.
+ */
+export function canAccessRoute(userOrRole: UserRole | AuthUser | null, pathname: string): boolean {
+  if (!userOrRole) return false;
+  const role: UserRole = typeof userOrRole === 'string' ? userOrRole : userOrRole.role;
+  if (!role) return false;
+
+  const portal = getPortalFromPath(pathname);
+  if (portal) {
+    const portalType: PortalType = portal === 'buyers' ? 'buyer' : portal;
+    if (!canAccessPortal(role, portalType)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Determine where to redirect an unauthorized user.
+ * - Not authenticated → /login
+ * - Authenticated but wrong portal → /unauthorized
+ */
+export function getAuthRedirect(
+  isAuthenticated: boolean,
+  currentPath: string,
+): string {
+  if (!isAuthenticated) {
+    return `/login?next=${encodeURIComponent(currentPath)}`;
+  }
+  return '/unauthorized';
 }
 
 /**

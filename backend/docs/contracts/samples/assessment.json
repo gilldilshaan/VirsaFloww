@@ -1,0 +1,31 @@
+{
+  "id": "ASM-2026-001",
+  "fieldId": "PB-FIELD-001",
+  "seasonId": "SEASON-KHARIF-2026",
+  "assessedAt": "2026-06-16T10:00:00Z",
+  "rulesetVersion": "1.0.0-deterministic",
+  "status": "UNVERIFIED",
+  "statusLabel": "Unverified",
+  "outstandingVerification": [
+    "Independent field visit",
+    "Independent review"
+  ],
+  "ruleResults": [
+    {
+      "ruleId": "R1",
+      "result": "fail",
+      "explanation": "Missing AWD irrigation log",
+      "sourceRecordIds": []
+    },
+    {
+      "ruleId": "R3",
+      "result": "warn",
+      "explanation": "Photo EV-2026-001 is 420m outside boundary",
+      "sourceRecordIds": [
+        "EV-2026-001"
+      ]
+    }
+  ],
+  "isDemo": true,
+  "dataLabel": "Demo data"
+}
