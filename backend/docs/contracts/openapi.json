@@ -26,6 +26,48 @@
         }
       }
     },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Create Session",
+        "description": "Exchanges email and password for a signed short-lived JWT session token.",
+        "operationId": "create_session_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/session": {
       "post": {
         "tags": [
@@ -1874,6 +1916,63 @@
         }
       }
     },
+    "/api/marketplace/projects": {
+      "get": {
+        "tags": [
+          "Buyer Marketplace"
+        ],
+        "summary": "List Marketplace Projects",
+        "description": "Lists published, buyer-safe projects in the carbon marketplace.\n\nGUARANTEES: Omits all farmer personal identifiable information, phone numbers, and IDs.",
+        "operationId": "list_marketplace_projects_api_marketplace_projects_get",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListEnvelope_BuyerProjectSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/marketplace": {
       "get": {
         "tags": [
@@ -2348,6 +2447,182 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SatelliteObservationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fields/{field_id}/graph": {
+      "get": {
+        "tags": [
+          "Evidence Graph"
+        ],
+        "summary": "Get Field Evidence Graph",
+        "operationId": "get_field_evidence_graph_api_fields__field_id__graph_get",
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Field Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceGraphResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}/graph": {
+      "get": {
+        "tags": [
+          "Evidence Graph"
+        ],
+        "summary": "Get Project Evidence Graph",
+        "operationId": "get_project_evidence_graph_api_projects__project_id__graph_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceGraphResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/explanations": {
+      "post": {
+        "tags": [
+          "Terra Intelligence Explainer"
+        ],
+        "summary": "Generate Explanation",
+        "description": "Generates a truthful, deterministic-first explanation for an assessment.",
+        "operationId": "generate_explanation_api_explanations_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainerResponse"
                 }
               }
             }
@@ -3252,6 +3527,46 @@
         "type": "object",
         "title": "EvidenceDepth"
       },
+      "EvidenceGraphResponse": {
+        "properties": {
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "type": "array",
+            "title": "Nodes"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "type": "array",
+            "title": "Edges"
+          },
+          "generatedAt": {
+            "type": "string",
+            "title": "Generatedat"
+          },
+          "assessmentId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessmentid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nodes",
+          "edges",
+          "generatedAt"
+        ],
+        "title": "EvidenceGraphResponse"
+      },
       "EvidenceStatus": {
         "type": "string",
         "enum": [
@@ -3310,6 +3625,115 @@
           "sensor"
         ],
         "title": "EvidenceType"
+      },
+      "ExplainerMode": {
+        "type": "string",
+        "enum": [
+          "LLM",
+          "Cached",
+          "Template"
+        ],
+        "title": "ExplainerMode"
+      },
+      "ExplainerRequest": {
+        "properties": {
+          "assessmentId": {
+            "type": "string",
+            "title": "Assessmentid"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question",
+            "default": "Explain the assessment status and rule evaluation results."
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assessmentId"
+        ],
+        "title": "ExplainerRequest"
+      },
+      "ExplainerResponse": {
+        "properties": {
+          "assessmentId": {
+            "type": "string",
+            "title": "Assessmentid"
+          },
+          "fieldId": {
+            "type": "string",
+            "title": "Fieldid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ExplainerMode"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "ruleBreakdowns": {
+            "items": {
+              "$ref": "#/components/schemas/RuleExplanationItem"
+            },
+            "type": "array",
+            "title": "Rulebreakdowns"
+          },
+          "citations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citations"
+          },
+          "generatedAt": {
+            "type": "string",
+            "title": "Generatedat"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence",
+            "default": "Deterministic Grounded"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assessmentId",
+          "fieldId",
+          "status",
+          "mode",
+          "summary",
+          "generatedAt"
+        ],
+        "title": "ExplainerResponse"
       },
       "FieldModel": {
         "properties": {
@@ -3536,6 +3960,109 @@
           "lng"
         ],
         "title": "GpsCoordinates"
+      },
+      "GraphEdge": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "relation": {
+            "$ref": "#/components/schemas/GraphRelation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target",
+          "relation"
+        ],
+        "title": "GraphEdge"
+      },
+      "GraphNode": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/GraphNodeType"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "isDemo": {
+            "type": "boolean",
+            "title": "Isdemo",
+            "default": true
+          },
+          "dataLabel": {
+            "type": "string",
+            "title": "Datalabel",
+            "default": "Demo data"
+          },
+          "meta": {
+            "type": "object",
+            "title": "Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "label"
+        ],
+        "title": "GraphNode"
+      },
+      "GraphNodeType": {
+        "type": "string",
+        "enum": [
+          "project",
+          "field",
+          "season",
+          "activity",
+          "evidence",
+          "satellite_observation",
+          "rule_result",
+          "review",
+          "assessment"
+        ],
+        "title": "GraphNodeType"
+      },
+      "GraphRelation": {
+        "type": "string",
+        "enum": [
+          "has_field",
+          "has_activity",
+          "supports",
+          "contradicts",
+          "supersedes",
+          "evaluated_by",
+          "resulted_in",
+          "reviewed_in"
+        ],
+        "title": "GraphRelation"
       },
       "HTTPValidationError": {
         "properties": {
@@ -4389,6 +4916,36 @@
           "fail"
         ],
         "title": "RuleEvaluationResult"
+      },
+      "RuleExplanationItem": {
+        "properties": {
+          "ruleId": {
+            "type": "string",
+            "title": "Ruleid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "sourceRecordIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sourcerecordids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ruleId",
+          "status",
+          "explanation"
+        ],
+        "title": "RuleExplanationItem"
       },
       "RuleResult": {
         "properties": {

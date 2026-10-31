@@ -19,6 +19,7 @@ class Settings:
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     JWT_EXPIRATION_MINUTES: int = int(os.getenv("JWT_EXPIRATION_MINUTES", "60"))
     PASSWORD_SALT: str = os.getenv("PASSWORD_SALT", "terraledger-demo-salt-2026")
+    DEMO_USER_PASSWORD: str = os.getenv("DEMO_USER_PASSWORD", "")
 
     # Storage Paths
     BASE_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))

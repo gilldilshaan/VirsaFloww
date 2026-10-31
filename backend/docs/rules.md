@@ -59,12 +59,16 @@
 ---
 
 ## 5. Rule 5 (R5): Satellite Coverage & Cloud Clearance
-- **Parameter:** Maximum cloud cover $\le 20\%$.
-- **Source:** `data/observations.json` (Sentinel-2 L2A).
+- **Parameter:** `CLOUD_COVER_MAX_PERCENT = 20.0%` (**STATUS: PENDING TEAM CONFIRMATION**)
+- **Source:** `data/observations.json` (Copernicus Sentinel-2 L2A MSI).
+- **Temporal Window:** `WINDOW_DAYS = 10` UTC days from declared activity date.
 - **Logic:**
-  - If `data/observations.json` does not exist or has no observations for the field: `FAIL` ("No satellite coverage available").
-  - If observation found within 10 days and cloud cover $\le 20\%$: `PASS`.
-  - If cloud cover $> 20\%$: `WARN` ("High cloud cover occludes spectral indices").
+  - If `data/observations.json` does not exist: `FAIL` ("No satellite coverage available: observations file 'observations.json' not found").
+  - If observations file exists but contains no records for the field: `FAIL` ("No satellite observations exist for field").
+  - If observations exist for field but none fall within 10 days of declared activity: `FAIL` ("No satellite observations found within 10 days of target date").
+  - If observation is found within 10 days:
+    - Cloud cover $\le 20.0\%$: `PASS` (Valid observation with acceptable cloud clearance).
+    - Cloud cover $> 20.0\%$: `WARN` (Advisory: high cloud cover occludes optical imagery; triggers human review, resulting in overall `NEEDS_REVIEW` status rather than `UNVERIFIED`).
 
 ---
 

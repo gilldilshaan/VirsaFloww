@@ -1,0 +1,30 @@
+{
+  "assessmentId": "ASSESS-2026-001",
+  "fieldId": "PB-FIELD-001",
+  "status": "UNVERIFIED",
+  "mode": "Cached",
+  "summary": "Assessment ASSESS-2026-001 for field PB-FIELD-001 has server status 'UNVERIFIED'. Automated evaluation completed across 5 screening rules.",
+  "ruleBreakdowns": [
+    {
+      "ruleId": "R1",
+      "status": "pass",
+      "explanation": "All 5 required evidence elements present.",
+      "sourceRecordIds": ["EV-PB-001"]
+    },
+    {
+      "ruleId": "R5",
+      "status": "warn",
+      "explanation": "No Sentinel-2 observations found within 10-day window. Sowing date: 2026-06-15.",
+      "sourceRecordIds": []
+    }
+  ],
+  "citations": [
+    "ASSESS-2026-001",
+    "EV-PB-001",
+    "PB-FIELD-001",
+    "R1",
+    "R5"
+  ],
+  "confidence": "Deterministic Grounded",
+  "generatedAt": "2026-10-31T12:00:00Z"
+}

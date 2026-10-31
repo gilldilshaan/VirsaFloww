@@ -1,0 +1,17 @@
+[
+  {
+    "id": "OBS-SENTINEL2-PB01-FIXTURE",
+    "date": "2026-06-12",
+    "sensor": "Copernicus Sentinel-2 MSI",
+    "resolutionMeters": 10.0,
+    "cloudCoverPercent": 4.5,
+    "sunAzimuthDeg": 125.0,
+    "meanNdvi": 0.42,
+    "meanNdwi": 0.38,
+    "surfaceWaterDetected": true,
+    "qualityRating": "Standard",
+    "notes": "Test fixture for Kharif 2026 direct seeded rice pre-sowing moisture corroboration (TEST ONLY)",
+    "isDemo": true,
+    "dataLabel": "Test fixture data"
+  }
+]

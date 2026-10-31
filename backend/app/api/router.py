@@ -14,6 +14,8 @@ from backend.app.api.routes import (
     marketplace,
     enquiries,
     satellite,
+    graphs,
+    explanations,
 )
 
 api_router = APIRouter(prefix="/api")
@@ -32,6 +34,8 @@ api_router.include_router(fields.router)
 api_router.include_router(marketplace.router)
 api_router.include_router(enquiries.router)
 api_router.include_router(satellite.router)
+api_router.include_router(graphs.router)
+api_router.include_router(explanations.router)
 
 # Mount /api/me alias directly on /api
 @api_router.get("/me", tags=["Authentication"], response_model=auth.User)

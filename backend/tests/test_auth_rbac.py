@@ -1,26 +1,44 @@
 from datetime import datetime, timezone, timedelta
 import jwt
+from backend.app.utils.crypto import hash_password
 from fastapi.testclient import TestClient
 from backend.app.core.config import settings
+def test_login_success_and_me(client: TestClient, test_container):
+    # Get admin from the temporary test database
+    admin = test_container.user_repo.find_one(
+        lambda u: u.email.lower() == "admin@terraledger.ai"
+    )
+    assert admin is not None
 
-def test_login_success_and_me(client: TestClient):
+    # Set a known password only in the temporary test database
+    updated_admin = admin.model_copy(
+        update={"password_hash": hash_password("admin12345")}
+    )
+    test_container.user_repo.update(updated_admin)
+
+    # Test login
     resp = client.post(
         "/api/auth/session",
         json={"email": "admin@terraledger.ai", "password": "admin12345"},
     )
+
     assert resp.status_code == 200
     data = resp.json()
+
     assert "accessToken" in data
     assert "user" in data
     assert data["user"]["email"] == "admin@terraledger.ai"
     assert data["user"]["role"] == "admin"
 
-    # Call /api/me
+    # Test /api/me
     token = data["accessToken"]
-    me_resp = client.get("/api/me", headers={"Authorization": f"Bearer {token}"})
+    me_resp = client.get(
+        "/api/me",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
     assert me_resp.status_code == 200
     assert me_resp.json()["email"] == "admin@terraledger.ai"
-
 def test_login_failure_and_throttling(client: TestClient):
     email = "officer@ludhiana-fpo.org"
 

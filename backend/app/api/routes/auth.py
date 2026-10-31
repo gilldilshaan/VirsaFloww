@@ -7,6 +7,7 @@ from backend.app.api.deps import get_auth_service, get_audit_service, get_curren
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/session", response_model=SessionResponse)
+@router.post("/login", response_model=SessionResponse)
 def create_session(
     body: LoginRequest,
     request: Request,

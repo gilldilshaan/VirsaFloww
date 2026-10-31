@@ -31,3 +31,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime audit data
+backend/data/audit/

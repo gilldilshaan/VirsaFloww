@@ -17,6 +17,9 @@ from backend.app.storage.evidence_storage import EvidenceRepository
 from backend.app.services.auth_service import AuthService
 from backend.app.services.audit_service import AuditService
 from backend.app.services.evidence_service import EvidenceService
+from backend.app.services.graph_service import GraphService
+from agent.explainer import TerraExplainer
+from agent.cache import ExplainerCache
 
 # Container singleton holder
 class AppContainer:
@@ -85,6 +88,10 @@ class AppContainer:
         self.auth_service = AuthService(self.user_repo)
         self.audit_service = AuditService(self.audit_path)
         self.evidence_service = EvidenceService(self.evidence_repo, self.audit_service)
+        self.graph_service = GraphService(self)
+        self.explainer = TerraExplainer(
+            cache=ExplainerCache(os.path.join(self.runtime_dir, "explainer_cache.json"))
+        )
 
     def reset_all_to_seeds(self) -> None:
         """Resets all runtime repositories to their initial seed state."""
@@ -99,6 +106,7 @@ class AppContainer:
         self.review_repo.reset_to_seed()
         self.buyer_enquiry_repo.reset_to_seed()
         self.notification_repo.reset_to_seed()
+        self.explainer.cache.clear()
 
 _container: Optional[AppContainer] = None
 
@@ -121,6 +129,12 @@ def get_audit_service(container: AppContainer = Depends(get_container)) -> Audit
 
 def get_evidence_service(container: AppContainer = Depends(get_container)) -> EvidenceService:
     return container.evidence_service
+
+def get_graph_service(container: AppContainer = Depends(get_container)) -> GraphService:
+    return container.graph_service
+
+def get_explainer(container: AppContainer = Depends(get_container)) -> TerraExplainer:
+    return container.explainer
 
 def get_current_user(
     authorization: Optional[str] = Header(None),

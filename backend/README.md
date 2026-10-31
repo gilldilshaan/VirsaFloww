@@ -44,26 +44,39 @@ python -m uvicorn backend.app.main:app --reload --port 8000
 python -m pytest backend/tests -v
 ```
 
-### Resetting Demo State
+### Running the End-to-End Demo Smoke Script
+```bash
+# Set your demo password in env, then run smoke test
+$env:DEMO_USER_PASSWORD="YourPassword123"
+python backend/scripts/demo_smoke.py
+```
+
+### CLI Utilities (`backend/app/cli.py`)
 ```bash
 # Restores all runtime JSON repositories to baseline seeds (demo mode only)
 python -m backend.app.cli reset-demo
+
+# Updates seed users password hashes from DEMO_USER_PASSWORD env variable
+python -m backend.app.cli reseed-users
+
+# Populates explainer cache with pre-validated explanations for demo assessments
+python -m backend.app.cli warm-cache
 ```
 
 ---
 
 ## 2. Seed Demo Accounts & Roles
 
-Each demo role has a pre-configured account for testing:
+Demo accounts are pre-configured in `backend/data/seed/users.json` using salted scrypt hashes (no plaintext passwords are stored). At seed time, passwords are read from the `DEMO_USER_PASSWORD` environment variable (documented in `backend/.env.example`).
 
-| Role | Email | Demo Password | Primary Permissions |
+| Role | Email | Password Source | Primary Permissions |
 | :--- | :--- | :--- | :--- |
-| `admin` | `admin@terraledger.ai` | `admin12345` | Full internal access, audit log read, publication approval |
-| `project_developer` | `developer@panjdhara.com` | `dev12345` | Assigned projects, fields, evidence, assessments, enquiries |
-| `field_officer` | `officer@ludhiana-fpo.org` | `officer12345` | Assigned fields, evidence submissions, visit notes |
-| `reviewer` | `reviewer@vvb-auditor.org` | `reviewer12345` | Review queue, evidence auditing, assessment attestation |
-| `farmer` | `farmer@punjab-agri.in` | `farmer12345` | Own field, activity logs, evidence uploads, notifications |
-| `buyer` | `buyer@auraclimate.com` | `buyer12345` | Buyer-safe marketplace projections, own company enquiries |
+| `admin` | `admin@terraledger.ai` | `env: DEMO_USER_PASSWORD` | Full internal access, audit log read, publication approval |
+| `project_developer` | `developer@panjdhara.com` | `env: DEMO_USER_PASSWORD` | Assigned projects, fields, evidence, assessments, enquiries |
+| `field_officer` | `officer@ludhiana-fpo.org` | `env: DEMO_USER_PASSWORD` | Assigned fields, evidence submissions, visit notes |
+| `reviewer` | `reviewer@vvb-auditor.org` | `env: DEMO_USER_PASSWORD` | Review queue, evidence auditing, assessment attestation |
+| `farmer` | `farmer@punjab-agri.in` | `env: DEMO_USER_PASSWORD` | Own field, activity logs, evidence uploads, notifications |
+| `buyer` | `buyer@auraclimate.com` | `env: DEMO_USER_PASSWORD` | Buyer-safe marketplace projections, own company enquiries |
 
 ---
 

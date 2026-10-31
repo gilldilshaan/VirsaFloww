@@ -5,6 +5,7 @@ import threading
 from datetime import datetime, timezone
 from typing import Callable, Dict, List, Optional
 from backend.app.schemas.evidence import Evidence, EvidenceStatus, EvidenceStatusHistory
+from backend.app.utils.crypto import sha256_bytes
 
 class EvidenceRepository:
     """Immutable evidence repository.
@@ -44,8 +45,17 @@ class EvidenceRepository:
                     return
                 raw_list = json.loads(content)
                 self._data = {}
+                seed_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "seed_files"))
                 for item in raw_list:
                     parsed = Evidence.model_validate(item)
+                    # Compute sha256 dynamically from actual file bytes if present in seed_files
+                    if parsed.file_details and os.path.exists(seed_files_dir):
+                        disk_candidate = os.path.join(seed_files_dir, parsed.file_details.name)
+                        if os.path.exists(disk_candidate):
+                            with open(disk_candidate, "rb") as bf:
+                                computed = sha256_bytes(bf.read())
+                            updated_prov = parsed.provenance.model_copy(update={"sha256": computed})
+                            parsed = parsed.model_copy(update={"provenance": updated_prov})
                     self._data[parsed.id] = parsed
         except Exception as e:
             raise RuntimeError(f"Failed to load evidence records from {path}: {e}")

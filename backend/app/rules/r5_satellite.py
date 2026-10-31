@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from typing import List, Optional
 from backend.app.core.config import settings
+from backend.app.core.constants import CLOUD_COVER_MAX_PERCENT
 from backend.app.schemas.assessment import RuleResult, RuleEvaluationResult
 from backend.app.schemas.satellite import SatelliteObservation
 
@@ -16,7 +17,7 @@ def evaluate_r5_satellite(
     field_id: str,
     target_date_str: str,
     observations_path: Optional[str] = None,
-    max_cloud_cover_percent: float = 20.0,
+    max_cloud_cover_percent: float = CLOUD_COVER_MAX_PERCENT,
     window_days: int = 10,
 ) -> RuleResult:
     """R5: Verifies Sentinel-2 satellite observation availability and cloud clearance."""

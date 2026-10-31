@@ -35,6 +35,7 @@ def project_to_buyer_summary(p: Project) -> BuyerProjectSummary:
     )
 
 @router.get("/marketplace", response_model=ListEnvelope[BuyerProjectSummary])
+@router.get("/marketplace/projects", response_model=ListEnvelope[BuyerProjectSummary])
 def list_marketplace_projects(
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),

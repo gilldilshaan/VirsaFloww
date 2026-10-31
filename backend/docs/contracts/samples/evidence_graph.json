@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "PB-FIELD-001",
+      "type": "field",
+      "label": "Field: Khasra 14//2",
+      "status": "DSR",
+      "isDemo": true,
+      "dataLabel": "Demo data",
+      "meta": {
+        "areaHa": 2.4,
+        "district": "Ludhiana",
+        "practice": "DSR",
+        "crop": "Paddy"
+      }
+    },
+    {
+      "id": "EV-PB-001",
+      "type": "evidence",
+      "label": "Evidence: Sowing Photo (DSR drill)",
+      "status": "received",
+      "isDemo": true,
+      "dataLabel": "Demo data",
+      "meta": {
+        "type": "field_photo",
+        "category": "supporting",
+        "capturedAt": "2026-06-15T09:30:00Z",
+        "sha256": "3e9b1f72a4c89d0e..."
+      }
+    },
+    {
+      "id": "ASSESS-2026-001:R1",
+      "type": "rule_result",
+      "label": "Rule: R1",
+      "status": "pass",
+      "isDemo": true,
+      "dataLabel": "Demo data",
+      "meta": {
+        "explanation": "All 5 required evidence elements present.",
+        "result": "pass"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "EDGE-EV-PB-001-supports-ASSESS-2026-001:R1",
+      "source": "EV-PB-001",
+      "target": "ASSESS-2026-001:R1",
+      "relation": "supports"
+    }
+  ],
+  "generatedAt": "2026-10-31T12:00:00Z",
+  "assessmentId": "ASSESS-2026-001"
+}
