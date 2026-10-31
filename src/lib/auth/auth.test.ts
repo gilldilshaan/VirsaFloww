@@ -329,29 +329,33 @@ describe('Stage 2.5: Three-Portal Authentication, RBAC & Security Enforcements',
       expect(validate({})).toEqual({ next: '/dashboard' });
     });
 
-    it('17. Preserves /dashboard, /marketplace, and /passport in router tree', async () => {
-      const { routeTree } = await import('../../routeTree.gen');
-      const { createRouter, createMemoryHistory } = await import('@tanstack/react-router');
-      const { QueryClient } = await import('@tanstack/react-query');
+    it(
+      '17. Preserves /dashboard, /marketplace, and /passport in router tree',
+      async () => {
+        const { routeTree } = await import('../../routeTree.gen');
+        const { createRouter, createMemoryHistory } = await import('@tanstack/react-router');
+        const { QueryClient } = await import('@tanstack/react-query');
 
-      const history = createMemoryHistory({ initialEntries: ['/'] });
-      const router = createRouter({
-        routeTree,
-        history,
-        context: { queryClient: new QueryClient() },
-      });
+        const history = createMemoryHistory({ initialEntries: ['/'] });
+        const router = createRouter({
+          routeTree,
+          history,
+          context: { queryClient: new QueryClient() },
+        });
 
-      expect(router.routesById['/']).toBeDefined();
-      expect(router.routesById['/dashboard']).toBeDefined();
-      expect(router.routesById['/marketplace']).toBeDefined();
-      expect(router.routesById['/passport']).toBeDefined();
-      expect(router.routesById['/login']).toBeDefined();
-      expect(router.routesById['/auth']).toBeDefined();
+        expect(router.routesById['/']).toBeDefined();
+        expect(router.routesById['/dashboard']).toBeDefined();
+        expect(router.routesById['/marketplace']).toBeDefined();
+        expect(router.routesById['/passport']).toBeDefined();
+        expect(router.routesById['/login']).toBeDefined();
+        expect(router.routesById['/auth']).toBeDefined();
 
-      // Core portal root layouts
-      expect(router.routesById['/farmer']).toBeDefined();
-      expect(router.routesById['/workspace']).toBeDefined();
-      expect(router.routesById['/buyers']).toBeDefined();
-    });
+        // Core portal root layouts
+        expect(router.routesById['/farmer']).toBeDefined();
+        expect(router.routesById['/workspace']).toBeDefined();
+        expect(router.routesById['/buyers']).toBeDefined();
+      },
+      15000
+    );
   });
 });

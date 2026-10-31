@@ -116,73 +116,62 @@ export function WorkspaceLayout({ children }: { children?: ReactNode }) {
             </a>
           </div>
 
-          {/* Navigation Links */}
-          <div className="mt-6">
-            <p className="font-mono text-[10px] tracking-widest text-[#809c88] mb-3 uppercase px-3">
-              Internal Workspace
-            </p>
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isPathActive = currentPath === item.path || (currentPath.startsWith('/workspace') && currentPath === item.path);
-                const isTabActive = activeTab === item.id;
-                const isActive = isPathActive || isTabActive;
+          {/* Navigation Items */}
+          <nav className="mt-6 space-y-1.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                currentPath === item.path ||
+                (currentPath.startsWith(item.path) && item.path !== '/workspace/command');
 
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                      isActive
-                        ? 'bg-[#d6eaa6] text-[#173a27] font-semibold shadow-sm'
-                        : 'text-[#bacabd] hover:bg-[#ffffff10] hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon size={16} className={`shrink-0 ${isActive ? 'text-[#173a27]' : 'text-[#809c88]'}`} />
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span
-                        className={`text-[9px] font-mono px-1.5 py-0.5 rounded shrink-0 ${
-                          isActive
-                            ? 'bg-[#173a27]/10 text-[#173a27]'
-                            : 'bg-[#ffffff10] text-[#809c88]'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-[#1e4834] text-white shadow-xs'
+                      : 'text-[#bacabd] hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon size={16} className={isActive ? 'text-[#d6eaa6]' : 'text-[#809c88]'} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                        isActive
+                          ? 'bg-[#d6eaa6] text-[#173a27] font-semibold'
+                          : 'bg-[#ffffff10] text-[#a0b5a4]'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
 
-          {/* Active Field Selector Card */}
+          {/* Active Field Card & Parcel Switcher */}
           <div className="mt-8 bg-[#173a2b] border border-[#ffffff12] rounded-xl p-3.5 relative">
             <div className="flex items-center justify-between text-[10px] font-mono text-[#809c88] mb-1.5">
               <span>ACTIVE PARCEL</span>
               <button
                 type="button"
                 onClick={() => setFieldPickerOpen(!fieldPickerOpen)}
-                className="text-[#d6eaa6] hover:underline flex items-center gap-0.5"
-                title="Switch active parcel"
+                className="text-[#d6eaa6] hover:underline flex items-center gap-0.5 text-[10px]"
               >
-                <span>{allFields.length} parcels</span>
-                <ChevronDown size={11} />
+                <span>Switch</span>
+                <ChevronDown size={10} />
               </button>
             </div>
             <p className="text-xs font-semibold text-white truncate">{field.name}</p>
             <div className="flex items-center gap-1.5 text-[11px] text-[#bacabd] mt-1">
-              <MapPin size={11} className="text-[#d6eaa6] shrink-0" />
-              <span className="truncate">
-                {field.district}, {field.areaHa} ha ({field.areaAcres} ac)
-              </span>
+              <MapPin size={11} className="text-[#d6eaa6]" />
+              <span>{field.district}, {field.areaHa} ha ({field.areaAcres} ac)</span>
             </div>
             <div className="mt-2.5 pt-2 border-t border-[#ffffff10] flex items-center justify-between text-[10px]">
               <span className="text-[#809c88]">Practice:</span>
@@ -260,7 +249,7 @@ export function WorkspaceLayout({ children }: { children?: ReactNode }) {
           {/* Top Header */}
           <header className="h-16 bg-white border-b border-[#dde4d9] px-6 lg:px-10 flex items-center justify-between gap-4 sticky top-0 md:top-12 z-20 shadow-xs">
             <div className="flex items-center gap-3 min-w-0">
-              <span className="text-xs text-[#72816f] hidden sm:inline">Scope:</span>
+              <span className="text-xs text-[#72816f] hidden sm:inline">Assessment Scope:</span>
               <span className="text-xs font-semibold text-[#213c2b] flex items-center gap-1.5 truncate">
                 <Shield size={14} className="text-[#347454] shrink-0" />
                 {field.code} · {field.practice}
