@@ -3,6 +3,7 @@ import jwt
 from backend.app.utils.crypto import hash_password
 from fastapi.testclient import TestClient
 from backend.app.core.config import settings
+
 def test_login_success_and_me(client: TestClient, test_container):
     # Get admin from the temporary test database
     admin = test_container.user_repo.find_one(
@@ -39,6 +40,7 @@ def test_login_success_and_me(client: TestClient, test_container):
 
     assert me_resp.status_code == 200
     assert me_resp.json()["email"] == "admin@terraledger.ai"
+
 def test_login_failure_and_throttling(client: TestClient):
     email = "officer@ludhiana-fpo.org"
 
@@ -99,3 +101,58 @@ def test_rbac_audit_endpoint_access(client: TestClient, auth_headers):
     buyer_headers = auth_headers("buyer")
     resp = client.get("/api/audit", headers=buyer_headers)
     assert resp.status_code == 404
+
+def test_register_success(client: TestClient):
+    reg_payload = {
+        "name": "Simranjit Kaur",
+        "email": "simranjit@punjab-agri.in",
+        "password": "SecurePassword2026!",
+        "role": "farmer",
+        "organization": "Malwa Farmer Collective",
+    }
+    resp = client.post("/api/auth/register", json=reg_payload)
+    assert resp.status_code == 201
+    data = resp.json()
+    assert "accessToken" in data
+    assert "user" in data
+    assert data["user"]["email"] == "simranjit@punjab-agri.in"
+    assert data["user"]["name"] == "Simranjit Kaur"
+    assert data["user"]["role"] == "farmer"
+    assert data["user"]["organization"] == "Malwa Farmer Collective"
+
+    # Verify session token works on /api/me
+    token = data["accessToken"]
+    me_resp = client.get("/api/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_resp.status_code == 200
+    assert me_resp.json()["email"] == "simranjit@punjab-agri.in"
+
+    # Verify subsequent login works with new credentials
+    login_resp = client.post(
+        "/api/auth/session",
+        json={"email": "simranjit@punjab-agri.in", "password": "SecurePassword2026!"},
+    )
+    assert login_resp.status_code == 200
+    assert login_resp.json()["user"]["name"] == "Simranjit Kaur"
+
+def test_register_duplicate_email(client: TestClient):
+    # Attempting to register existing email
+    payload = {
+        "name": "Duplicate Tester",
+        "email": "admin@terraledger.ai",
+        "password": "Password123!",
+        "role": "farmer",
+    }
+    resp = client.post("/api/auth/register", json=payload)
+    assert resp.status_code == 400
+    err = resp.json()
+    assert err["error"]["code"] == "EMAIL_ALREADY_EXISTS"
+
+def test_register_short_password(client: TestClient):
+    payload = {
+        "name": "Short Pass User",
+        "email": "shortpass@example.com",
+        "password": "short",
+        "role": "farmer",
+    }
+    resp = client.post("/api/auth/register", json=payload)
+    assert resp.status_code == 422
