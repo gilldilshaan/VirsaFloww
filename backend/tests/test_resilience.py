@@ -8,11 +8,12 @@ from agent.cache import ExplainerCache
 from agent.context import ExplainerContext
 from agent.explainer import TerraExplainer
 
-def test_missing_observations_graceful_handling(client, test_container, auth_headers):
+def test_missing_observations_graceful_handling(client, test_container, auth_headers, monkeypatch):
     # Ensure observations path does not exist
     non_existent_path = os.path.join(settings.RUNTIME_DIR, "non_existent_observations.json")
     if os.path.exists(non_existent_path):
         os.remove(non_existent_path)
+    monkeypatch.setattr("backend.app.core.config.settings.LEAD_OBSERVATIONS_PATH", non_existent_path)
 
     # Calling graph endpoint should succeed gracefully with 0 satellite observation nodes
     resp = client.get("/api/fields/PB-FIELD-001/graph", headers=auth_headers("admin"))

@@ -14,6 +14,12 @@ export interface FieldFeature {
   coordinates: [number, number][]; // [lng, lat]
 }
 
+export interface RasterOverlayConfig {
+  imageUrl: string;
+  coordinates: [number, number][]; // 4 corners: [[minLng, maxLat], [maxLng, maxLat], [maxLng, minLat], [minLng, minLat]]
+  opacity?: number;
+}
+
 interface FieldMapProps {
   fields?: FieldFeature[];
   selectedFieldId?: string;
@@ -23,6 +29,8 @@ interface FieldMapProps {
   showSatellite?: boolean;
   className?: string;
   height?: string;
+  rasterOverlay?: RasterOverlayConfig | null;
+  onHoverCoordinates?: (coords: { lng: number; lat: number } | null) => void;
 }
 
 // Calculate geodesic area using spherical polygon formula
@@ -86,6 +94,8 @@ export function FieldMap({
   showSatellite = true,
   className = '',
   height = '460px',
+  rasterOverlay,
+  onHoverCoordinates,
 }: FieldMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -262,6 +272,13 @@ export function FieldMap({
       map.on('mouseleave', 'fields-fill', () => {
         map.getCanvas().style.cursor = '';
       });
+
+      // Mousemove coordinates reporter
+      map.on('mousemove', (e) => {
+        if (onHoverCoordinates) {
+          onHoverCoordinates({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+        }
+      });
     });
 
     return () => {
@@ -275,6 +292,64 @@ export function FieldMap({
     if (!mapRef.current) return;
     mapRef.current.setStyle(mapType === 'satellite' ? satelliteStyle : streetStyle);
   }, [mapType]);
+
+  // Handle Dynamic Raster Overlay (Genuine Sentinel-2 / Sentinel-1 rasters)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const applyRasterLayer = () => {
+      const sourceId = 'raster-product-source';
+      const layerId = 'raster-product-layer';
+
+      if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+      }
+      if (map.getSource(sourceId)) {
+        map.removeSource(sourceId);
+      }
+
+      if (!rasterOverlay || !rasterOverlay.imageUrl || !rasterOverlay.coordinates) {
+        return;
+      }
+
+      try {
+        map.addSource(sourceId, {
+          type: 'image',
+          url: rasterOverlay.imageUrl,
+          coordinates: rasterOverlay.coordinates as [
+            [number, number],
+            [number, number],
+            [number, number],
+            [number, number],
+          ],
+        });
+
+        // Insert underneath fields-outline so boundary remains crisp
+        const beforeLayer = map.getLayer('fields-outline') ? 'fields-outline' : undefined;
+        map.addLayer(
+          {
+            id: layerId,
+            type: 'raster',
+            source: sourceId,
+            paint: {
+              'raster-opacity': rasterOverlay.opacity ?? 0.85,
+              'raster-fade-duration': 150,
+            },
+          },
+          beforeLayer
+        );
+      } catch (err) {
+        console.warn('Error attaching raster layer to MapLibre:', err);
+      }
+    };
+
+    if (map.isStyleLoaded()) {
+      applyRasterLayer();
+    } else {
+      map.once('style.load', applyRasterLayer);
+    }
+  }, [rasterOverlay?.imageUrl, rasterOverlay?.coordinates, rasterOverlay?.opacity, mapType]);
 
   // Handle Drawing Clicks
   useEffect(() => {

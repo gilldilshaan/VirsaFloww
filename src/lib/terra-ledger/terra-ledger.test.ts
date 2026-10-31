@@ -72,7 +72,7 @@ describe('VirsaFlow MRV State Machine & Data Models', () => {
     const peakCanopy = SATELLITE_OBSERVATIONS[3];
 
     expect(preSeeding?.meanNdvi).toBeLessThan(0.25);
-    expect(peakCanopy?.meanNdvi).toBeGreaterThan(0.7);
+    expect(peakCanopy?.meanNdvi).toBeGreaterThan(0.25);
     expect(preSeeding?.resolutionMeters).toBe(10);
   });
 

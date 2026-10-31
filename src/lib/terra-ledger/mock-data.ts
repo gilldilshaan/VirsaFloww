@@ -10,6 +10,8 @@ import {
   PhenologyDataPoint,
 } from './types';
 
+import { AUTHENTIC_SATELLITE_OBSERVATIONS } from '@/lib/satellite/authentic-observations';
+
 export const PRIMARY_FIELD: FieldParcel = {
   id: 'PB-LUD-042',
   code: 'PB-LUD-042',
@@ -22,7 +24,7 @@ export const PRIMARY_FIELD: FieldParcel = {
   areaAcres: 11.86,
   practice: 'Direct Seeded Rice (DSR) + Alternate Wetting & Drying (AWD)',
   crop: 'PR-126 Basmati / Paddy',
-  season: 'Kharif 2026',
+  season: 'Kharif 2024',
   coordinates: {
     lat: 30.911,
     lng: 75.837,
@@ -36,71 +38,15 @@ export const PRIMARY_FIELD: FieldParcel = {
   targetEmissionReductionTonnes: 23.04,
   projectId: 'PRJ-PB-DSR-01',
   fpoName: 'Malwa Agro-Farmer Producer Org',
-  cropSeason: 'Kharif 2026',
+  cropSeason: 'Kharif 2024',
   geometrySource: 'Cadastral Revenue Record',
   evidenceCount: 5,
   assessmentStatus: 'UNVERIFIED',
-  lastObservationDate: '2026-08-15',
+  lastObservationDate: '2024-10-13',
 };
 
-export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = [
-  {
-    id: 'S2A_20260614_PB',
-    date: '2026-06-14',
-    sensor: 'Copernicus Sentinel-2A MSI',
-    resolutionMeters: 10,
-    cloudCoverPercent: 0.8,
-    sunAzimuthDeg: 68.2,
-    meanNdvi: 0.18,
-    meanNdwi: -0.22,
-    qualityRating: 'High',
-    surfaceWaterDetected: false,
-    notes: 'Pre-seeding dry seedbed preparation. No standing water detected, consistent with direct seeding baseline.',
-    fieldId: 'PB-LUD-042',
-  },
-  {
-    id: 'S2B_20260702_PB',
-    date: '2026-07-02',
-    sensor: 'Copernicus Sentinel-2B MSI',
-    resolutionMeters: 10,
-    cloudCoverPercent: 2.1,
-    sunAzimuthDeg: 71.4,
-    meanNdvi: 0.34,
-    meanNdwi: 0.12,
-    qualityRating: 'High',
-    surfaceWaterDetected: true,
-    notes: 'Early vegetative flushing irrigation. Brief NDWI rise indicating controlled moisture application.',
-    fieldId: 'PB-LUD-042',
-  },
-  {
-    id: 'S2A_20260728_PB',
-    date: '2026-07-28',
-    sensor: 'Copernicus Sentinel-2A MSI',
-    resolutionMeters: 10,
-    cloudCoverPercent: 4.5,
-    sunAzimuthDeg: 66.8,
-    meanNdvi: 0.58,
-    meanNdwi: -0.08,
-    qualityRating: 'High',
-    surfaceWaterDetected: false,
-    notes: 'AWD mid-season drying phase. NDWI dropped negative while NDVI surged, validating alternate aeration without crop moisture stress.',
-    fieldId: 'PB-LUD-042',
-  },
-  {
-    id: 'S2B_20260815_PB',
-    date: '2026-08-15',
-    sensor: 'Copernicus Sentinel-2B MSI',
-    resolutionMeters: 10,
-    cloudCoverPercent: 1.6,
-    sunAzimuthDeg: 64.0,
-    meanNdvi: 0.76,
-    meanNdwi: 0.04,
-    qualityRating: 'High',
-    surfaceWaterDetected: false,
-    notes: 'Full panicle initiation canopy closure. Peak biomass development consistent with healthy DSR adoption.',
-    fieldId: 'PB-LUD-042',
-  },
-];
+// Genuine Copernicus Sentinel-2 MSI observations derived from AWS Open Data COGs
+export const SATELLITE_OBSERVATIONS: SatelliteObservation[] = AUTHENTIC_SATELLITE_OBSERVATIONS;
 
 export const INITIAL_EVIDENCE_ITEMS: EvidenceItem[] = [
   {

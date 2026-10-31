@@ -77,7 +77,7 @@ export function WorkspaceAssessmentsPage() {
       description: 'Mandatory verification that all 5 readiness inputs exist (declaration, boundary polygon, in-situ photo, water management log, satellite observation).',
       result: completenessPercent >= 80 ? 'pass' : 'warn',
       explanation: `Completeness evaluated at ${completenessPercent}%. Baseline declaration and remote sensing confirmed.`,
-      sourceRecordIds: ['DECL-001', 'GEO-PARCEL-042', 'S2A_20260702_PB'],
+      sourceRecordIds: ['DECL-001', 'GEO-PARCEL-042', 'S2A_43REQ_20240923_0_L2A'],
     },
     {
       ruleId: 'R2_SPATIAL_CONTAINMENT',

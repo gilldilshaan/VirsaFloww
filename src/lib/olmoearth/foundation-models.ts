@@ -578,38 +578,26 @@ export function validateGenuineOlmoEarthEmbedding(
 }
 
 /**
- * Creates a clearly documented simulated fallback embedding for OlmoEarth v1.3
- * when live network or Python environment is inaccessible.
+ * Honest unpopulated representation for OlmoEarth v1.3 when live network
+ * or Python Zarr extraction bridge is inaccessible.
+ * Adheres strictly to Mission 3 Section 9: NEVER fabricate embedding vectors or model accuracy.
  */
 function createSimulatedOlmoEarthFallback(
   corners: Corner[],
   year: number,
   reason: string
 ): GenuineOlmoEarthEmbeddingResult {
-  const centerLng = corners.reduce((sum, c) => sum + c[0], 0) / corners.length;
-  const centerLat = corners.reduce((sum, c) => sum + c[1], 0) / corners.length;
-  const seed = Math.abs(Math.sin(centerLng * 37.7749 + centerLat * 122.4194 + year) * 10000) % 1;
-
-  const vector: number[] = new Array(128);
-  const spatialVariance: number[] = new Array(128);
-
-  for (let i = 0; i < 128; i++) {
-    const val = Math.cos(seed * (i + 1) * 2.71828) * 0.72;
-    vector[i] = Number(val.toFixed(4));
-    spatialVariance[i] = Number((Math.abs(Math.sin(seed * (i + 5))) * 0.05).toFixed(4));
-  }
-
   return {
     modelId: "olmoearth-v1.3",
     dimensions: 128,
-    vector,
-    spatialVariance,
+    vector: [], // Empty: Zero fabrication guarantee
+    spatialVariance: [],
     extractedAt: new Date().toISOString(),
-    sourceProvider: "AI2 Source Cooperative OlmoEarth (Simulated Fallback)",
-    provenance: `[Feasibility Stub: OlmoEarth v1.3 128-dim Deterministic Coordinate Hash — Reason: ${reason}]`,
-    isSimulatedFallback: true,
+    sourceProvider: "AI2 Source Cooperative OlmoEarth (Zarr v3)",
+    provenance: `[OlmoEarth v1.3 Experimental / Unavailable: ${reason}. Under Section 9 Scientific Integrity Rules, embedding vectors are never simulated or fabricated.]`,
+    isSimulatedFallback: false,
     success: false,
-    modelVersion: "OlmoEarth-v1_3-Base (Simulated)",
+    modelVersion: "OlmoEarth-v1_3-Base (Official Ai2)",
     modelUrl: "https://huggingface.co/allenai/OlmoEarth-v1_3-Base",
     sourceDataset: "s3://olmoearth/olmoearth-v1-3-embeddings/embeddings.zarr",
     year,
@@ -621,23 +609,23 @@ function createSimulatedOlmoEarthFallback(
     matryoshkaPrefixDimensions: 64,
     quantizedInt8Sample: [],
     stats: {
-      min: -0.72,
-      max: 0.72,
-      mean: 0.0,
-      stdDev: 0.45,
-      l2Norm: 5.12,
-      validDimensions: 128,
-      nonZeroDimensions: 128,
+      min: 0,
+      max: 0,
+      mean: 0,
+      stdDev: 0,
+      l2Norm: 0,
+      validDimensions: 0,
+      nonZeroDimensions: 0,
     },
     spatialAggregation: "parcel_centroid_nearest_pixel",
-    validPixelCount: 1,
+    validPixelCount: 0,
     nodataPixelCount: 0,
-    totalBoundingBoxPixels: 1,
-    coveredAreaSqMeters: 100.0,
-    coverageFraction: 1.0,
+    totalBoundingBoxPixels: 0,
+    coveredAreaSqMeters: 0,
+    coverageFraction: 0,
     resolutionMeters: 10.0,
     license: "OlmoEarth Artifact License (Ai2)",
-    error: reason,
+    error: `OlmoEarth inference/Zarr extraction unavailable in current runtime: ${reason}. Feature marked as Experimental / Unavailable.`,
   };
 }
 
