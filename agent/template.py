@@ -5,7 +5,7 @@ class ExplainerTemplate:
     @staticmethod
     def generate(context: ExplainerContext) -> Dict[str, Any]:
         """Deterministic string-assembly fallback engine.
-        
+
         Zero AI dependency. Guarantees 100% adherence to server ground truth.
         """
         assessment = context.assessment

@@ -29,7 +29,7 @@ class LLMAdapter:
         user_question: str,
     ) -> Optional[str]:
         """Calls the configured LLM endpoint with timeout and 1 retry.
-        
+
         Returns raw text response or None if LLM is disabled or call fails.
         """
         if not self.is_available():

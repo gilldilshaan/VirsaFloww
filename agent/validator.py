@@ -20,7 +20,7 @@ class ExplainerValidator:
         context: ExplainerContext,
     ) -> Dict[str, Any]:
         """Runs the 6-point deterministic safety validation on LLM output.
-        
+
         Returns parsed dict if valid; raises ExplainerValidationError on failure.
         """
         # 1. Strict JSON schema check
