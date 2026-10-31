@@ -27,6 +27,12 @@ async def lifespan(app: FastAPI):
     # Initialize container and storage repositories
     get_container()
     logger.info("TerraLedger AI Backend started successfully in '%s' mode (env: %s)", settings.APP_MODE, settings.APP_ENV)
+    logger.info(
+        "CORS effective configuration: env=%s, allow_origin_regex=%s, explicit_origins=%s",
+        settings.APP_ENV,
+        settings.CORS_ORIGIN_REGEX,
+        settings.CORS_ORIGINS,
+    )
     yield
     logger.info("TerraLedger AI Backend shutting down.")
 
@@ -44,14 +50,31 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
     )
 
-    # CORS
+    # CORS Middleware Configuration
+    cors_kwargs = {
+        "allow_origins": settings.CORS_ORIGINS,
+        "allow_credentials": True,
+        "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    }
+    if settings.CORS_ORIGIN_REGEX:
+        cors_kwargs["allow_origin_regex"] = settings.CORS_ORIGIN_REGEX
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        **cors_kwargs,
     )
+
+    def attach_cors_headers(response: JSONResponse, request: Request) -> JSONResponse:
+        origin = request.headers.get("origin")
+        if origin and settings.is_origin_allowed(origin):
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Authorization, Content-Type, Accept, Origin, X-Requested-With"
+            )
+        return response
 
     # Global Exception Handlers for Frozen Error Envelope
     @app.exception_handler(HTTPException)
@@ -64,7 +87,7 @@ def create_app() -> FastAPI:
             message = exc.detail.get("message", "An error occurred.")
             details = exc.detail.get("details", None)
 
-        return JSONResponse(
+        response = JSONResponse(
             status_code=exc.status_code,
             content={
                 "error": {
@@ -74,10 +97,11 @@ def create_app() -> FastAPI:
                 }
             },
         )
+        return attach_cors_headers(response, request)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
-        return JSONResponse(
+        response = JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
                 "error": {
@@ -87,11 +111,12 @@ def create_app() -> FastAPI:
                 }
             },
         )
+        return attach_cors_headers(response, request)
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
         logger.exception("Unhandled server exception: %s", exc)
-        return JSONResponse(
+        response = JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "error": {
@@ -101,6 +126,7 @@ def create_app() -> FastAPI:
                 }
             },
         )
+        return attach_cors_headers(response, request)
 
     # Include API Router
     app.include_router(api_router)

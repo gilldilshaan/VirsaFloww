@@ -3,21 +3,31 @@ import sys
 from typing import List, Optional
 from urllib.parse import urlparse
 
+DEV_CORS_ORIGIN_REGEX = r"^http://(localhost|127\.0\.0\.1)(:\d+)?$"
+
+_BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_DEFAULT_ENV_PATH = os.path.join(_BACKEND_DIR, ".env")
+
 def _load_dotenv(env_path: str) -> None:
     if os.path.exists(env_path):
         with open(env_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    k = k.strip()
-                    v = v.strip().strip('"').strip("'")
-                    if k and k not in os.environ:
-                        os.environ[k] = v
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k = k.strip()
+                v = v.strip()
+                if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
+                    v = v[1:-1]
+                else:
+                    if " #" in v:
+                        v = v.split(" #", 1)[0].strip()
+                if k and k not in os.environ:
+                    os.environ[k] = v
 
 # Auto-load backend/.env if present
-_default_env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
-_load_dotenv(_default_env_path)
+_load_dotenv(_DEFAULT_ENV_PATH)
 
 class Settings:
     APP_NAME: str = os.getenv("APP_NAME", "TerraLedger AI Backend")
@@ -39,11 +49,32 @@ class Settings:
     _raw_test_database_url: Optional[str] = os.getenv("TEST_DATABASE_URL")
 
     # CORS
+    DEV_CORS_ORIGIN_REGEX: str = DEV_CORS_ORIGIN_REGEX
     raw_cors: str = os.getenv(
         "CORS_ORIGINS",
         "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000"
     )
     CORS_ORIGINS: List[str] = [origin.strip() for origin in raw_cors.split(",") if origin.strip()]
+
+    @property
+    def CORS_ORIGIN_REGEX(self) -> Optional[str]:
+        """In development, allows any port on localhost / 127.0.0.1 via regex.
+        In production, returns None to strictly enforce explicit CORS_ORIGINS list."""
+        if self.APP_ENV == "development":
+            return self.DEV_CORS_ORIGIN_REGEX
+        return None
+
+    @classmethod
+    def is_origin_allowed(cls, origin: Optional[str]) -> bool:
+        if not origin:
+            return False
+        if origin in cls.CORS_ORIGINS:
+            return True
+        if cls.APP_ENV == "development":
+            import re
+            if re.match(cls.DEV_CORS_ORIGIN_REGEX, origin):
+                return True
+        return False
 
     # Auth
     JWT_SECRET: str = os.getenv("JWT_SECRET", "demo-insecure-secret-key-change-in-production")
@@ -162,5 +193,11 @@ class Settings:
                 raise RuntimeError("Refusing to start in production with insecure or default JWT_SECRET!")
             if cls.APP_MODE == "demo":
                 raise RuntimeError("Refusing to start in production with APP_MODE=demo!")
+            if not cls.CORS_ORIGINS:
+                raise RuntimeError("Refusing to start in production: CORS_ORIGINS must not be empty!")
+            if "*" in cls.CORS_ORIGINS:
+                raise RuntimeError(
+                    "Refusing to start in production: CORS_ORIGINS must not contain '*' when credentials are enabled!"
+                )
 
 settings = Settings()

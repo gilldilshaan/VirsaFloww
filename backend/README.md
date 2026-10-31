@@ -30,9 +30,20 @@ source backend/venv/bin/activate
 python -m pip install -r backend/requirements.txt
 ```
 
-### Running the Development Server
+### Running the Development Server (Recommended PowerShell Script)
+The repository includes a dedicated development launcher (`backend/scripts/dev_start.ps1`) that automatically activates `.venv`, detects and frees port 8000 by terminating any stale process tree, and launches Uvicorn on `127.0.0.1:8000`:
+
+```powershell
+# Standard run from repository root:
+.\backend\scripts\dev_start.ps1
+
+# Run with auto-reload enabled:
+.\backend\scripts\dev_start.ps1 -Reload
+```
+
+Alternatively, run Uvicorn directly:
 ```bash
-python -m uvicorn backend.app.main:app --reload --port 8000
+python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 - Interactive Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 - Health Check: [http://localhost:8000/api/health](http://localhost:8000/api/health)
