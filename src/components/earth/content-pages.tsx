@@ -24,7 +24,7 @@ export function PlatformPage() {
   return (
     <SiteShell>
       <PageIntro
-        label="THE CARBON CREDIT PLATFORM"
+        label="THE VIRSAFLOW PLATFORM"
         title="From agricultural data to traceable evidence."
         description="Connect the field, its activities and the evidence behind every assessment. Keep context intact from collection to review."
       />
@@ -361,7 +361,7 @@ export function ResearchPage() {
       <PageIntro
         label="RESEARCH & INSIGHTS"
         title="Understanding agricultural systems through better evidence."
-        description="Technical explainers on MRV, geospatial information, measurement and traceability. These are editorial drafts, not The Carbon Credit research findings or published field results."
+        description="Technical explainers on MRV, geospatial information, measurement and traceability. These are editorial drafts, not VirsaFlow research findings or published field results."
       />
       <PhotoStory
         image={researchFieldPhoto}
@@ -387,9 +387,9 @@ export function AboutPage() {
   return (
     <SiteShell>
       <PageIntro
-        label="ABOUT THE CARBON CREDIT"
+        label="ABOUT VIRSAFLOW"
         title="Agricultural intelligence. Grounded in evidence."
-        description="The Carbon Credit is the public-facing brand of Panjdhara Private Limited. We focus on agricultural carbon project development and evidence-based MRV, starting with Direct Seeded Rice in Punjab, India."
+        description="VirsaFlow is the agricultural intelligence and MRV platform of Panjdhara Private Limited. We focus on agricultural carbon project development and evidence-based MRV, starting with Direct Seeded Rice in Punjab, India."
       />
       <section className="earth-section earth-container earth-two-grid">
         <div>
@@ -475,7 +475,7 @@ export function MethodologyPage() {
           <p>
             Program-specific assumptions, method versions, quality checks and limitations should
             accompany any published assessment. No certification, accreditation or independent
-            validation of The Carbon Credit is claimed on this website.
+            validation of VirsaFlow is claimed on this website.
           </p>
         </div>
       </section>
@@ -503,7 +503,7 @@ export function ContactPage({ interest }: { interest?: string }) {
       />
       <section className="earth-container earth-contact">
         <div>
-          <span className="earth-label">A CONVERSATION WITH THE CARBON CREDIT</span>
+          <span className="earth-label">A CONVERSATION WITH VIRSAFLOW</span>
           <h2>
             Partnerships.
             <br />
@@ -617,7 +617,7 @@ export function LegalPage({ type }: { type: "privacy" | "terms" }) {
             <h2>Public enquiries</h2>
             <p>
               The contact form prepares an email draft in your browser. It does not store a
-              registration or send information to The Carbon Credit until you send the email through
+              registration or send information to VirsaFlow until you send the email through
               your chosen email service. Your email provider’s own terms and privacy policies apply.
             </p>
             <h2>Information you share</h2>
@@ -657,7 +657,7 @@ export function LegalPage({ type }: { type: "privacy" | "terms" }) {
           <>
             <h2>Public information</h2>
             <p>
-              This website introduces The Carbon Credit’s agricultural evidence approach. Program
+              This website introduces VirsaFlow’s agricultural evidence approach. Program
               scope, service availability and deliverables require separate agreement with the team.
             </p>
             <h2>Illustrative and estimated information</h2>

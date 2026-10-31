@@ -94,7 +94,7 @@ const applications = [
     outputs:
       "Intended outputs: structured field documentation, evidence summaries and review queues.",
     limits:
-      "The Carbon Credit does not replace policy interpretation, insurer decisions or formal loss adjustment. Geospatial observations alone do not establish a covered loss.",
+      "VirsaFlow does not replace policy interpretation, insurer decisions or formal loss adjustment. Geospatial observations alone do not establish a covered loss.",
   },
   {
     title: "Agricultural supply-chain traceability",
@@ -265,7 +265,7 @@ export function PilotEnquiry({ interest }: { interest?: string | undefined }) {
       <label className="earth-consent">
         <input type="checkbox" name="consent" required />
         <span>
-          I agree to share this enquiry with The Carbon Credit.{" "}
+          I agree to share this enquiry with VirsaFlow.{" "}
           <Link to="/privacy">Privacy & data governance</Link>
         </span>
       </label>
@@ -496,7 +496,7 @@ export function ResearchLibrary() {
         </label>
         <p className="earth-disclosure">
           Editorial explainers · draft for review · publication dates and named authors pending
-          approval. External references are not partnerships or The Carbon Credit findings.
+          approval. External references are not partnerships or VirsaFlow findings.
         </p>
       </div>
       <div className="earth-insights">
@@ -529,7 +529,7 @@ export function ResearchLibrary() {
                   </a>
                 </p>
                 <p>
-                  General explanatory context, not a study by The Carbon Credit, operational
+                  General explanatory context, not a study by VirsaFlow, operational
                   validation or program-specific methodology. Specific claims require appropriate
                   evidence and review.
                 </p>

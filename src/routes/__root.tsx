@@ -11,6 +11,7 @@ import {
 import { type ReactNode } from "react";
 
 import { AccountContext } from '@/lib/auth-context';
+import { AuthProvider } from '@/lib/auth/auth-context';
 import type { User } from '@supabase/supabase-js';
 import appCss from "../styles.css?url";
 import { PRODUCTION_SITE_URL } from "../lib/site-url";
@@ -79,17 +80,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Carbon Credit | Agricultural Carbon & MRV" },
-      { name: "description", content: "Making agricultural climate impact measurable, verifiable and valuable. Field evidence and MRV for agricultural carbon projects in Punjab, India." },
-      { property: "og:title", content: "The Carbon Credit | Agricultural Carbon & MRV" },
+      { title: "VirsaFlow | Agricultural Carbon & MRV" },
+      { name: "description", content: "VirsaFlow — Making agricultural climate impact measurable, verifiable and valuable. Field evidence, satellite intelligence, and MRV for agricultural carbon projects in Punjab, India." },
+      { property: "og:title", content: "VirsaFlow | Agricultural Carbon & MRV" },
       { property: "og:description", content: "Making agricultural climate impact measurable, verifiable and valuable." },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "The Carbon Credit" },
+      { property: "og:site_name", content: "VirsaFlow" },
       { property: "og:url", content: `${PRODUCTION_SITE_URL}/` },
       { property: "og:image", content: `${PRODUCTION_SITE_URL}/social-card.jpg` },
-      { property: "og:image:alt", content: "The Carbon Credit — agricultural evidence and MRV" },
+      { property: "og:image:alt", content: "VirsaFlow — agricultural evidence and MRV" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "The Carbon Credit | Agricultural Carbon & MRV" },
+      { name: "twitter:title", content: "VirsaFlow | Agricultural Carbon & MRV" },
       { name: "twitter:description", content: "Making agricultural climate impact measurable, verifiable and valuable." },
       { name: "twitter:image", content: `${PRODUCTION_SITE_URL}/social-card.jpg` },
       ...(searchVerification ? [{ name: "google-site-verification", content: searchVerification }] : []),
@@ -131,7 +132,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AccountContext.Provider value={account}><Outlet /></AccountContext.Provider>
+      <AuthProvider><AccountContext.Provider value={account}><Outlet /></AccountContext.Provider></AuthProvider>
     </QueryClientProvider>
   );
 }
