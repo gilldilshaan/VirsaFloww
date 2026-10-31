@@ -107,14 +107,14 @@ describe('Mission 3 — TCC Earth Intelligence: Authentic Satellite Pipeline', (
       // Verify 4-corner bounding coordinates for MapLibre image source overlay
       expect(layers.coordinates.length).toBe(4);
       const [nw, ne, se, sw] = layers.coordinates;
-      expect(nw[0]).toBeCloseTo(75.8306, 3);
-      expect(nw[1]).toBeCloseTo(30.9164, 3);
-      expect(ne[0]).toBeCloseTo(75.8415, 3);
-      expect(ne[1]).toBeCloseTo(30.9163, 3);
-      expect(se[0]).toBeCloseTo(75.8414, 3);
-      expect(se[1]).toBeCloseTo(30.9076, 3);
-      expect(sw[0]).toBeCloseTo(75.8305, 3);
-      expect(sw[1]).toBeCloseTo(30.9076, 3);
+      expect(nw![0]).toBeCloseTo(75.8306, 3);
+      expect(nw![1]).toBeCloseTo(30.9164, 3);
+      expect(ne![0]).toBeCloseTo(75.8415, 3);
+      expect(ne![1]).toBeCloseTo(30.9163, 3);
+      expect(se![0]).toBeCloseTo(75.8414, 3);
+      expect(se![1]).toBeCloseTo(30.9076, 3);
+      expect(sw![0]).toBeCloseTo(75.8305, 3);
+      expect(sw![1]).toBeCloseTo(30.9076, 3);
     }
   });
 
