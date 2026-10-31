@@ -19,8 +19,8 @@
 | **Phase 2** | PostgreSQL Repositories (TEST DB) | **DONE** | 2026-10-31 20:50 | 2026-10-31 20:58 | Generic PostgresRepository[T], AppContainer dual-mode wiring, PostGIS geometry conversion & ST_IsValid verified (57/57 tests pass). |
 | **Phase 3** | Evidence & Audit Immutability Guarantees (TEST DB) | **DONE** | 2026-10-31 20:58 | 2026-10-31 21:04 | Database triggers block UPDATE/DELETE on evidence & audit; 20-thread concurrency test passed with unforked chain; RLS & revoked privileges verified; isolation guards verified (65/65 tests pass). |
 | **Phase 4** | JSON-to-PostgreSQL Migration CLI & Reconciliation | **DONE** | 2026-10-31 21:04 | 2026-10-31 21:16 | CLI created with `--dry-run` and `--apply`, atomic transaction rollback, SHA-256 chain verified, idempotency confirmed (68/68 tests pass). |
-| **Phase 5** | Full Verification, Dual-Mode Testing & Documentation | **IN PROGRESS** | 2026-10-31 21:16 | - | Dual-mode test runs, README updates, MIGRATION_REPORT.md. |
-| **Phase P** | Production Database Setup (Gated) | **PENDING** | - | - | Requires explicit precondition sign-off. |
+| **Phase 5** | Full Verification, Dual-Mode Testing & Documentation | **DONE** | 2026-10-31 21:16 | 2026-10-31 21:26 | Full 73-test suite passes, dual-mode E2E verified on TEST DB, README.md updated, MIGRATION_REPORT.md authored, clean compilation. |
+| **Phase P** | Production Database Setup (Gated) | **IN PROGRESS** | 2026-10-31 21:26 | - | Evaluating gated preconditions for production migration. |
 | **Phase G** | GitHub Push & PR Submission | **PENDING** | - | - | Final verification & delivery. |
 
 ---
