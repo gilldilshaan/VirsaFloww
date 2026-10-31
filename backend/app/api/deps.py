@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 from fastapi import Depends, Header, HTTPException, Request, status
 from backend.app.core.config import settings
 from backend.app.schemas.user import User, UserInDB, UserRole
@@ -31,62 +31,144 @@ class AppContainer:
         os.makedirs(self.runtime_dir, exist_ok=True)
         os.makedirs(os.path.dirname(self.audit_path), exist_ok=True)
 
-        # Repositories
-        self.user_repo = JsonFileRepository[UserInDB](
-            UserInDB,
-            os.path.join(self.runtime_dir, "users.json"),
-            os.path.join(self.seed_dir, "users.json") if self.seed_dir else None,
-        )
-        self.project_repo = JsonFileRepository[Project](
-            Project,
-            os.path.join(self.runtime_dir, "projects.json"),
-            os.path.join(self.seed_dir, "projects.json") if self.seed_dir else None,
-        )
-        self.farmer_repo = JsonFileRepository[FarmerProfile](
-            FarmerProfile,
-            os.path.join(self.runtime_dir, "farmers.json"),
-            os.path.join(self.seed_dir, "farmers.json") if self.seed_dir else None,
-        )
-        self.field_repo = JsonFileRepository[FieldModel](
-            FieldModel,
-            os.path.join(self.runtime_dir, "fields.json"),
-            os.path.join(self.seed_dir, "fields.json") if self.seed_dir else None,
-        )
-        self.season_repo = JsonFileRepository[Season](
-            Season,
-            os.path.join(self.runtime_dir, "seasons.json"),
-            os.path.join(self.seed_dir, "seasons.json") if self.seed_dir else None,
-        )
-        self.activity_repo = JsonFileRepository[Activity](
-            Activity,
-            os.path.join(self.runtime_dir, "activities.json"),
-            os.path.join(self.seed_dir, "activities.json") if self.seed_dir else None,
-        )
-        self.evidence_repo = EvidenceRepository(
-            os.path.join(self.runtime_dir, "evidence.json"),
-            settings.ROOT_SEED_EVIDENCE_PATH,
-        )
-        self.assessment_repo = JsonFileRepository[Assessment](
-            Assessment,
-            os.path.join(self.runtime_dir, "assessments.json"),
-        )
-        self.review_repo = JsonFileRepository[Review](
-            Review,
-            os.path.join(self.runtime_dir, "reviews.json"),
-            os.path.join(self.seed_dir, "reviews.json") if self.seed_dir else None,
-        )
-        self.buyer_enquiry_repo = JsonFileRepository[BuyerEnquiry](
-            BuyerEnquiry,
-            os.path.join(self.runtime_dir, "buyer_enquiries.json"),
-        )
-        self.notification_repo = JsonFileRepository[Notification](
-            Notification,
-            os.path.join(self.runtime_dir, "notifications.json"),
-        )
+        if settings.STORAGE_BACKEND == "postgres":
+            # Lazy import DB dependencies only in postgres mode
+            from sqlalchemy import text
+            from backend.app.db.models import (
+                UserDB,
+                ProjectDB,
+                FarmerDB,
+                FieldDB,
+                SeasonDB,
+                ActivityDB,
+                AssessmentDB,
+                ReviewDB,
+                BuyerEnquiryDB,
+                NotificationDB,
+            )
+            from backend.app.db.session import get_engine
+            from backend.app.storage.postgres_storage import PostgresRepository
+            from backend.app.storage.postgres_evidence_storage import PostgresEvidenceRepository
+            from backend.app.services.postgres_audit_service import PostgresAuditService
+
+            try:
+                engine = get_engine()
+                with engine.connect() as conn:
+                    conn.execute(text("SELECT 1;"))
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Failed to connect to Supabase PostgreSQL database: {exc}. "
+                    "Please verify your connection settings and ensure your Supabase project is active "
+                    "(free-tier projects may pause after inactivity)."
+                ) from exc
+
+            self.user_repo = PostgresRepository[UserInDB](
+                UserInDB,
+                UserDB,
+                seed_path=os.path.join(self.seed_dir, "users.json") if self.seed_dir else None,
+            )
+            self.project_repo = PostgresRepository[Project](
+                Project,
+                ProjectDB,
+                seed_path=os.path.join(self.seed_dir, "projects.json") if self.seed_dir else None,
+            )
+            self.farmer_repo = PostgresRepository[FarmerProfile](
+                FarmerProfile,
+                FarmerDB,
+                seed_path=os.path.join(self.seed_dir, "farmers.json") if self.seed_dir else None,
+            )
+            self.field_repo = PostgresRepository[FieldModel](
+                FieldModel,
+                FieldDB,
+                seed_path=os.path.join(self.seed_dir, "fields.json") if self.seed_dir else None,
+            )
+            self.season_repo = PostgresRepository[Season](
+                Season,
+                SeasonDB,
+                seed_path=os.path.join(self.seed_dir, "seasons.json") if self.seed_dir else None,
+            )
+            self.activity_repo = PostgresRepository[Activity](
+                Activity,
+                ActivityDB,
+                seed_path=os.path.join(self.seed_dir, "activities.json") if self.seed_dir else None,
+            )
+            self.evidence_repo = PostgresEvidenceRepository(
+                seed_path=settings.ROOT_SEED_EVIDENCE_PATH,
+            )
+            self.assessment_repo = PostgresRepository[Assessment](
+                Assessment,
+                AssessmentDB,
+            )
+            self.review_repo = PostgresRepository[Review](
+                Review,
+                ReviewDB,
+                seed_path=os.path.join(self.seed_dir, "reviews.json") if self.seed_dir else None,
+            )
+            self.buyer_enquiry_repo = PostgresRepository[BuyerEnquiry](
+                BuyerEnquiry,
+                BuyerEnquiryDB,
+            )
+            self.notification_repo = PostgresRepository[Notification](
+                Notification,
+                NotificationDB,
+            )
+            self.audit_service = PostgresAuditService()
+        else:
+            self.user_repo = JsonFileRepository[UserInDB](
+                UserInDB,
+                os.path.join(self.runtime_dir, "users.json"),
+                os.path.join(self.seed_dir, "users.json") if self.seed_dir else None,
+            )
+            self.project_repo = JsonFileRepository[Project](
+                Project,
+                os.path.join(self.runtime_dir, "projects.json"),
+                os.path.join(self.seed_dir, "projects.json") if self.seed_dir else None,
+            )
+            self.farmer_repo = JsonFileRepository[FarmerProfile](
+                FarmerProfile,
+                os.path.join(self.runtime_dir, "farmers.json"),
+                os.path.join(self.seed_dir, "farmers.json") if self.seed_dir else None,
+            )
+            self.field_repo = JsonFileRepository[FieldModel](
+                FieldModel,
+                os.path.join(self.runtime_dir, "fields.json"),
+                os.path.join(self.seed_dir, "fields.json") if self.seed_dir else None,
+            )
+            self.season_repo = JsonFileRepository[Season](
+                Season,
+                os.path.join(self.runtime_dir, "seasons.json"),
+                os.path.join(self.seed_dir, "seasons.json") if self.seed_dir else None,
+            )
+            self.activity_repo = JsonFileRepository[Activity](
+                Activity,
+                os.path.join(self.runtime_dir, "activities.json"),
+                os.path.join(self.seed_dir, "activities.json") if self.seed_dir else None,
+            )
+            self.evidence_repo = EvidenceRepository(
+                os.path.join(self.runtime_dir, "evidence.json"),
+                settings.ROOT_SEED_EVIDENCE_PATH,
+            )
+            self.assessment_repo = JsonFileRepository[Assessment](
+                Assessment,
+                os.path.join(self.runtime_dir, "assessments.json"),
+            )
+            self.review_repo = JsonFileRepository[Review](
+                Review,
+                os.path.join(self.runtime_dir, "reviews.json"),
+                os.path.join(self.seed_dir, "reviews.json") if self.seed_dir else None,
+            )
+            self.buyer_enquiry_repo = JsonFileRepository[BuyerEnquiry](
+                BuyerEnquiry,
+                os.path.join(self.runtime_dir, "buyer_enquiries.json"),
+            )
+            self.notification_repo = JsonFileRepository[Notification](
+                Notification,
+                os.path.join(self.runtime_dir, "notifications.json"),
+            )
+            self.audit_service = AuditService(self.audit_path)
 
         # Services
         self.auth_service = AuthService(self.user_repo)
-        self.audit_service = AuditService(self.audit_path)
         self.evidence_service = EvidenceService(self.evidence_repo, self.audit_service)
         self.graph_service = GraphService(self)
         self.explainer = TerraExplainer(
@@ -124,7 +206,7 @@ def set_container(container: AppContainer) -> None:
 def get_auth_service(container: AppContainer = Depends(get_container)) -> AuthService:
     return container.auth_service
 
-def get_audit_service(container: AppContainer = Depends(get_container)) -> AuditService:
+def get_audit_service(container: AppContainer = Depends(get_container)) -> Any:
     return container.audit_service
 
 def get_evidence_service(container: AppContainer = Depends(get_container)) -> EvidenceService:

@@ -1,5 +1,7 @@
 runtime/
 uploads/
+backups/
+data/backups/
 audit/audit.jsonl
 __pycache__/
 *.pyc

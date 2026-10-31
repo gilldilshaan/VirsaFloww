@@ -79,7 +79,6 @@ def warm_cache():
             question=default_question,
         )
 
-        # Build grounded explanation payload
         payload = {
             "summary": f"Assessment {assessment.id} for field {field.id} has server status '{assessment.status.value}'. Automated evaluation completed across {len(assessment.rule_results)} screening rules.",
             "ruleBreakdowns": [
@@ -94,7 +93,6 @@ def warm_cache():
             "citations": sorted(list({field.id, assessment.id} | {r.rule_id for r in assessment.rule_results})),
         }
 
-        # Verify through 6-point safety validator before placing in cache (Amendment 1)
         validated = ExplainerValidator.validate(json.dumps(payload), context)
         container.explainer.cache.set(cache_key, validated)
         warmed_count += 1
@@ -105,9 +103,10 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python -m backend.app.cli <command>")
         print("Available commands:")
-        print("  reset-demo    Restores all runtime repositories to initial seed state (demo mode only)")
-        print("  reseed-users  Updates seed users password hashes from DEMO_USER_PASSWORD env variable")
-        print("  warm-cache    Populates explainer cache with pre-validated explanations for demo assessments")
+        print("  reset-demo               Restores all runtime repositories to initial seed state (demo mode only)")
+        print("  reseed-users             Updates seed users password hashes from DEMO_USER_PASSWORD env variable")
+        print("  warm-cache               Populates explainer cache with pre-validated explanations for demo assessments")
+        print("  migrate-json-to-postgres Migrates JSON data to PostgreSQL (--dry-run | --apply) (--target test|production)")
         sys.exit(1)
 
     command = sys.argv[1].lower()
@@ -117,6 +116,18 @@ def main():
         reseed_users()
     elif command == "warm-cache":
         warm_cache()
+    elif command == "migrate-json-to-postgres":
+        from backend.scripts.migrate_json_to_postgres import JsonToPostgresMigrator
+        apply_mode = "--apply" in sys.argv
+        target_mode = "test"
+        for i, arg in enumerate(sys.argv):
+            if arg == "--target" and i + 1 < len(sys.argv):
+                target_mode = sys.argv[i + 1].lower()
+
+        migrator = JsonToPostgresMigrator(target=target_mode, apply=apply_mode)
+        summary = migrator.run()
+        if not summary.success:
+            sys.exit(1)
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)

@@ -85,4 +85,57 @@ Demo accounts are pre-configured in `backend/data/seed/users.json` using salted 
 - **No Fabricated Satellite Measurements:** Real Sentinel-2 observations are loaded from Lead's `data/observations.json`. If missing, the backend returns empty observation lists with clear meta status; it never synthesizes NDVI/NDWI.
 - **No Fabricated Financials / Carbon:** Carbon reduction estimates and $/tonne prices are set to `null` with `"Preliminary estimate: not computed"`.
 - **Immutable Evidence:** Evidence items cannot be deleted or updated in place. Supersession creates a new record and appends a status transition event.
-- **Append-Only Audit Log:** All events are cryptographically hashed using SHA-256 and chained into `backend/data/audit/audit.jsonl`.
+- **Append-Only Audit Log:** All events are cryptographically hashed using SHA-256 and chained into `backend/data/audit/audit.jsonl` (or the `audit_events` and `audit_chain_head` tables in PostgreSQL mode).
+
+---
+
+## 4. PostgreSQL + PostGIS Persistence Architecture (Supabase)
+
+The backend supports dual-mode persistence controlled by `STORAGE_BACKEND`:
+- `STORAGE_BACKEND=json` (default): Uses file-based JSON storage under `backend/data/runtime/` and append-only JSONL audit logs.
+- `STORAGE_BACKEND=postgres`: Connects to Supabase-hosted PostgreSQL 17.11 with PostGIS 3.3.
+
+### Connection Architecture & Pooler Requirements
+- **Session Pooler (Port 5432 Required):** Connections must target the Supabase AWS Session Pooler on port `5432` (`aws-0-REGION.pooler.supabase.com:5432` or `aws-1-REGION.pooler.supabase.com:5432`) with `sslmode=require`.
+- **Transaction Pooler Rejection:** The transaction pooler on port `6543` is explicitly rejected at initialization because prepared statements, session-level variables, and row-level locking (`SELECT ... FOR UPDATE`) are incompatible with transaction pooling.
+- **Search Path:** Configured with `search_path=public,extensions` to resolve PostGIS spatial functions and geometry types cleanly.
+
+### Single-Role Database Security Model
+- **Role Isolation:** The FastAPI backend connects using the administrative `postgres` user.
+- **Zero-Policy Row-Level Security (RLS):** RLS is enabled on all 13 application tables with ZERO policies for Supabase's `anon` and `authenticated` roles.
+- **Privilege Revocation:** All permissions (`SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER`) are revoked from `anon` and `authenticated` roles. This prevents external API keys, PostgREST, or the Supabase client SDK from accessing application data.
+- **Table Owner Direct Access:** As the table owner, the backend `postgres` user retains direct, unbypassed access without requiring `FORCE ROW LEVEL SECURITY`.
+
+### Database Immutability & Cryptographic Audit Guarantees
+- **Evidence Immutability Trigger (`trg_evidence_immutability`):** Database engine-level trigger that strictly blocks SQL `DELETE` and blocks `UPDATE` on all 12 metadata columns (`id`, `field_id`, `activity_id`, `title`, `type`, `category`, `captured_at`, `submitted_at`, `submitter_id`, `sha256`, `supersedes_id`, `is_demo`). Only `status` and `payload` transitions are permitted.
+- **Audit Event Immutability Trigger (`trg_audit_events_immutability`):** Strictly rejects all `UPDATE` and `DELETE` operations on `audit_events`.
+- **Audit Chain Singleton (`audit_chain_head`):** Tracks `last_sequence_num` and `last_event_hash`. Concurrency is protected using `SELECT ... FOR UPDATE WHERE id=1`, guaranteeing a single, linear, unforked SHA-256 canonical JSON hash chain even under high-concurrency workloads.
+
+### Database Operations & Migrations
+
+#### Alembic Schema Migrations
+```bash
+# Apply schema migrations to TEST database
+alembic -c backend/alembic.ini upgrade head
+
+# Downgrade schema on TEST database
+alembic -c backend/alembic.ini downgrade base
+
+# Production execution is strictly gated behind confirmation:
+# $env:CONFIRM_PRODUCTION_WRITE="I_APPROVE_PRODUCTION_WRITE"
+# alembic -c backend/alembic.ini -x target=production upgrade head
+```
+
+#### JSON-to-PostgreSQL Data Migration CLI
+```bash
+# Dry-run validation against TEST database (rolls back transaction, writes 0 rows)
+python -m backend.app.cli migrate-json-to-postgres --dry-run --target test
+
+# Apply idempotent migration to TEST database
+python -m backend.app.cli migrate-json-to-postgres --apply --target test
+
+# Production migration (strictly gated behind confirmation):
+# $env:CONFIRM_PRODUCTION_WRITE="I_APPROVE_PRODUCTION_WRITE"
+# python -m backend.app.cli migrate-json-to-postgres --apply --target production
+```
+
