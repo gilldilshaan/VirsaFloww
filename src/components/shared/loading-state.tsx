@@ -1,17 +1,20 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 
+/**
+ * Consistent loading state for API-driven pages.
+ * Every API call needs a loading state — no blank screens.
+ */
 export function LoadingState({
-  message = "Loading data...",
-  description = "Retrieving verified records from TerraLedger engine",
+  message = 'Loading…',
+  className = '',
 }: {
   message?: string;
-  description?: string;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-[#e2e8dc] my-4 shadow-xs">
-      <Loader2 className="w-8 h-8 text-[#245b45] animate-spin mb-3" />
-      <h3 className="text-sm font-semibold text-[#193b2a]">{message}</h3>
-      <p className="text-xs text-[#72816f] mt-1 max-w-sm">{description}</p>
+    <div className={`flex flex-col items-center justify-center py-20 ${className}`}>
+      <Loader2 className="h-8 w-8 animate-spin text-[#245b45]" />
+      <p className="mt-3 text-sm text-[#708071]">{message}</p>
     </div>
   );
 }

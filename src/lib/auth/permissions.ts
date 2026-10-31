@@ -1,114 +1,89 @@
-import { Permission, WorkspaceRole, UserSession } from "../types/workspace";
+/**
+ * TerraLedger AI — Route Permission Guards
+ *
+ * SECURITY: Frontend route guards are a UX convenience ONLY.
+ * All data access MUST be independently authorized server-side.
+ * Never rely on frontend checks to protect sensitive data.
+ */
 
-export const ALL_PERMISSIONS: Permission[] = [
-  "workspace:view",
-  "workspace:projects:read",
-  "workspace:projects:manage",
-  "workspace:farmers:read",
-  "workspace:farmers:manage",
-  "workspace:fields:read",
-  "workspace:fields:manage",
-  "workspace:evidence:read",
-  "workspace:evidence:upload",
-  "workspace:evidence:review",
-  "workspace:assessments:read",
-  "workspace:assessments:create",
-  "workspace:assessments:approve",
-  "workspace:geospatial:view",
-  "workspace:reports:view",
-  "workspace:reports:export",
+import type { Permission, UserRole } from './roles';
+import { hasPermission, canAccessPortal } from './roles';
+
+/** Maps route prefixes to the portal they belong to */
+export function getPortalFromPath(pathname: string): string | null {
+  if (pathname.startsWith('/farmer')) return 'farmer';
+  if (pathname.startsWith('/workspace')) return 'workspace';
+  if (pathname.startsWith('/buyers')) return 'buyers';
+  return null;
+}
+
+/**
+ * Maps specific routes to their required permissions.
+ * Routes not listed here inherit portal-level access.
+ */
+const ROUTE_PERMISSION_MAP: Array<{ pattern: RegExp; permissions: Permission[] }> = [
+  // Farmer portal
+  { pattern: /^\/farmer\/fields/, permissions: ['farmer:view_own_fields'] },
+  { pattern: /^\/farmer\/register-field/, permissions: ['farmer:register_field'] },
+  { pattern: /^\/farmer\/season/, permissions: ['farmer:manage_seasons'] },
+  { pattern: /^\/farmer\/evidence/, permissions: ['farmer:submit_evidence'] },
+  { pattern: /^\/farmer\/notifications/, permissions: ['farmer:view_notifications'] },
+  { pattern: /^\/farmer\/profile/, permissions: ['farmer:manage_profile'] },
+
+  // Workspace portal
+  { pattern: /^\/workspace\/command/, permissions: ['workspace:view_command'] },
+  { pattern: /^\/workspace\/satellite/, permissions: ['workspace:view_satellite'] },
+  { pattern: /^\/workspace\/evidence/, permissions: ['workspace:view_evidence'] },
+  { pattern: /^\/workspace\/projects/, permissions: ['workspace:manage_projects'] },
+  { pattern: /^\/workspace\/fields/, permissions: ['workspace:view_fields'] },
+  { pattern: /^\/workspace\/review/, permissions: ['workspace:review_evidence'] },
+  { pattern: /^\/workspace\/assessments/, permissions: ['workspace:manage_assessments'] },
+  { pattern: /^\/workspace\/farmers/, permissions: ['workspace:view_farmers'] },
+  { pattern: /^\/workspace\/terra-intelligence/, permissions: ['workspace:terra_intelligence'] },
+  { pattern: /^\/workspace\/dossier/, permissions: ['workspace:view_dossier'] },
+
+  // Buyer portal
+  { pattern: /^\/buyers\/marketplace/, permissions: ['buyer:view_marketplace'] },
+  { pattern: /^\/buyers\/projects/, permissions: ['buyer:view_approved_project'] },
+  { pattern: /^\/buyers\/enquiry/, permissions: ['buyer:submit_enquiry'] },
+  { pattern: /^\/buyers\/enquiries/, permissions: ['buyer:view_own_enquiries'] },
+  { pattern: /^\/buyers\/profile/, permissions: ['buyer:manage_profile'] },
 ];
 
-export const ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
-  admin: [...ALL_PERMISSIONS],
-  project_developer: [
-    "workspace:view",
-    "workspace:projects:read",
-    "workspace:projects:manage",
-    "workspace:farmers:read",
-    "workspace:farmers:manage",
-    "workspace:fields:read",
-    "workspace:fields:manage",
-    "workspace:evidence:read",
-    "workspace:evidence:upload",
-    "workspace:assessments:read",
-    "workspace:assessments:create",
-    "workspace:geospatial:view",
-    "workspace:reports:view",
-    "workspace:reports:export",
-  ],
-  field_officer: [
-    "workspace:view",
-    "workspace:farmers:read",
-    "workspace:farmers:manage",
-    "workspace:fields:read",
-    "workspace:fields:manage",
-    "workspace:evidence:read",
-    "workspace:evidence:upload",
-    "workspace:geospatial:view",
-  ],
-  reviewer: [
-    "workspace:view",
-    "workspace:projects:read",
-    "workspace:fields:read",
-    "workspace:evidence:read",
-    "workspace:evidence:review",
-    "workspace:assessments:read",
-    "workspace:assessments:approve",
-    "workspace:geospatial:view",
-    "workspace:reports:view",
-  ],
-  buyer: [],
-  farmer: [],
-};
-
-export function hasPermission(user: UserSession | null, permission: Permission): boolean {
-  if (!user) return false;
-  return user.permissions.includes(permission);
-}
-
-export function hasAnyPermission(user: UserSession | null, permissions: Permission[]): boolean {
-  if (!user) return false;
-  return permissions.some((p) => user.permissions.includes(p));
-}
-
-export function hasAllPermissions(user: UserSession | null, permissions: Permission[]): boolean {
-  if (!user) return false;
-  return permissions.every((p) => user.permissions.includes(p));
-}
-
-export function canAccessWorkspace(user: UserSession | null): boolean {
-  if (!user) return false;
-  return ["admin", "project_developer", "field_officer", "reviewer"].includes(user.role);
-}
-
-export function canAccessWorkspaceRoute(user: UserSession | null, routeSegment: string): boolean {
-  if (!canAccessWorkspace(user)) return false;
-  if (!user) return false;
-  if (user.role === "admin") return true;
-
-  switch (routeSegment) {
-    case "command":
-    case "satellite":
-    case "terra-intelligence":
-      return true;
-    case "projects":
-      return hasPermission(user, "workspace:projects:read");
-    case "farmers":
-      return hasPermission(user, "workspace:farmers:read");
-    case "fields":
-      return hasPermission(user, "workspace:fields:read");
-    case "evidence":
-      return hasPermission(user, "workspace:evidence:read");
-    case "review":
-      return hasPermission(user, "workspace:evidence:review") || user.role === "project_developer";
-    case "assessments":
-      return hasPermission(user, "workspace:assessments:read");
-    case "dossier":
-      return user.role === "project_developer" || user.role === "reviewer";
-    case "reports":
-      return hasPermission(user, "workspace:reports:view");
-    default:
-      return true;
+/** Get the permissions required to access a given route */
+export function getRequiredPermissions(pathname: string): Permission[] {
+  for (const entry of ROUTE_PERMISSION_MAP) {
+    if (entry.pattern.test(pathname)) {
+      return entry.permissions;
+    }
   }
+  return [];
+}
+
+/** Check whether a role can access a specific route */
+export function canAccessRoute(role: UserRole, pathname: string): boolean {
+  const portal = getPortalFromPath(pathname);
+  if (portal && !canAccessPortal(role, portal)) {
+    return false;
+  }
+
+  const required = getRequiredPermissions(pathname);
+  if (required.length === 0) return true;
+
+  return required.every((perm) => hasPermission(role, perm));
+}
+
+/**
+ * Determine where to redirect an unauthorized user.
+ * - Not authenticated → /login
+ * - Authenticated but wrong portal → /unauthorized
+ */
+export function getAuthRedirect(
+  isAuthenticated: boolean,
+  currentPath: string,
+): string {
+  if (!isAuthenticated) {
+    return `/login?next=${encodeURIComponent(currentPath)}`;
+  }
+  return '/unauthorized';
 }

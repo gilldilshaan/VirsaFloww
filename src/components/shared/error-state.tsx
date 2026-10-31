@@ -1,33 +1,36 @@
-import { AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
+/**
+ * Consistent error state for failed API calls.
+ */
 export function ErrorState({
-  title = "Failed to load records",
-  error = "An unexpected error occurred while communicating with the MRV verification service.",
+  title = 'Something went wrong',
+  description = 'An error occurred while loading this page. Please try again.',
   onRetry,
+  className = '',
 }: {
   title?: string;
-  error?: string;
+  description?: string;
   onRetry?: () => void;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center p-10 text-center bg-[#fff8f8] rounded-xl border border-[#f3d2d2] my-4">
-      <div className="w-11 h-11 rounded-full bg-[#fae5e5] flex items-center justify-center mb-3 text-red-600">
-        <AlertCircle size={22} />
+    <div className={`flex flex-col items-center justify-center py-20 text-center ${className}`}>
+      <div className="rounded-full bg-amber-50 p-4">
+        <AlertTriangle className="text-amber-600" size={32} />
       </div>
-      <h3 className="text-sm font-semibold text-red-900">{title}</h3>
-      <p className="text-xs text-red-700 mt-1 max-w-md">{error}</p>
+      <h3 className="mt-4 text-base font-semibold text-[#213c2b]">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-[#708071]">{description}</p>
       {onRetry && (
-        <div className="mt-4">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onRetry}
-            className="text-xs border-red-300 text-red-800 hover:bg-red-50"
-          >
-            Try Again
-          </Button>
-        </div>
+        <Button
+          onClick={onRetry}
+          variant="outline"
+          size="sm"
+          className="mt-4 border-[#dce3d7] text-[#245b45] hover:bg-[#f0f3ec]"
+        >
+          Try again
+        </Button>
       )}
     </div>
   );

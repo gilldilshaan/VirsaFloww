@@ -1,160 +1,97 @@
-import {
-  AssessmentStatus,
-  FieldParcel,
-  EvidenceItem,
-  SatelliteObservation,
-  MarketplaceProject,
-} from "../terra-ledger/types";
+/**
+ * TerraLedger AI — Workspace Portal Types
+ *
+ * Types specific to the Internal Workspace portal.
+ * Shared field/evidence types are in terra-ledger/types.ts.
+ */
 
-export type WorkspaceRole =
-  "admin" | "project_developer" | "field_officer" | "reviewer" | "buyer" | "farmer";
+/** Internal workspace roles */
+export type WorkspaceRole = 'admin' | 'project_developer' | 'field_officer' | 'reviewer';
 
-export type Permission =
-  | "workspace:view"
-  | "workspace:projects:read"
-  | "workspace:projects:manage"
-  | "workspace:farmers:read"
-  | "workspace:farmers:manage"
-  | "workspace:fields:read"
-  | "workspace:fields:manage"
-  | "workspace:evidence:read"
-  | "workspace:evidence:upload"
-  | "workspace:evidence:review"
-  | "workspace:assessments:read"
-  | "workspace:assessments:create"
-  | "workspace:assessments:approve"
-  | "workspace:geospatial:view"
-  | "workspace:reports:view"
-  | "workspace:reports:export";
-
-export interface UserSession {
+/** Project record as seen by workspace users */
+export interface WorkspaceProject {
   id: string;
-  name: string;
-  email: string;
-  role: WorkspaceRole;
-  organization: string;
-  fpoAffiliation?: string;
-  district?: string;
-  village?: string;
-  avatarUrl?: string;
-  permissions: Permission[];
-}
-
-export interface ProjectRecord extends MarketplaceProject {
+  title: string;
+  slug: string;
+  location: string;
+  district: string;
+  practice: string;
+  methodology: string;
+  developer: string;
+  totalHectares: number;
+  enrolledParcels: number;
+  farmerCount: number;
+  assessmentStatus: 'UNVERIFIED' | 'NEEDS_REVIEW' | 'READY_FOR_VERIFICATION';
+  readinessScorePercent: number;
   createdAt: string;
   updatedAt: string;
-  complianceStandard:
-    "Verra VM0042" | "Gold Standard SOC" | "Verra AMS-III.AU" | "Verra AR-ACM0003";
-  registryId: string;
-  pipelineStage:
-    "Registration" | "Field Baseline" | "Monitoring" | "Verification Audit" | "Issuance Ready";
-  leadDeveloper: string;
-  targetMethaneReductionPercent: number;
 }
 
-export interface FarmerRecord {
+/** Field record in the workspace field registry */
+export interface WorkspaceField {
+  id: string;
+  code: string;
+  name: string;
+  farmerId: string;
+  farmerName: string;
+  district: string;
+  areaHa: number;
+  practice: string;
+  crop: string;
+  season: string;
+  assessmentStatus: 'UNVERIFIED' | 'NEEDS_REVIEW' | 'READY_FOR_VERIFICATION';
+  evidenceCount: number;
+  lastActivityDate: string | null;
+}
+
+/** Farmer record in the internal farmer registry */
+export interface WorkspaceFarmer {
   id: string;
   name: string;
-  localName: string;
-  phoneMasked: string;
+  nameLocal: string | null;
   district: string;
-  tehsil: string;
-  village: string;
-  fpoName: string;
-  enrolledHectares: number;
-  totalParcels: number;
-  kycStatus: "Verified" | "Pending Verification" | "Clarification Requested";
-  enrolmentDate: string;
-  bankAccountVerified: boolean;
-  baselineCrop: string;
-  practiceAdopted: string;
-  pensionOrDirectTransferId: string;
+  fieldCount: number;
+  totalAreaHa: number;
+  registeredAt: string;
+  /** No PII exposed to buyer portal */
+  phone?: never;
 }
 
-export interface FieldRecord extends FieldParcel {
-  fpoId: string;
-  fpoName: string;
-  soilType: string;
-  irrigationSource: "Canal + Electric Tubewell" | "Diesel Tubewell" | "Solar Micro-irrigation";
-  seedingDate: string;
-  harvestProjectedDate: string;
-  currentCropStage:
-    | "Land Prep"
-    | "Direct Seeding"
-    | "Vegetative Tillering"
-    | "Panicle Initiation"
-    | "Grain Filling"
-    | "Harvest";
-  awdTubeCount: number;
-  activeStatus: "Active" | "Under Review" | "Flagged Discrepancy" | "Audit Approved";
-  assignedFieldOfficer: string;
-}
-
-export interface ReviewTask {
+/** Review queue item */
+export interface ReviewQueueItem {
   id: string;
-  title: string;
-  parcelId: string;
-  farmerName: string;
-  severity: "high" | "medium" | "low";
-  type:
-    | "spatial_mismatch"
-    | "missing_awd_log"
-    | "sensor_drift"
-    | "stubble_burn_anomaly"
-    | "boundary_conflict";
-  status: "pending_review" | "in_investigation" | "resolved" | "escalated";
-  reportedDate: string;
-  dueDate: string;
-  assignedTo: string;
-  description: string;
-  evidenceRefId?: string;
-  resolutionNotes?: string;
-}
-
-export interface MrvAssessment {
-  id: string;
-  assessmentNumber: string;
+  fieldId: string;
+  fieldCode: string;
   projectId: string;
   projectTitle: string;
-  parcelCode: string;
-  farmerName: string;
-  cropSeason: string;
-  status: AssessmentStatus;
-  overallScorePercent: number;
-  evaluatedAt: string;
-  leadAuditor: string;
-  criteriaChecks: {
-    spatialCadastralBoundary: boolean;
-    zeroPuddleVerification: boolean;
-    awdDrydownSpectralMatch: boolean;
-    fertilizerDosingLog: boolean;
-    independentPeerInspection: boolean;
-  };
-  headlineFindings: string;
-  recommendations: string[];
+  evidenceId: string;
+  evidenceTitle: string;
+  evidenceType: 'photo' | 'satellite' | 'document' | 'log' | 'sensor';
+  submittedAt: string;
+  priority: 'high' | 'medium' | 'low';
+  assignedReviewer: string | null;
+  status: 'pending' | 'in_review' | 'approved' | 'flagged' | 'correction_requested';
 }
 
-export interface GeospatialLayer {
+/** MRV assessment record */
+export interface MrvAssessment {
   id: string;
-  name: string;
-  type:
-    "optical_rgb" | "ndvi_spectral" | "ndwi_moisture" | "cadastral_boundary" | "radar_sar_water";
-  resolution: string;
-  satellite: string;
-  lastUpdated: string;
-  opacity: number;
-  visible: boolean;
-  cloudCoverPercent: number;
+  fieldId: string;
+  fieldCode: string;
+  projectId: string;
+  assessmentDate: string;
+  status: 'UNVERIFIED' | 'NEEDS_REVIEW' | 'READY_FOR_VERIFICATION';
+  ruleResults: MrvRuleResult[];
+  completenessPercent: number;
+  reviewerId: string | null;
+  notes: string;
 }
 
-export interface OperationalReport {
-  id: string;
-  title: string;
-  period: string;
-  category: "mrv_integrity" | "fpo_enrolment" | "emissions_reduction" | "audit_dossier";
-  status: "Ready" | "Generating" | "Scheduled";
-  format: "PDF" | "GeoJSON" | "CSV" | "Audit ZIP";
-  fileSizeKb: number;
-  generatedBy: string;
-  downloadUrl?: string;
+/** Individual MRV rule result */
+export interface MrvRuleResult {
+  ruleId: string;
+  ruleName: string;
+  result: 'pass' | 'fail' | 'incomplete' | 'not_applicable';
+  explanation: string;
+  sourceRecordIds: string[];
 }

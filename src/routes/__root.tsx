@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 
-import { AccountContext } from '@/lib/auth-context';
+import { AuthProvider } from '@/lib/auth-context';
 import type { User } from '@supabase/supabase-js';
 import appCss from "../styles.css?url";
 import { PRODUCTION_SITE_URL } from "../lib/site-url";
@@ -126,12 +126,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const account: User | null = null;
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AccountContext.Provider value={account}><Outlet /></AccountContext.Provider>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

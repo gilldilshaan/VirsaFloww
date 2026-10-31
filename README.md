@@ -258,5 +258,3 @@ If you are working on sustainable farming, agricultural monitoring, field verifi
 ---
 
 <sub>Built with a focus on agricultural intelligence, geospatial data, and evidence-based sustainability monitoring.</sub>
-#   V i r s a F l o w w  
- 
