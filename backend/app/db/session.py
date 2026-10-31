@@ -1,4 +1,5 @@
 import os
+import sys
 from contextlib import contextmanager
 from typing import Generator, Optional
 from sqlalchemy import create_engine, Engine
@@ -12,10 +13,16 @@ def get_engine(url: Optional[str] = None) -> Engine:
     """Creates or returns the configured SQLAlchemy engine for PostgreSQL.
     
     Enforces pool_pre_ping=True, pool_size<=5, and search_path including 'public,extensions'.
+    Defaults to TEST_DATABASE_URL if executing within pytest or APP_ENV=testing.
     """
     global _engine
+    is_testing = (
+        settings.APP_ENV == "testing"
+        or "pytest" in sys.modules
+        or bool(os.getenv("PYTEST_CURRENT_TEST"))
+    )
     target_url = url or (
-        settings.TEST_DATABASE_URL if settings.APP_ENV == "testing" else settings.DATABASE_URL
+        settings.TEST_DATABASE_URL if is_testing else settings.DATABASE_URL
     )
     if not target_url:
         raise ValueError("Database URL is not configured.")

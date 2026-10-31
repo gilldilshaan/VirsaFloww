@@ -16,8 +16,8 @@
 |---|---|---|---|---|---|
 | **Phase 0** | Pre-flight Baseline & Verification | **DONE** | 2026-10-31 20:30 | 2026-10-31 20:40 | 52/52 baseline tests pass. Branch verified. |
 | **Phase 1** | Foundation: Config, Models & Migrations (TEST DB) | **DONE** | 2026-10-31 20:40 | 2026-10-31 20:50 | 13 tables created, RLS enabled on all, downgrade/upgrade verified, 52/52 baseline tests pass. |
-| **Phase 2** | PostgreSQL Repositories (TEST DB) | **PENDING** | - | - | - |
-| **Phase 3** | Evidence & Audit Immutability Guarantees (TEST DB) | **PENDING** | - | - | - |
+| **Phase 2** | PostgreSQL Repositories (TEST DB) | **DONE** | 2026-10-31 20:50 | 2026-10-31 20:58 | Generic PostgresRepository[T], AppContainer dual-mode wiring, PostGIS geometry conversion & ST_IsValid verified (57/57 tests pass). |
+| **Phase 3** | Evidence & Audit Immutability Guarantees (TEST DB) | **IN PROGRESS** | 2026-10-31 20:58 | - | PostgresEvidenceRepository & PostgresAuditService written; writing guarantee tests. |
 | **Phase 4** | JSON-to-PostgreSQL Migration CLI & Reconciliation | **PENDING** | - | - | - |
 | **Phase 5** | Full Verification, Dual-Mode Testing & Documentation | **PENDING** | - | - | - |
 | **Phase P** | Production Database Setup (Gated) | **PENDING** | - | - | Requires explicit precondition sign-off. |
