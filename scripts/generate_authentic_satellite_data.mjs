@@ -3,6 +3,25 @@ import path from 'path';
 import zlib from 'zlib';
 import { fromUrl } from 'geotiff';
 
+/**
+ * The Carbon Credit OS — Authentic Copernicus Sentinel-1/2 Earth Observation Dataset Generator
+ * Scientific Validation & Pipeline Engine (Mission 3.1)
+ *
+ * Primary Registered Parcel: PB-FIELD-001 (Gill Agro Farms - Parcel 1)
+ * Cadastral Holding Geometry: [[75.8345, 30.9135], [75.8388, 30.9142], [75.8395, 30.9085], [75.8352, 30.9078], [75.8345, 30.9135]]
+ * UTM Zone 43N (EPSG:32643) Projected Cadastral Area: 26.48 ha (264,784 m² = 2,647 10m pixels)
+ * Declared Project Plot Area: 4.80 ha (48,000 m² = 480 10m pixels)
+ *
+ * SPECTRAL INDICES:
+ * - NDVI = (B08 - B04) / (B08 + B04) [Rouse et al., 1974]
+ * - McFeeters NDWI = (B03 - B08) / (B03 + B08) [McFeeters, 1996 - Open Water / Inundation Index]
+ * - Gao NDMI = (B08 - B11) / (B08 + B11) [Gao, 1996 - Normalized Difference Moisture Index / Canopy Liquid Water]
+ * - EVI = 2.5 * (B08 - B04) / (B08 + 6.0 * B04 - 7.5 * B02 + 10000) [Huete et al., 2002]
+ * - NDRE = (B08 - B05) / (B08 + B05) [Barnes et al., 2000 - Red Edge Chlorophyll / Nitrogen Index]
+ *
+ * ZERO FABRICATION / ZERO MOCKERY
+ */
+
 // Geodesic / UTM functions for Ludhiana, Punjab (UTM Zone 43N, EPSG:32643)
 const a = 6378137.0;
 const f = 1 / 298.257223563;
@@ -53,7 +72,7 @@ function isPointInPolygon(pt, polygon) {
   return inside;
 }
 
-// PNG Encoder (No external dependencies)
+// PNG Encoder (No external binary dependencies)
 function crc32(buf) {
   let table = new Uint32Array(256);
   for (let i = 0; i < 256; i++) {
@@ -118,27 +137,28 @@ function ndviToRgba(val, inPoly, isMasked) {
   return [r, g, b, 230];
 }
 
+// McFeeters NDWI: positive = open water/ponding, negative = soil/vegetation
 function ndwiToRgba(val, inPoly, isMasked) {
   if (!inPoly) return [0, 0, 0, 0];
   if (isMasked) return [120, 120, 120, 140];
-  // NDWI: negative is dry soil, positive is surface moisture/water
   if (val < -0.2) {
-    return [160, 110, 60, 220]; // Dry brown
+    return [160, 110, 60, 220]; // Dry soil/canopy
   } else if (val < 0.0) {
     return [200, 180, 120, 220]; // Low moisture
   } else if (val < 0.2) {
-    return [70, 150, 210, 230]; // High moisture / saturated
+    return [70, 150, 210, 230]; // High moisture / saturated soil
   } else {
     return [15, 60, 160, 240]; // Standing water / flooding
   }
 }
 
+// Gao NDMI: canopy liquid water
 function ndmiToRgba(val, inPoly, isMasked) {
   if (!inPoly) return [0, 0, 0, 0];
   if (isMasked) return [120, 120, 120, 140];
-  if (val < -0.1) return [190, 150, 90, 220];
-  if (val < 0.15) return [140, 200, 180, 220];
-  return [25, 90, 170, 230];
+  if (val < -0.1) return [190, 150, 90, 220]; // Moisture stress
+  if (val < 0.15) return [140, 200, 180, 220]; // Moderate moisture
+  return [25, 90, 170, 230]; // High canopy moisture
 }
 
 function eviToRgba(val, inPoly, isMasked) {
@@ -159,55 +179,34 @@ function ndreToRgba(val, inPoly, isMasked) {
 }
 
 function rgbStretch(val) {
-  // Typical Sentinel-2 L2A surface reflectance is scaled by 10,000 (0 to 10,000 DN)
-  // Max optical reflectance for soil/crops is typically 0.0 to 0.3 (0 to 3000 DN)
   const norm = Math.max(0, Math.min(1.0, (val - 200) / 2500));
   return Math.round(norm * 255);
 }
 
-// Field parcels
-const PARCELS = [
-  {
-    fieldId: 'PB-FIELD-001',
-    code: 'PB-FIELD-001',
-    name: 'Gill Agro Farms Parcel 1 (Jodhan)',
-    farmerName: 'Gurdev Singh Gill',
-    farmerNameLocal: 'ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ',
-    district: 'Ludhiana',
-    areaHa: 4.8,
-    areaAcres: 11.86,
-    cropSeason: 'Kharif 2024',
-    practice: 'Direct Seeded Rice (DSR) + Alternate Wetting & Drying (AWD)',
-    coordinates: [
-      [75.8320, 30.9080],
-      [75.8410, 30.9095],
-      [75.8395, 30.9160],
-      [75.8310, 30.9140],
-      [75.8320, 30.9080],
-    ],
-  },
-  {
-    fieldId: 'PB-LUD-042',
-    code: 'PB-LUD-042',
-    name: 'Gill Agro-Plot 4',
-    farmerName: 'Gurdev Singh Gill',
-    farmerNameLocal: 'ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ',
-    district: 'Ludhiana',
-    areaHa: 4.8,
-    areaAcres: 11.86,
-    cropSeason: 'Kharif 2024',
-    practice: 'Direct Seeded Rice (DSR) + Alternate Wetting & Drying (AWD)',
-    coordinates: [
-      [75.8345, 30.9135],
-      [75.8388, 30.9142],
-      [75.8395, 30.9085],
-      [75.8352, 30.9078],
-      [75.8345, 30.9135],
-    ],
-  },
-];
+// Primary registered parcel definition from backend/data/seed/fields.json
+const PRIMARY_PARCEL = {
+  fieldId: 'PB-FIELD-001',
+  code: 'PB-FIELD-001',
+  name: 'Gill Agro Farms - Parcel 1',
+  farmerName: 'Gurdev Singh Gill',
+  farmerNameLocal: 'ਗੁਰਦੇਵ ਸਿੰਘ ਗਿੱਲ',
+  district: 'Ludhiana',
+  areaHa: 4.8, // Enrolled project cultivation area (480 pixels)
+  holdingAreaHa: 26.48, // Cadastral revenue parcel area (2,647 pixels)
+  areaAcres: 11.86,
+  cropSeason: 'Kharif 2024',
+  practice: 'Direct Seeded Rice (DSR) + Alternate Wetting & Drying (AWD)',
+  // Exact boundary from fields.json [lng, lat]
+  coordinates: [
+    [75.8345, 30.9135],
+    [75.8388, 30.9142],
+    [75.8395, 30.9085],
+    [75.8352, 30.9078],
+    [75.8345, 30.9135],
+  ],
+};
 
-// 7 Genuine Sentinel-2 L2A scenes across Kharif Season
+// 7 Genuine Sentinel-2 L2A scenes across Kharif Season 2024 (Tile 43REQ)
 const SCENES = [
   {
     id: 'S2A_43REQ_20240615_0_L2A',
@@ -295,111 +294,68 @@ const SCENES = [
   },
 ];
 
-// Sentinel-1 GRD Radar Co-observations (Planetary Computer)
-const RADAR_CO_OBSERVATIONS = [
+// Sentinel-1 GRD Radar Acquisition Reference Metadata
+const RADAR_CATALOG = [
   {
     date: '2024-06-15',
     sceneId: 'S1A_IW_GRDH_1SDV_20240616T010010_054345_069B12',
     orbit: 34,
     passType: 'descending',
-    polarization: 'VV+VH',
-    meanVvDb: -11.8,
-    meanVhDb: -19.4,
-    crossRatioDb: -7.6,
-    inundationDetected: false,
-    confidencePct: 88,
   },
   {
     date: '2024-07-15',
     sceneId: 'S1A_IW_GRDH_1SDV_20240716T010010_054783_06A911',
     orbit: 34,
     passType: 'descending',
-    polarization: 'VV+VH',
-    meanVvDb: -16.2,
-    meanVhDb: -22.8,
-    crossRatioDb: -6.6,
-    inundationDetected: true,
-    confidencePct: 82,
   },
   {
     date: '2024-09-08',
     sceneId: 'S1A_IW_GRDH_1SDV_20240908T125614_055573_06C420',
     orbit: 27,
     passType: 'ascending',
-    polarization: 'VV+VH',
-    meanVvDb: -12.4,
-    meanVhDb: -18.9,
-    crossRatioDb: -6.5,
-    inundationDetected: false,
-    confidencePct: 91,
   },
   {
     date: '2024-09-23',
     sceneId: 'S1A_IW_GRDH_1SDV_20240924T010010_055800_06CF10',
     orbit: 34,
     passType: 'descending',
-    polarization: 'VV+VH',
-    meanVvDb: -10.9,
-    meanVhDb: -17.2,
-    crossRatioDb: -6.3,
-    inundationDetected: false,
-    confidencePct: 94,
   },
   {
     date: '2024-10-03',
     sceneId: 'S1A_IW_GRDH_1SDV_20241003T010010_055931_06D699',
     orbit: 34,
     passType: 'descending',
-    polarization: 'VV+VH',
-    meanVvDb: -11.2,
-    meanVhDb: -17.6,
-    crossRatioDb: -6.4,
-    inundationDetected: false,
-    confidencePct: 93,
   },
   {
     date: '2024-10-08',
     sceneId: 'S1A_IW_GRDH_1SDV_20241007T130430_055997_06D927',
     orbit: 100,
     passType: 'ascending',
-    polarization: 'VV+VH',
-    meanVvDb: -11.6,
-    meanVhDb: -18.1,
-    crossRatioDb: -6.5,
-    inundationDetected: false,
-    confidencePct: 92,
   },
   {
     date: '2024-10-13',
     sceneId: 'S1A_IW_GRDH_1SDV_20241014T125614_056099_06DD30',
     orbit: 27,
     passType: 'ascending',
-    polarization: 'VV+VH',
-    meanVvDb: -12.1,
-    meanVhDb: -18.8,
-    crossRatioDb: -6.7,
-    inundationDetected: false,
-    confidencePct: 90,
   },
 ];
 
 async function main() {
-  console.log('--- Generating Authentic Sentinel-1/2 Earth Observation Dataset ---');
+  console.log('--- Generating Scientifically Validated Copernicus Sentinel Earth Observation Dataset ---');
   const rasterBaseDir = path.resolve('public/rasters');
   fs.mkdirSync(rasterBaseDir, { recursive: true });
 
-  const primaryParcel = PARCELS[0];
-  console.log(`Processing parcel: ${primaryParcel.name} (${primaryParcel.code})`);
+  console.log(`Processing parcel: ${PRIMARY_PARCEL.name} (${PRIMARY_PARCEL.code})`);
 
   // Bounding box of parcel in UTM 43N
-  const utmCoords = primaryParcel.coordinates.map(([lng, lat]) => wgs84ToUtm43N(lng, lat));
+  const utmCoords = PRIMARY_PARCEL.coordinates.map(([lng, lat]) => wgs84ToUtm43N(lng, lat));
   const minUtmX = Math.min(...utmCoords.map((c) => c.x));
   const maxUtmX = Math.max(...utmCoords.map((c) => c.x));
   const minUtmY = Math.min(...utmCoords.map((c) => c.y));
   const maxUtmY = Math.max(...utmCoords.map((c) => c.y));
 
-  // Add a small 40m padding around parcel for context
-  const pad = 40.0;
+  // Add 30m context buffer around parcel
+  const pad = 30.0;
   const utmBbox = {
     minX: minUtmX - pad,
     maxX: maxUtmX + pad,
@@ -407,22 +363,7 @@ async function main() {
     maxY: maxUtmY + pad,
   };
 
-  // Convert bounding box corners back to WGS84 for MapLibre image layer coordinate bounds
-  const nw = utm43NToWgs84(utmBbox.minX, utmBbox.maxY);
-  const ne = utm43NToWgs84(utmBbox.maxX, utmBbox.maxY);
-  const se = utm43NToWgs84(utmBbox.maxX, utmBbox.minY);
-  const sw = utm43NToWgs84(utmBbox.minX, utmBbox.minY);
-
-  const georeferencedCoordinates = [
-    [Number(nw.lng.toFixed(6)), Number(nw.lat.toFixed(6))], // Top-Left
-    [Number(ne.lng.toFixed(6)), Number(ne.lat.toFixed(6))], // Top-Right
-    [Number(se.lng.toFixed(6)), Number(se.lat.toFixed(6))], // Bottom-Right
-    [Number(sw.lng.toFixed(6)), Number(sw.lat.toFixed(6))], // Bottom-Left
-  ];
-
-  console.log('MapLibre Image Layer Coordinates:', georeferencedCoordinates);
-
-  // Standard Tile origin and resolution for Sentinel-2 Tile 43REQ
+  // Standard Tile origin and resolution for Sentinel-2 Tile 43REQ (EPSG:32643)
   const originX = 499980;
   const originY = 3500040;
   const resX = 10;
@@ -437,6 +378,34 @@ async function main() {
   const height = row1 - row0;
   console.log(`Raster subset grid: ${width} cols x ${height} rows (${width * height} pixels)`);
 
+  // Quantized grid bounds for exact pixel georeferencing in MapLibre
+  const gridMinX = originX + col0 * resX;
+  const gridMaxX = originX + col1 * resX;
+  const gridMaxY = originY - row0 * resY;
+  const gridMinY = originY - row1 * resY;
+
+  const nw = utm43NToWgs84(gridMinX, gridMaxY);
+  const ne = utm43NToWgs84(gridMaxX, gridMaxY);
+  const se = utm43NToWgs84(gridMaxX, gridMinY);
+  const sw = utm43NToWgs84(gridMinX, gridMinY);
+
+  const georeferencedCoordinates = [
+    [Number(nw.lng.toFixed(6)), Number(nw.lat.toFixed(6))], // Top-Left
+    [Number(ne.lng.toFixed(6)), Number(ne.lat.toFixed(6))], // Top-Right
+    [Number(se.lng.toFixed(6)), Number(se.lat.toFixed(6))], // Bottom-Right
+    [Number(sw.lng.toFixed(6)), Number(sw.lat.toFixed(6))], // Bottom-Left
+  ];
+
+  console.log('MapLibre Pixel-Aligned Coordinates:', georeferencedCoordinates);
+
+  // 20m window for B05, B11, SCL
+  const col0_20 = Math.floor(col0 / 2);
+  const col1_20 = Math.ceil(col1 / 2);
+  const row0_20 = Math.floor(row0 / 2);
+  const row1_20 = Math.ceil(row1 / 2);
+  const win20m = [col0_20, row0_20, col1_20, row1_20];
+  const width20 = col1_20 - col0_20;
+
   const processedObservations = [];
 
   for (const scene of SCENES) {
@@ -448,54 +417,50 @@ async function main() {
     const b8Url = `${scene.baseUri}/B08.tif`;
     const b3Url = `${scene.baseUri}/B03.tif`;
     const b2Url = `${scene.baseUri}/B02.tif`;
+    const b5Url = `${scene.baseUri}/B05.tif`;
+    const b11Url = `${scene.baseUri}/B11.tif`;
+    const sclUrl = `${scene.baseUri}/SCL.tif`;
 
-    console.log('Fetching genuine Sentinel-2 band COGs via HTTP range requests...');
-    const [t4, t8, t3, t2] = await Promise.all([
+    console.log('Fetching genuine Sentinel-2 10m & 20m band COGs via HTTP range requests...');
+    const [t4, t8, t3, t2, t5, t11, tScl] = await Promise.all([
       fromUrl(b4Url),
       fromUrl(b8Url),
       fromUrl(b3Url),
       fromUrl(b2Url),
+      fromUrl(b5Url),
+      fromUrl(b11Url),
+      fromUrl(sclUrl),
     ]);
 
-    const [i4, i8, i3, i2] = await Promise.all([
+    const [i4, i8, i3, i2, i5, i11, iScl] = await Promise.all([
       t4.getImage(),
       t8.getImage(),
       t3.getImage(),
       t2.getImage(),
+      t5.getImage(),
+      t11.getImage(),
+      tScl.getImage(),
     ]);
 
-    const window = [col0, row0, col1, row1];
-    const [r4, r8, r3, r2] = await Promise.all([
-      i4.readRasters({ window }),
-      i8.readRasters({ window }),
-      i3.readRasters({ window }),
-      i2.readRasters({ window }),
+    const window10m = [col0, row0, col1, row1];
+    const [r4, r8, r3, r2, r5, r11, rScl] = await Promise.all([
+      i4.readRasters({ window: window10m }),
+      i8.readRasters({ window: window10m }),
+      i3.readRasters({ window: window10m }),
+      i2.readRasters({ window: window10m }),
+      i5.readRasters({ window: win20m }),
+      i11.readRasters({ window: win20m }),
+      iScl.readRasters({ window: win20m }),
     ]);
 
     const reds = Array.from(r4[0]);
     const nirs = Array.from(r8[0]);
     const greens = Array.from(r3[0]);
     const blues = Array.from(r2[0]);
+    const b05s = Array.from(r5[0]);
+    const b11s = Array.from(r11[0]);
+    const scls = Array.from(rScl[0]);
 
-    // Optional: fetch SCL and B05, B11 if available
-    let scls = null;
-    try {
-      const sclTiff = await fromUrl(`${scene.baseUri}/SCL.tif`);
-      const sclImg = await sclTiff.getImage();
-      // SCL is 20m resolution, window halved
-      const sclWin = [
-        Math.floor(col0 / 2),
-        Math.floor(row0 / 2),
-        Math.ceil(col1 / 2),
-        Math.ceil(row1 / 2),
-      ];
-      const sclRasters = await sclImg.readRasters({ window: sclWin });
-      scls = Array.from(sclRasters[0]);
-    } catch {
-      scls = null;
-    }
-
-    // Process every pixel
     const ndviVals = [];
     const ndwiVals = [];
     const ndmiVals = [];
@@ -520,29 +485,28 @@ async function main() {
         const utmX = originX + (col0 + col) * resX + resX / 2;
         const utmY = originY - (row0 + row) * resY - resY / 2;
         const geoPt = utm43NToWgs84(utmX, utmY);
-        const inPoly = isPointInPolygon([geoPt.lng, geoPt.lat], primaryParcel.coordinates);
+        const inPoly = isPointInPolygon([geoPt.lng, geoPt.lat], PRIMARY_PARCEL.coordinates);
 
         const red = reds[idx] ?? 0;
         const nir = nirs[idx] ?? 0;
         const green = greens[idx] ?? 0;
         const blue = blues[idx] ?? 0;
 
-        // Simulate B05 (RedEdge) and B11 (SWIR) based on physical radiative transfer if not direct
-        const rededge = Math.round(red + (nir - red) * 0.42);
-        const swir = Math.round(nir * 0.58 + red * 0.2);
+        // 20m band pixel mapping
+        const absCol10 = col0 + col;
+        const absRow10 = row0 + row;
+        const absCol20 = Math.floor(absCol10 / 2);
+        const absRow20 = Math.floor(absRow10 / 2);
+        const c20 = absCol20 - col0_20;
+        const r20 = absRow20 - row0_20;
+        const idx20 = r20 * width20 + c20;
 
-        // Check SCL mask
-        let isMasked = false;
-        if (scls) {
-          const sclRow = Math.floor(row / 2);
-          const sclCol = Math.floor(col / 2);
-          const sclWidth = Math.ceil(width / 2);
-          const sclIdx = sclRow * sclWidth + sclCol;
-          const sclVal = scls[sclIdx];
-          if (sclVal !== undefined && [1, 3, 8, 9, 10, 11].includes(sclVal)) {
-            isMasked = true;
-          }
-        }
+        const b05 = b05s[idx20] ?? red;
+        const b11 = b11s[idx20] ?? nir;
+        const sclVal = scls[idx20] ?? 4;
+
+        // Check SCL mask (1: Defective, 3: Cloud shadow, 8: Cloud med prob, 9: Cloud high prob, 10: Cirrus, 11: Snow/Ice)
+        let isMasked = [1, 3, 8, 9, 10, 11].includes(sclVal);
         if (red > 8000 && nir > 8000) isMasked = true; // Optical saturation mask
 
         if (inPoly) {
@@ -551,12 +515,13 @@ async function main() {
             cloudPolyPixels++;
           } else if (red + nir > 0) {
             validPolyPixels++;
-            // Calculate indices
+
+            // Rigorous Spectral Indices
             const ndvi = (nir - red) / (nir + red);
-            const ndwi = (green - nir) / (green + nir);
-            const ndmi = (nir - swir) / (nir + swir);
-            const evi = (2.5 * (nir - red)) / (nir + 6.0 * red - 7.5 * blue + 10000);
-            const ndre = (nir - rededge) / (nir + rededge);
+            const ndwi = (green - nir) / (green + nir); // McFeeters (1996) Surface Water Index
+            const ndmi = (nir - b11) / (nir + b11);     // Gao (1996) Canopy Moisture Index
+            const evi = (2.5 * (nir - red)) / (nir + 6.0 * red - 7.5 * blue + 10000); // Huete (2002)
+            const ndre = (nir - b05) / (nir + b05);     // Barnes (2000) Red Edge Chlorophyll Index
 
             ndviVals.push(ndvi);
             ndwiVals.push(ndwi);
@@ -584,7 +549,7 @@ async function main() {
         falseColorRgba[pIdx + 2] = gByte;
         falseColorRgba[pIdx + 3] = rgbAlpha;
 
-        // Spectral Index RGBA
+        // Spectral Index RGBA rasters
         const ndviVal = (nir - red) / (nir + red || 1);
         const [nr, ng, nb, na] = ndviToRgba(ndviVal, inPoly, isMasked);
         ndviRgba[pIdx] = nr; ndviRgba[pIdx + 1] = ng; ndviRgba[pIdx + 2] = nb; ndviRgba[pIdx + 3] = na;
@@ -593,7 +558,7 @@ async function main() {
         const [wr, wg, wb, wa] = ndwiToRgba(ndwiVal, inPoly, isMasked);
         ndwiRgba[pIdx] = wr; ndwiRgba[pIdx + 1] = wg; ndwiRgba[pIdx + 2] = wb; ndwiRgba[pIdx + 3] = wa;
 
-        const ndmiVal = (nir - swir) / (nir + swir || 1);
+        const ndmiVal = (nir - b11) / (nir + b11 || 1);
         const [mr, mg, mb, ma] = ndmiToRgba(ndmiVal, inPoly, isMasked);
         ndmiRgba[pIdx] = mr; ndmiRgba[pIdx + 1] = mg; ndmiRgba[pIdx + 2] = mb; ndmiRgba[pIdx + 3] = ma;
 
@@ -601,13 +566,13 @@ async function main() {
         const [er, eg, eb, ea] = eviToRgba(eviVal, inPoly, isMasked);
         eviRgba[pIdx] = er; eviRgba[pIdx + 1] = eg; eviRgba[pIdx + 2] = eb; eviRgba[pIdx + 3] = ea;
 
-        const ndreVal = (nir - rededge) / (nir + rededge || 1);
+        const ndreVal = (nir - b05) / (nir + b05 || 1);
         const [re_r, re_g, re_b, re_a] = ndreToRgba(ndreVal, inPoly, isMasked);
         ndreRgba[pIdx] = re_r; ndreRgba[pIdx + 1] = re_g; ndreRgba[pIdx + 2] = re_b; ndreRgba[pIdx + 3] = re_a;
       }
     }
 
-    // Write PNG files to public/rasters/<scene.id>/
+    // Export validated PNG raster assets
     fs.writeFileSync(path.join(sceneDir, 'ndvi.png'), encodeRgbaToPng(width, height, ndviRgba));
     fs.writeFileSync(path.join(sceneDir, 'ndwi.png'), encodeRgbaToPng(width, height, ndwiRgba));
     fs.writeFileSync(path.join(sceneDir, 'ndmi.png'), encodeRgbaToPng(width, height, ndmiRgba));
@@ -616,9 +581,9 @@ async function main() {
     fs.writeFileSync(path.join(sceneDir, 'rgb.png'), encodeRgbaToPng(width, height, rgbRgba));
     fs.writeFileSync(path.join(sceneDir, 'false_color.png'), encodeRgbaToPng(width, height, falseColorRgba));
 
-    // Stats calculation helper
+    // Polygon-level statistical distribution
     function getStats(arr) {
-      if (arr.length === 0) return { min: 0, max: 0, mean: 0, median: 0, stdDev: 0 };
+      if (arr.length === 0) return { min: 0, max: 0, mean: 0, median: 0, stdDev: 0, p10: 0, p25: 0, p75: 0, p90: 0 };
       const sorted = [...arr].sort((a, b) => a - b);
       const min = Number(sorted[0].toFixed(4));
       const max = Number(sorted[sorted.length - 1].toFixed(4));
@@ -639,13 +604,13 @@ async function main() {
     const eviStats = getStats(eviVals);
     const ndreStats = getStats(ndreVals);
 
-    const radar = RADAR_CO_OBSERVATIONS.find((r) => r.date === scene.date) || RADAR_CO_OBSERVATIONS[0];
+    const radarRef = RADAR_CATALOG.find((r) => r.date === scene.date) || RADAR_CATALOG[0];
     const coveragePct = Number(((validPolyPixels / (totalPolyPixels || 1)) * 100).toFixed(1));
     const cloudCoverFieldPct = Number(((cloudPolyPixels / (totalPolyPixels || 1)) * 100).toFixed(1));
 
     const obsRecord = {
       id: scene.id,
-      fieldId: primaryParcel.fieldId,
+      fieldId: PRIMARY_PARCEL.fieldId,
       date: scene.date,
       sensor: `${scene.platform} MSI L2A`,
       platform: scene.platform,
@@ -672,6 +637,8 @@ async function main() {
       coverage: {
         validPixelCount: validPolyPixels,
         totalPolygonPixels: totalPolyPixels,
+        cadastralHoldingAreaHa: PRIMARY_PARCEL.holdingAreaHa,
+        enrolledPlotAreaHa: PRIMARY_PARCEL.areaHa,
         coveragePct,
         cloudContaminationPct: cloudCoverFieldPct,
         nodataPct: 0.0,
@@ -688,24 +655,31 @@ async function main() {
       },
       radarCoObservation: {
         sensor: 'Sentinel-1 C-SAR GRD',
-        sceneId: radar.sceneId,
-        date: radar.date,
-        orbitNumber: radar.orbit,
-        passType: radar.passType,
+        sceneId: radarRef.sceneId,
+        date: radarRef.date,
+        orbitNumber: radarRef.orbit,
+        passType: radarRef.passType,
         polarizations: ['VV', 'VH'],
-        vvMeanDb: radar.meanVvDb,
-        vhMeanDb: radar.meanVhDb,
-        crossRatioDb: radar.crossRatioDb,
-        inundationDetected: radar.inundationDetected,
-        confidencePct: radar.confidencePct,
+        grdProcessingLevel: 'Level-1 GRD (Ground Range Detected)',
+        calibrationMethod: 'Radiometric calibration (sigma0) and Range Doppler Terrain Correction pending',
+        isAvailable: false,
+        provenanceStatus: 'UNAVAILABLE',
+        vvMeanDb: null,
+        vhMeanDb: null,
+        crossRatioDb: null,
+        inundationDetected: null,
+        confidencePct: null,
         scientificNotice:
-          'Literature Benchmark: Punjab DSR/PTR radar backscatter cross-check. Inundation screening indicator based on specular reflection (VV < -15dB); requires in-situ ground confirmation and cannot alone certify irrigation compliance.',
+          'Radar parcel extraction UNAVAILABLE: Rigorous radiometric calibration (sigma0) and Range Doppler Terrain Correction (using SRTM/Copernicus 30m DEM) have not been executed on-premises for this acquisition. Literature benchmark figures have been retracted to preserve scientific integrity. Synthetic aperture radar backscatter will remain marked unavailable until pipeline calibrated extraction is completed.',
       },
       assets: {
         b02: `${scene.baseUri}/B02.tif`,
         b03: `${scene.baseUri}/B03.tif`,
         b04: `${scene.baseUri}/B04.tif`,
+        b05: `${scene.baseUri}/B05.tif`,
         b08: `${scene.baseUri}/B08.tif`,
+        b11: `${scene.baseUri}/B11.tif`,
+        scl: `${scene.baseUri}/SCL.tif`,
       },
       notes: scene.agronomicObservation,
       isDemo: false,
@@ -713,10 +687,10 @@ async function main() {
     };
 
     processedObservations.push(obsRecord);
-    console.log(`Processed ${scene.id} successfully: Mean NDVI = ${ndviStats.mean}, Mean NDWI = ${ndwiStats.mean}, Valid Pixels = ${validPolyPixels}/${totalPolyPixels}`);
+    console.log(`Successfully processed ${scene.id}: Valid Pixels = ${validPolyPixels}/${totalPolyPixels} (${coveragePct}%), Mean NDVI = ${ndviStats.mean}, McFeeters NDWI = ${ndwiStats.mean}, Gao NDMI = ${ndmiStats.mean}`);
   }
 
-  // Write outputs
+  // Persist outputs
   const dataDir = path.resolve('data');
   const backendSeedDir = path.resolve('backend/data/seed');
   fs.mkdirSync(dataDir, { recursive: true });
@@ -728,8 +702,12 @@ async function main() {
 
   const tsExport = `/**
  * The Carbon Credit OS — Authentic Copernicus Sentinel-1/2 Observations
- * Derived directly from AWS Open Data COGs and Planetary Computer C-SAR STAC.
+ * Derived directly from AWS Open Data COGs (Sentinel-2 L2A BOA Reflectance).
  * ZERO MOCKERY / ZERO FABRICATION.
+ *
+ * Registered Field: PB-FIELD-001 (Gill Agro Farms - Parcel 1)
+ * Cadastral Revenue Holding Area: 26.48 ha (2,647 pixels @ 10m)
+ * Enrolled Project DSR Plot Area: 4.80 ha (480 pixels @ 10m)
  */
 
 import { SatelliteObservation } from '@/lib/terra-ledger/types';
@@ -739,18 +717,23 @@ export interface AuthenticSatelliteObservation extends SatelliteObservation {
   stacCollection: string;
   cloudCoverFieldPct: number;
   dataOrigin: 'LIVE_OBSERVATION' | 'PROCESSED_OBSERVATION' | 'PUBLIC_REFERENCE' | 'UNAVAILABLE';
+  provenanceStatus?: 'PROCESSED_OBSERVATION' | 'UNAVAILABLE' | string;
+  isDemo?: boolean;
+  dataLabel?: string;
   phenologyStage: string;
   agronomicInterpretation: string;
   stats: {
     ndvi: { min: number; max: number; mean: number; median: number; stdDev: number; p10?: number; p25?: number; p75?: number; p90?: number };
-    ndwi: { min: number; max: number; mean: number; median: number; stdDev: number };
-    ndmi: { min: number; max: number; mean: number; median: number; stdDev: number };
-    evi: { min: number; max: number; mean: number; median: number; stdDev: number };
-    ndre: { min: number; max: number; mean: number; median: number; stdDev: number };
+    ndwi: { min: number; max: number; mean: number; median: number; stdDev: number; p10?: number; p25?: number; p75?: number; p90?: number };
+    ndmi: { min: number; max: number; mean: number; median: number; stdDev: number; p10?: number; p25?: number; p75?: number; p90?: number };
+    evi: { min: number; max: number; mean: number; median: number; stdDev: number; p10?: number; p25?: number; p75?: number; p90?: number };
+    ndre: { min: number; max: number; mean: number; median: number; stdDev: number; p10?: number; p25?: number; p75?: number; p90?: number };
   };
   coverage: {
     validPixelCount: number;
     totalPolygonPixels: number;
+    cadastralHoldingAreaHa: number;
+    enrolledPlotAreaHa: number;
     coveragePct: number;
     cloudContaminationPct: number;
     nodataPct: number;
@@ -772,18 +755,25 @@ export interface AuthenticSatelliteObservation extends SatelliteObservation {
     orbitNumber: number;
     passType: 'ascending' | 'descending';
     polarizations: string[];
-    vvMeanDb: number;
-    vhMeanDb: number;
-    crossRatioDb: number;
-    inundationDetected: boolean;
-    confidencePct: number;
+    grdProcessingLevel: string;
+    calibrationMethod: string;
+    isAvailable: boolean;
+    provenanceStatus: 'UNAVAILABLE' | 'PROCESSED_OBSERVATION';
+    vvMeanDb: number | null;
+    vhMeanDb: number | null;
+    crossRatioDb: number | null;
+    inundationDetected: boolean | null;
+    confidencePct: number | null;
     scientificNotice: string;
   };
   assets: {
     b02: string;
     b03: string;
     b04: string;
+    b05: string;
     b08: string;
+    b11: string;
+    scl: string;
   };
 }
 
@@ -791,7 +781,7 @@ export const AUTHENTIC_SATELLITE_OBSERVATIONS: AuthenticSatelliteObservation[] =
 `;
 
   fs.writeFileSync(path.resolve('src/lib/satellite/authentic-observations.ts'), tsExport);
-  console.log('\n--- SUCCESS: Wrote authentic observations to data/observations.json and src/lib/satellite/authentic-observations.ts ---');
+  console.log('\\n--- SUCCESS: Wrote authentic observations to data/observations.json and src/lib/satellite/authentic-observations.ts ---');
 }
 
 main().catch((err) => {

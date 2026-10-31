@@ -57,6 +57,9 @@ def evaluate_r3_photo_distance(
         # Boundary checks
         if dist <= buffer_m:
             continue
+        elif getattr(photo.provenance, "waiver_issued", False):
+            # Formally waived by Lead Auditor: anomaly preserved in provenance audit trail but exempted
+            continue
         elif dist <= fail_m:
             warning_photos.append(f"{photo.id} ({dist:.1f}m from boundary)")
         else:

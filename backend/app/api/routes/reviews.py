@@ -93,7 +93,44 @@ def submit_review_decision(
 
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    # Inspect linked evidence for active spatial discrepancy (> 15m)
+    linked_evidence = None
+    has_spatial_discrepancy = False
+    if review.evidence_ref_id:
+        try:
+            linked_evidence = container.evidence_repo.get(review.evidence_ref_id)
+            if linked_evidence and linked_evidence.provenance:
+                dist = linked_evidence.provenance.spatial_distance_meters
+                if dist is not None and dist > 15.0 and not linked_evidence.provenance.waiver_issued:
+                    has_spatial_discrepancy = True
+        except Exception:
+            pass
+
+    waiver_issued = False
     if body.decision == ReviewDecisionType.ACCEPTED:
+        if has_spatial_discrepancy:
+            # Gating: ordinary reviewers cannot accept an active spatial discrepancy
+            if current_user.role != UserRole.ADMIN:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail={
+                        "code": "WAIVER_AUTHORIZATION_REQUIRED",
+                        "message": (
+                            "Ordinary reviewers cannot accept evidence with an active spatial discrepancy (>15m). "
+                            "A formal Lead Auditor (ADMIN) waiver with regulatory rationale is required."
+                        ),
+                    },
+                )
+            # Admin must provide formal waiver justification
+            if not body.waiver_reason or len(body.waiver_reason.strip()) < 10:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail={
+                        "code": "WAIVER_JUSTIFICATION_REQUIRED",
+                        "message": "Lead Auditor waiver requires formal waiver_reason (minimum 10 characters).",
+                    },
+                )
+            waiver_issued = True
         new_status = ReviewStatus.RESOLVED
     elif body.decision == ReviewDecisionType.REJECTED:
         new_status = ReviewStatus.RESOLVED
@@ -102,39 +139,63 @@ def submit_review_decision(
     else:
         new_status = review.status
 
-    updated_review = review.model_copy(
-        update={
-            "status": new_status,
-            "decision": body.decision,
-            "comment": body.comment,
-            "resolved_at": now_iso,
-            "resolved_by": current_user.id,
-        }
-    )
+    update_dict = {
+        "status": new_status,
+        "decision": body.decision,
+        "comment": body.comment,
+        "resolved_at": now_iso,
+        "resolved_by": current_user.id,
+    }
+    if waiver_issued:
+        update_dict.update({
+            "waiver_issued": True,
+            "waiver_reason": body.waiver_reason,
+            "waiver_regulatory_rationale": body.waiver_regulatory_rationale or body.waiver_reason,
+            "waiver_authorized_by": current_user.id,
+            "waiver_timestamp": now_iso,
+        })
+
+    updated_review = review.model_copy(update=update_dict)
     container.review_repo.update(updated_review)
 
     # If linked evidence exists, update its status
-    if review.evidence_ref_id:
-        try:
-            ev_item = container.evidence_repo.get(review.evidence_ref_id)
-            if ev_item:
-                target_ev_status = (
-                    EvidenceStatus.HASH_RECORDED if body.decision == ReviewDecisionType.ACCEPTED
-                    else (EvidenceStatus.FLAGGED if body.decision == ReviewDecisionType.REJECTED else EvidenceStatus.HASH_RECORDED)
-                )
-                prov_rev_status = (
-                    "Accepted by Reviewer" if body.decision == ReviewDecisionType.ACCEPTED
-                    else ("Rejected by Reviewer" if body.decision == ReviewDecisionType.REJECTED else "Clarification Requested")
-                )
-                updated_ev = ev_item.model_copy(
-                    update={
-                        "status": target_ev_status,
-                        "provenance": ev_item.provenance.model_copy(update={"review_status": prov_rev_status}),
-                    }
-                )
-                container.evidence_repo.update(updated_ev)
-        except Exception:
-            pass
+    if linked_evidence:
+        target_ev_status = (
+            EvidenceStatus.HASH_RECORDED if body.decision == ReviewDecisionType.ACCEPTED
+            else (EvidenceStatus.FLAGGED if body.decision == ReviewDecisionType.REJECTED else EvidenceStatus.HASH_RECORDED)
+        )
+        if waiver_issued:
+            container.evidence_repo.apply_auditor_waiver(
+                evidence_id=linked_evidence.id,
+                waiver_reason=body.waiver_reason,
+                waiver_regulatory_rationale=body.waiver_regulatory_rationale or body.waiver_reason,
+                actor_id=current_user.id,
+                target_status=target_ev_status,
+            )
+            audit_service.log_event(
+                actor_id=current_user.id,
+                action="SPATIAL_DISCREPANCY_WAIVER",
+                entity_type="EVIDENCE",
+                entity_id=linked_evidence.id,
+                details={
+                    "reviewId": review_id,
+                    "spatialDistanceMeters": linked_evidence.provenance.spatial_distance_meters,
+                    "waiverReason": body.waiver_reason,
+                    "waiverRegulatoryRationale": body.waiver_regulatory_rationale or body.waiver_reason,
+                    "authorizedBy": current_user.id,
+                },
+            )
+        else:
+            prov_rev_status = (
+                "Accepted by Reviewer" if body.decision == ReviewDecisionType.ACCEPTED
+                else ("Rejected by Reviewer" if body.decision == ReviewDecisionType.REJECTED else "Clarification Requested")
+            )
+            container.evidence_repo.record_status_transition(
+                evidence_id=linked_evidence.id,
+                new_status=target_ev_status,
+                actor_id=current_user.id,
+                reason=prov_rev_status,
+            )
 
     # If clarification requested, dispatch notification
     if body.decision == ReviewDecisionType.CLARIFICATION_REQUESTED:

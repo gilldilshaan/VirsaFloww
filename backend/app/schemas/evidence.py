@@ -33,6 +33,11 @@ class Provenance(BaseSchema):
     gps_coordinates: Optional[GpsCoordinates] = Field(default=None, alias="gpsCoordinates")
     spatial_distance_meters: Optional[float] = Field(default=None, alias="spatialDistanceMeters")
     review_status: str = Field(default="Pending Assessment", alias="reviewStatus")
+    waiver_issued: bool = Field(default=False, alias="waiverIssued")
+    waiver_reason: Optional[str] = Field(default=None, alias="waiverReason")
+    waiver_regulatory_rationale: Optional[str] = Field(default=None, alias="waiverRegulatoryRationale")
+    waiver_authorized_by: Optional[str] = Field(default=None, alias="waiverAuthorizedBy")
+    waiver_timestamp: Optional[str] = Field(default=None, alias="waiverTimestamp")
 
 class FileDetails(BaseSchema):
     name: str

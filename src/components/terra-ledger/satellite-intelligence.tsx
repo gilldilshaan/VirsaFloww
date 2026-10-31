@@ -54,7 +54,7 @@ export function SatelliteIntelligence() {
     return observations.find((o: AuthenticSatelliteObservation) => o.id === selectedObsId) ?? observations[0]!;
   }, [observations, selectedObsId]);
 
-  // Registered Field feature for MapLibre
+  // Registered Field feature for MapLibre (Canonical PB-FIELD-001 boundary)
   const fieldFeature: FieldFeature = useMemo(() => {
     return {
       id: 'PB-FIELD-001',
@@ -64,11 +64,11 @@ export function SatelliteIntelligence() {
       areaHa: 4.8,
       status: 'READY_FOR_VERIFICATION',
       coordinates: [
-        [75.832, 30.908],
-        [75.841, 30.9095],
-        [75.8395, 30.916],
-        [75.831, 30.914],
-        [75.832, 30.908],
+        [75.8345, 30.9135],
+        [75.8388, 30.9142],
+        [75.8395, 30.9085],
+        [75.8352, 30.9078],
+        [75.8345, 30.9135],
       ],
     };
   }, []);
@@ -115,9 +115,9 @@ export function SatelliteIntelligence() {
             </div>
 
             <p className="text-xs sm:text-sm text-[#cbd5e1] max-w-3xl leading-relaxed font-sans">
-              Authoritative 10-meter surface reflectance rasters and C-SAR radar backscatter observations for{' '}
+              Authoritative 10-meter surface reflectance rasters for{' '}
               <strong className="text-white font-medium">Gill Agro Farms Parcel 1 (Jodhan, Ludhiana)</strong>. 
-              Extracted directly from open Cloud-Optimized GeoTIFFs (COGs) on AWS Open Data with zero synthetic fabrication.
+              Extracted directly from Copernicus Sentinel-2 L2A Cloud-Optimized GeoTIFFs (COGs) on AWS Open Data with zero synthetic fabrication.
             </p>
           </div>
 
@@ -129,20 +129,20 @@ export function SatelliteIntelligence() {
                 Data Provenance
               </span>
               <span className="bg-[#059669] text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
-                LIVE_OBSERVATION
+                HISTORICAL 2024
               </span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#94a3b8]">STAC Provider:</span>
-              <span className="text-white">AWS Earth Search v1</span>
+              <span className="text-[#94a3b8]">Cadastral Parcel:</span>
+              <span className="text-white font-semibold">26.48 ha (2,647 px)</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#94a3b8]">Tile Grid:</span>
-              <span className="text-white">43REQ (Punjab)</span>
+              <span className="text-[#94a3b8]">Enrolled DSR Plot:</span>
+              <span className="text-[#d6eaa6] font-semibold">4.80 ha (480 px)</span>
             </div>
             <div className="flex justify-between text-[11px]">
-              <span className="text-[#94a3b8]">Spatial CRS:</span>
-              <span className="text-white">EPSG:32643 (UTM 43N)</span>
+              <span className="text-[#94a3b8]">Tile & CRS:</span>
+              <span className="text-white">43REQ · EPSG:32643</span>
             </div>
             <div className="flex justify-between text-[11px]">
               <span className="text-[#94a3b8]">Verified Scenes:</span>
@@ -253,13 +253,13 @@ export function SatelliteIntelligence() {
                 Active Layer:
               </span>
               {[
-                { id: 'NDVI', label: 'NDVI', desc: 'Vegetation' },
-                { id: 'NDWI', label: 'NDWI', desc: 'Surface Water' },
-                { id: 'NDMI', label: 'NDMI', desc: 'Canopy Moisture' },
-                { id: 'EVI', label: 'EVI', desc: 'Enhanced Veg' },
-                { id: 'NDRE', label: 'NDRE', desc: 'Red Edge' },
-                { id: 'TRUE_COLOR', label: 'True Color (RGB)', desc: 'B04, B03, B02' },
-                { id: 'FALSE_COLOR', label: 'False Color (NIR)', desc: 'B08, B04, B03' },
+                { id: 'NDVI', label: 'NDVI', desc: 'Rouse (1974) Normalized Difference Vegetation: (B08-B04)/(B08+B04)' },
+                { id: 'NDWI', label: 'NDWI (McFeeters)', desc: 'McFeeters (1996) Surface Water Index: (B03-B08)/(B03+B08)' },
+                { id: 'NDMI', label: 'NDMI (Gao)', desc: 'Gao (1996) Canopy Moisture Index: (B08-B11)/(B08+B11)' },
+                { id: 'EVI', label: 'EVI', desc: 'Huete (2002) Enhanced Vegetation Index: 2.5*(B08-B04)/(B08+6*B04-7.5*B02+1)' },
+                { id: 'NDRE', label: 'NDRE', desc: 'Barnes (2000) Red Edge Chlorophyll Index: (B08-B05)/(B08+B05)' },
+                { id: 'TRUE_COLOR', label: 'True Color (RGB)', desc: 'B04 (Red), B03 (Green), B02 (Blue)' },
+                { id: 'FALSE_COLOR', label: 'False Color (NIR)', desc: 'B08 (NIR), B04 (Red), B03 (Green)' },
               ].map((prod) => (
                 <button
                   key={prod.id}
@@ -333,8 +333,10 @@ export function SatelliteIntelligence() {
                   {activeProduct === 'NDVI'
                     ? '[-0.20 to +1.00]'
                     : activeProduct === 'NDWI'
-                    ? '[-0.50 to +0.50]'
-                    : '[Standard Optical]'}
+                    ? '[-0.50 to +0.50] (Water / Ponding)'
+                    : activeProduct === 'NDMI'
+                    ? '[-0.20 to +0.40] (Canopy Moisture)'
+                    : '[Standard Scale]'}
                 </span>
               </div>
 
@@ -342,9 +344,9 @@ export function SatelliteIntelligence() {
                 <div className="space-y-1">
                   <div className="h-3 w-56 rounded bg-gradient-to-r from-[#a52a2a] via-[#e6b428] via-[#82c332] to-[#10782d]" />
                   <div className="flex justify-between text-[9px] text-[#72816f]">
-                    <span>Soil / Barren</span>
-                    <span>Emerging</span>
-                    <span>Dense Canopy</span>
+                    <span>Soil / Barren (&lt;0.2)</span>
+                    <span>Vegetative (0.3-0.5)</span>
+                    <span>Lush Canopy (&gt;0.6)</span>
                   </div>
                 </div>
               )}
@@ -354,15 +356,32 @@ export function SatelliteIntelligence() {
                   <div className="h-3 w-56 rounded bg-gradient-to-r from-[#a06e3c] via-[#c8b478] via-[#4696d2] to-[#0f3ca0]" />
                   <div className="flex justify-between text-[9px] text-[#72816f]">
                     <span>Dry Soil (&lt;-0.2)</span>
-                    <span>Saturated</span>
-                    <span>Open Water (&gt;+0.2)</span>
+                    <span>Moist Soil (0.0)</span>
+                    <span>Standing Water (&gt;+0.2)</span>
+                  </div>
+                  <div className="text-[9px] text-[#475569] font-sans pt-0.5">
+                    McFeeters (1996) NDWI = (B03-B08)/(B03+B08) monitors AWD surface ponding and irrigation flushing.
                   </div>
                 </div>
               )}
 
-              {['NDMI', 'EVI', 'NDRE', 'TRUE_COLOR', 'FALSE_COLOR'].includes(activeProduct) && (
+              {activeProduct === 'NDMI' && (
+                <div className="space-y-1">
+                  <div className="h-3 w-56 rounded bg-gradient-to-r from-[#be965a] via-[#8cc8b4] to-[#195aa0]" />
+                  <div className="flex justify-between text-[9px] text-[#72816f]">
+                    <span>Water Stress (&lt;-0.1)</span>
+                    <span>Moderate Moisture</span>
+                    <span>High Canopy Water (&gt;+0.2)</span>
+                  </div>
+                  <div className="text-[9px] text-[#475569] font-sans pt-0.5">
+                    Gao (1996) NDMI = (B08-B11)/(B08+B11) measures internal leaf and crop canopy liquid moisture.
+                  </div>
+                </div>
+              )}
+
+              {['EVI', 'NDRE', 'TRUE_COLOR', 'FALSE_COLOR'].includes(activeProduct) && (
                 <div className="text-[10px] text-[#72816f]">
-                  Scientific multispectral composite derived from 10m Sentinel-2 bands.
+                  Authentic Copernicus Sentinel-2 Level-2A surface reflectance BOA composite.
                 </div>
               )}
             </div>
@@ -438,15 +457,19 @@ export function SatelliteIntelligence() {
             </div>
           </div>
 
-          {/* B. Sentinel-1 Radar Backscatter Co-Observation (Section 5) */}
+          {/* B. Sentinel-1 Radar Backscatter Co-Observation (Priority 3 Validation) */}
           <div className="bg-white border border-[#dfe6d9] rounded-xl p-4 shadow-xs space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#edf2e8]">
               <div className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase text-[#193b2a]">
                 <Radio size={15} className="text-[#0284c7]" />
                 Sentinel-1 C-SAR Radar Co-Observation
               </div>
-              <span className="text-[10px] font-mono bg-sky-50 text-sky-800 px-1.5 py-0.5 rounded font-bold border border-sky-200">
-                Planetary Computer
+              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold border ${
+                selectedObs.radarCoObservation.isAvailable
+                  ? 'bg-sky-50 text-sky-800 border-sky-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200'
+              }`}>
+                {selectedObs.radarCoObservation.isAvailable ? 'CALIBRATED' : 'UNAVAILABLE (CALIBRATION PENDING)'}
               </span>
             </div>
 
@@ -465,21 +488,27 @@ export function SatelliteIntelligence() {
               </div>
 
               <div className="grid grid-cols-3 gap-1.5 pt-1 text-center">
-                <div className="bg-[#f0f9ff] p-2 rounded border border-sky-100">
-                  <span className="text-[9px] text-sky-700 block uppercase">VV Mean</span>
-                  <strong className="text-xs text-sky-900">{selectedObs.radarCoObservation.vvMeanDb} dB</strong>
+                <div className="bg-[#f8fafc] p-2 rounded border border-slate-200">
+                  <span className="text-[9px] text-slate-500 block uppercase">VV Mean</span>
+                  <strong className="text-xs text-slate-700">
+                    {selectedObs.radarCoObservation.vvMeanDb !== null ? `${selectedObs.radarCoObservation.vvMeanDb} dB` : 'N/A'}
+                  </strong>
                 </div>
-                <div className="bg-[#f0f9ff] p-2 rounded border border-sky-100">
-                  <span className="text-[9px] text-sky-700 block uppercase">VH Mean</span>
-                  <strong className="text-xs text-sky-900">{selectedObs.radarCoObservation.vhMeanDb} dB</strong>
+                <div className="bg-[#f8fafc] p-2 rounded border border-slate-200">
+                  <span className="text-[9px] text-slate-500 block uppercase">VH Mean</span>
+                  <strong className="text-xs text-slate-700">
+                    {selectedObs.radarCoObservation.vhMeanDb !== null ? `${selectedObs.radarCoObservation.vhMeanDb} dB` : 'N/A'}
+                  </strong>
                 </div>
-                <div className="bg-[#f0f9ff] p-2 rounded border border-sky-100">
-                  <span className="text-[9px] text-sky-700 block uppercase">VH-VV Ratio</span>
-                  <strong className="text-xs text-sky-900">{selectedObs.radarCoObservation.crossRatioDb} dB</strong>
+                <div className="bg-[#f8fafc] p-2 rounded border border-slate-200">
+                  <span className="text-[9px] text-slate-500 block uppercase">VH-VV Ratio</span>
+                  <strong className="text-xs text-slate-700">
+                    {selectedObs.radarCoObservation.crossRatioDb !== null ? `${selectedObs.radarCoObservation.crossRatioDb} dB` : 'N/A'}
+                  </strong>
                 </div>
               </div>
 
-              <div className="text-[10px] text-[#64748b] bg-slate-50 p-2 rounded border border-slate-200 leading-normal">
+              <div className="text-[10px] text-amber-900 bg-amber-50/80 p-2.5 rounded border border-amber-200 leading-normal">
                 {selectedObs.radarCoObservation.scientificNotice}
               </div>
             </div>
@@ -522,6 +551,14 @@ export function SatelliteIntelligence() {
               <div className="flex justify-between">
                 <span className="text-[#72816f]">Parcel Cloud Cover:</span>
                 <span className="text-[#193b2a]">{selectedObs.cloudCoverFieldPct}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#72816f]">Cadastral Parcel Area:</span>
+                <span className="text-[#193b2a] font-bold">26.48 ha (2,647 px)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#72816f]">Enrolled DSR Cultivation:</span>
+                <span className="text-[#245b45] font-bold">4.80 ha (480 px)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#72816f]">Valid Parcel Pixels:</span>
@@ -571,6 +608,24 @@ export function SatelliteIntelligence() {
                   className="px-2 py-1 bg-[#f4f6f0] hover:bg-[#edf0e7] rounded text-[#245b45] flex items-center justify-between"
                 >
                   <span>B02 (Blue 10m)</span>
+                  <ExternalLink size={10} />
+                </a>
+                <a
+                  href={selectedObs.assets.b05}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2 py-1 bg-[#f4f6f0] hover:bg-[#edf0e7] rounded text-[#245b45] flex items-center justify-between"
+                >
+                  <span>B05 (RedEdge 20m)</span>
+                  <ExternalLink size={10} />
+                </a>
+                <a
+                  href={selectedObs.assets.b11}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2 py-1 bg-[#f4f6f0] hover:bg-[#edf0e7] rounded text-[#245b45] flex items-center justify-between"
+                >
+                  <span>B11 (SWIR 20m)</span>
                   <ExternalLink size={10} />
                 </a>
               </div>

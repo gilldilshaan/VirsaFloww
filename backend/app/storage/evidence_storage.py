@@ -149,3 +149,45 @@ class EvidenceRepository:
             self._data[evidence_id] = updated
             self._persist_unlocked()
             return updated
+
+    def apply_auditor_waiver(
+        self,
+        evidence_id: str,
+        waiver_reason: str,
+        waiver_regulatory_rationale: str,
+        actor_id: str,
+        target_status: EvidenceStatus = EvidenceStatus.HASH_RECORDED,
+    ) -> Evidence:
+        """Records an authoritative lead auditor waiver on evidence while maintaining immutable audit history."""
+        with self._lock:
+            if evidence_id not in self._data:
+                raise KeyError(f"Evidence with id='{evidence_id}' not found.")
+            current = self._data[evidence_id]
+            now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            event = EvidenceStatusHistory(
+                timestamp=now_iso,
+                previous_status=current.status,
+                new_status=target_status,
+                actor_id=actor_id,
+                reason=f"Lead Auditor Waiver Granted: {waiver_reason}",
+            )
+            updated_prov = current.provenance.model_copy(
+                update={
+                    "review_status": f"Accepted with Formal Lead Auditor Waiver: {waiver_reason}",
+                    "waiver_issued": True,
+                    "waiver_reason": waiver_reason,
+                    "waiver_regulatory_rationale": waiver_regulatory_rationale,
+                    "waiver_authorized_by": actor_id,
+                    "waiver_timestamp": now_iso,
+                }
+            )
+            updated = current.model_copy(
+                update={
+                    "status": target_status,
+                    "provenance": updated_prov,
+                    "status_history": [*current.status_history, event],
+                }
+            )
+            self._data[evidence_id] = updated
+            self._persist_unlocked()
+            return updated

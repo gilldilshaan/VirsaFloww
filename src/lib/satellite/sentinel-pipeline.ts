@@ -421,7 +421,7 @@ export async function extractRealParcelNdvi(
 
     // Inspect real GeoTIFF image metadata dynamically before computing pixel window
     let originX = 499980;
-    let originY = 3400020;
+    let originY = 3500040;
     let resX = 10;
     let resY = 10;
     let imgWidth = 10980;

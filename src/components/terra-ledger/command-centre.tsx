@@ -48,11 +48,11 @@ export function CommandCentre() {
       areaHa: 4.8,
       status: demoState === 'ready' ? 'READY_FOR_VERIFICATION' : demoState === 'needs-review' ? 'NEEDS_REVIEW' : 'UNVERIFIED',
       coordinates: [
-        [75.8320, 30.9080],
-        [75.8410, 30.9095],
-        [75.8395, 30.9160],
-        [75.8310, 30.9140],
-        [75.8320, 30.9080],
+        [75.8345, 30.9135],
+        [75.8388, 30.9142],
+        [75.8395, 30.9085],
+        [75.8352, 30.9078],
+        [75.8345, 30.9135],
       ],
     };
   }, [demoState]);
