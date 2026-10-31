@@ -18,8 +18,8 @@
 | **Phase 1** | Foundation: Config, Models & Migrations (TEST DB) | **DONE** | 2026-10-31 20:40 | 2026-10-31 20:50 | 13 tables created, RLS enabled on all, downgrade/upgrade verified, 52/52 baseline tests pass. |
 | **Phase 2** | PostgreSQL Repositories (TEST DB) | **DONE** | 2026-10-31 20:50 | 2026-10-31 20:58 | Generic PostgresRepository[T], AppContainer dual-mode wiring, PostGIS geometry conversion & ST_IsValid verified (57/57 tests pass). |
 | **Phase 3** | Evidence & Audit Immutability Guarantees (TEST DB) | **DONE** | 2026-10-31 20:58 | 2026-10-31 21:04 | Database triggers block UPDATE/DELETE on evidence & audit; 20-thread concurrency test passed with unforked chain; RLS & revoked privileges verified; isolation guards verified (65/65 tests pass). |
-| **Phase 4** | JSON-to-PostgreSQL Migration CLI & Reconciliation | **IN PROGRESS** | 2026-10-31 21:04 | - | Building idempotent migration CLI and reconciliation report. |
-| **Phase 5** | Full Verification, Dual-Mode Testing & Documentation | **PENDING** | - | - | - |
+| **Phase 4** | JSON-to-PostgreSQL Migration CLI & Reconciliation | **DONE** | 2026-10-31 21:04 | 2026-10-31 21:16 | CLI created with `--dry-run` and `--apply`, atomic transaction rollback, SHA-256 chain verified, idempotency confirmed (68/68 tests pass). |
+| **Phase 5** | Full Verification, Dual-Mode Testing & Documentation | **IN PROGRESS** | 2026-10-31 21:16 | - | Dual-mode test runs, README updates, MIGRATION_REPORT.md. |
 | **Phase P** | Production Database Setup (Gated) | **PENDING** | - | - | Requires explicit precondition sign-off. |
 | **Phase G** | GitHub Push & PR Submission | **PENDING** | - | - | Final verification & delivery. |
 
@@ -54,6 +54,11 @@
 3. **Coordinate Ordering & Polygon Topology:**
    - *Context:* Seed JSON files store `boundaryPolygon` as `[latitude, longitude]`. PostGIS expects `(longitude, latitude)`.
    - *Decision:* Storage repository and migration CLI convert coordinates `(lat, lon) -> (lon, lat)`, close the polygon ring (`p[0] == p[-1]`), and execute `ST_IsValid` validation. Original `boundaryPolygon` is preserved verbatim in the `payload` JSONB column.
+   - *Status:* **RESOLVED**.
+
+4. **Unseeded Activity Reference in Seed Evidence:**
+   - *Context:* `data/seed_evidence.json` contains `activityId: "ACT-2026-001"`, but no `activities.json` was provided in seed or runtime. The PostgreSQL foreign key constraint `evidence_activity_id_fkey` requires a matching row in `activities` if non-null.
+   - *Decision:* In `migrate_json_to_postgres.py`, if a referenced `activity_id` is not present in the `activities` table, the relational FK column is safely set to `NULL` to preserve referential integrity, while the original `activityId` is preserved 100% verbatim in the `payload` JSONB column. A relationship warning is logged in the reconciliation report.
    - *Status:* **RESOLVED**.
 
 ---
@@ -108,3 +113,53 @@ Project Reference: vlsvyqmtuqgtfkeodbay
 
 [READY] Diagnostics complete. Both databases are reachable and isolated.
 ```
+
+---
+
+## 5. Phase 4: Migration CLI Reconciliation Report (TEST DB Live Run)
+
+### Command:
+```powershell
+python -m backend.app.cli migrate-json-to-postgres --apply --target test
+```
+
+### Unedited Output:
+```text
+=================================================================
+ TERRALEDGER AI  JSON-TO-POSTGRESQL MIGRATION ENGINE
+=================================================================
+Target Database : TEST (postgresql+psycopg://postgres.vls...:***@aws-1-eu-wes...:5432/postgres)
+Execution Mode  : APPLY
+-----------------------------------------------------------------
+
+
+[SUCCESS] Transaction successfully COMMITTED to database.
+
+================================================================================
+ RECONCILIATION & INTEGRITY REPORT
+================================================================================
+Entity             | Read  | Valid | Invalid | Existing | Would/Did
+--------------------------------------------------------------------------------
+users              | 6     | 6     | 0       | 0        | 6        
+projects           | 1     | 1     | 0       | 0        | 1        
+farmers            | 1     | 1     | 0       | 0        | 1        
+fields             | 1     | 1     | 0       | 0        | 1        
+seasons            | 0     | 0     | 0       | 0        | 0        
+activities         | 0     | 0     | 0       | 0        | 0        
+evidence           | 1     | 1     | 0       | 0        | 1        
+assessments        | 0     | 0     | 0       | 0        | 0        
+reviews            | 1     | 1     | 0       | 0        | 1        
+buyer_enquiries    | 0     | 0     | 0       | 0        | 0        
+notifications      | 0     | 0     | 0       | 0        | 0        
+audit_events       | 25    | 25    | 0       | 0        | 25       
+--------------------------------------------------------------------------------
+Total Records Target Action : 36
+Evidence Hashes Verified    : 1
+Audit Chain Integrity Valid : True
+Audit Final Chain Head Hash : 2df6686504a8acd6d93b3ee1978a1c8ba5529c1b2e0fd04060724878a924feed
+
+[RELATIONSHIP WARNINGS]
+  - Evidence EV-2026-001 references unseeded activity_id 'ACT-2026-001'; preserved in payload, relational FK set to NULL.
+================================================================================
+```
+
