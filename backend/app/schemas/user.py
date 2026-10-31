@@ -32,6 +32,14 @@ class LoginRequest(BaseSchema):
     email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     password: str = Field(..., min_length=1)
 
+class RegisterRequest(BaseSchema):
+    name: str = Field(..., min_length=2, max_length=255, description="User full name")
+    email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", description="Valid user email address")
+    password: str = Field(..., min_length=8, max_length=128, description="Plaintext password, minimum 8 characters")
+    role: UserRole = Field(default=UserRole.FARMER, description="Requested user role")
+    organization: Optional[str] = Field(default=None, max_length=255, description="Organization or farm name")
+    buyer_company_id: Optional[str] = Field(default=None, alias="buyerCompanyId", description="Buyer corporate entity ID")
+
 class SessionResponse(BaseSchema):
     access_token: str = Field(..., alias="accessToken")
     token_type: str = Field(default="Bearer", alias="tokenType")

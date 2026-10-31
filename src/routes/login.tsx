@@ -2,7 +2,17 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 import { AcreonBrand } from '@/components/acreon-brand';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, ShieldCheck, UserCheck, LogOut, Info } from 'lucide-react';
+import {
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  UserCheck,
+  LogOut,
+  Info,
+  UserPlus,
+  LogIn,
+  Loader2,
+} from 'lucide-react';
 import { pageHead } from '@/lib/earth/content';
 import { useAuth, DEMO_IDENTITIES } from '@/lib/auth/auth-context';
 import { UserRole } from '@/lib/auth/types';
@@ -12,11 +22,25 @@ export function LoginPage() {
   const router = useRouter();
   const search = Route.useSearch();
   const nextTarget = sanitizeRedirectPath(search?.next, '');
-  const { login, loginAsDemo, logout, user, isAuthenticated } = useAuth();
+  const { login, register, loginAsDemo, logout, user, isAuthenticated } = useAuth();
 
+  const [authMode, setAuthMode] = useState<'signin' | 'register'>(
+    search?.mode === 'register' ? 'register' : 'signin'
+  );
+
+  // Sign In fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Register fields
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regRole, setRegRole] = useState<UserRole>('farmer');
+  const [regOrg, setRegOrg] = useState('');
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const getRoleDefaultRoute = (role: UserRole): string => {
     switch (role) {
@@ -36,24 +60,62 @@ export function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError(null);
+    setAuthError(null);
 
     if (!email) {
-      setLoginError('Please enter your email address, or choose a Demo Identity below.');
+      setAuthError('Please enter your email address, or choose a Demo Identity below.');
       return;
     }
 
+    setIsSubmitting(true);
     const res = await login({ email, password });
+    setIsSubmitting(false);
+
     if (res.success && res.user) {
       const destination = nextTarget || getRoleDefaultRoute(res.user.role);
       router.navigate({ to: destination as any });
     } else {
-      setLoginError(res.error || 'Authentication failed');
+      setAuthError(res.error || 'Authentication failed');
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+
+    if (!regName.trim() || regName.trim().length < 2) {
+      setAuthError('Please enter your full name (at least 2 characters).');
+      return;
+    }
+    if (!regEmail.trim() || !regEmail.includes('@')) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+    if (!regPassword || regPassword.length < 8) {
+      setAuthError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const res = await register({
+      name: regName.trim(),
+      email: regEmail.trim(),
+      password: regPassword,
+      role: regRole,
+      organization: regOrg.trim() || undefined,
+    });
+    setIsSubmitting(false);
+
+    if (res.success && res.user) {
+      const destination = nextTarget || getRoleDefaultRoute(res.user.role);
+      router.navigate({ to: destination as any });
+    } else {
+      setAuthError(res.error || 'Registration failed');
     }
   };
 
   const handleDemoLogin = async (role: UserRole) => {
-    setLoginError(null);
+    setAuthError(null);
     const res = await loginAsDemo(role);
     if (res.success && res.user) {
       const destination = nextTarget || getRoleDefaultRoute(res.user.role);
@@ -71,9 +133,47 @@ export function LoginPage() {
           VirsaFlow Universal Authentication
         </div>
 
-        <h1 className="text-3xl font-serif text-[#193b2a]">Sign In</h1>
+        {/* Tab Switcher between Sign In and Create Account */}
+        <div className="flex border-b border-[#dfe6d9] mb-5">
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode('signin');
+              setAuthError(null);
+            }}
+            className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
+              authMode === 'signin'
+                ? 'border-[#245b45] text-[#193b2a]'
+                : 'border-transparent text-[#708071] hover:text-[#193b2a]'
+            }`}
+          >
+            <LogIn size={13} />
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode('register');
+              setAuthError(null);
+            }}
+            className={`pb-2.5 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
+              authMode === 'register'
+                ? 'border-[#245b45] text-[#193b2a]'
+                : 'border-transparent text-[#708071] hover:text-[#193b2a]'
+            }`}
+          >
+            <UserPlus size={13} />
+            Create Account
+          </button>
+        </div>
+
+        <h1 className="text-3xl font-serif text-[#193b2a]">
+          {authMode === 'register' ? 'Create Account' : 'Sign In'}
+        </h1>
         <p className="text-xs text-[#708071] mt-1 mb-6">
-          Access the Farmer Portal, Internal MRV Workspace, or Industry Buyer Due Diligence Room.
+          {authMode === 'register'
+            ? 'Register a verified account to access MRV telemetry, project development, or carbon credit procurement.'
+            : 'Access the Farmer Portal, Internal MRV Workspace, or Industry Buyer Due Diligence Room.'}
         </p>
 
         {nextTarget && (
@@ -113,118 +213,252 @@ export function LoginPage() {
           </div>
         )}
 
-        {/* Explicit Demo Role Selector Banner */}
-        <div className="mb-6 bg-[#f0f5eb] border border-[#d6e3cd] rounded-xl p-4 text-xs text-[#245b45] space-y-3">
-          <div className="flex items-start gap-2.5">
-            <ShieldCheck size={16} className="text-[#3b7e52] shrink-0 mt-0.5" />
-            <div>
-              <div className="flex items-center gap-2">
-                <strong className="text-[#173a27] font-semibold">Demo Identity Selector</strong>
-                <span className="bg-[#245b45] text-white text-[9px] font-mono uppercase px-1.5 py-0.5 rounded">
-                  DEMO ONLY
-                </span>
+        {/* Explicit Demo Role Selector Banner (Shown during Sign In) */}
+        {authMode === 'signin' && (
+          <div className="mb-6 bg-[#f0f5eb] border border-[#d6e3cd] rounded-xl p-4 text-xs text-[#245b45] space-y-3">
+            <div className="flex items-start gap-2.5">
+              <ShieldCheck size={16} className="text-[#3b7e52] shrink-0 mt-0.5" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <strong className="text-[#173a27] font-semibold">Demo Identity Selector</strong>
+                  <span className="bg-[#245b45] text-white text-[9px] font-mono uppercase px-1.5 py-0.5 rounded">
+                    DEMO ONLY
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#556e50] mt-0.5">
+                  Select an explicitly labelled demo profile below to test route guards and permissions:
+                </p>
               </div>
-              <p className="text-[11px] text-[#556e50] mt-0.5">
-                Select an explicitly labelled demo profile below to test route guards and permissions:
-              </p>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('reviewer')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Auditor (Reviewer)</span>
-              <span className="text-[9px] text-[#556e50] block truncate">Internal Workspace</span>
-            </button>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('reviewer')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Auditor (Reviewer)</span>
+                <span className="text-[9px] text-[#556e50] block truncate">Internal Workspace</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('farmer')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Farmer</span>
-              <span className="text-[9px] text-[#556e50] block truncate">PB-LUD-042</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('farmer')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Farmer</span>
+                <span className="text-[9px] text-[#556e50] block truncate">PB-LUD-042</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('buyer')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Corporate Buyer</span>
-              <span className="text-[9px] text-[#556e50] block truncate">ESG Data Room</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('buyer')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Corporate Buyer</span>
+                <span className="text-[9px] text-[#556e50] block truncate">ESG Data Room</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('project_developer')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Project Developer</span>
-              <span className="text-[9px] text-[#556e50] block truncate">Panjdhara Ops</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('project_developer')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Project Developer</span>
+                <span className="text-[9px] text-[#556e50] block truncate">Panjdhara Ops</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('field_officer')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Field Officer</span>
-              <span className="text-[9px] text-[#556e50] block truncate">FPO Malwa Lead</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('field_officer')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Field Officer</span>
+                <span className="text-[9px] text-[#556e50] block truncate">FPO Malwa Lead</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('admin')}
-              className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
-            >
-              <span className="font-semibold block text-[11px]">Administrator</span>
-              <span className="text-[9px] text-[#556e50] block truncate">Full System Scope</span>
-            </button>
-          </div>
-        </div>
-
-        {loginError && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 rounded-lg p-3 text-xs">
-            {loginError}
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('admin')}
+                className="p-2 rounded-lg text-left border bg-white text-[#213c2b] border-[#d8e1d4] hover:bg-[#edf3e6] transition-all"
+              >
+                <span className="font-semibold block text-[11px]">Administrator</span>
+                <span className="text-[9px] text-[#556e50] block truncate">Full System Scope</span>
+              </button>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="text-xs font-medium text-[#193b2a] block mb-1">Production Email Address</label>
-            <input
-              type="email"
-              placeholder="user@organization.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-            />
+        {authError && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 rounded-lg p-3 text-xs">
+            {authError}
           </div>
+        )}
 
-          <div>
-            <label className="text-xs font-medium text-[#193b2a] block mb-1">Password</label>
-            <input
-              type="password"
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
-            />
-          </div>
+        {/* Mode 1: Sign In Form */}
+        {authMode === 'signin' && (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">Production Email Address</label>
+              <input
+                type="email"
+                placeholder="user@organization.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
 
-          <div className="pt-2">
-            <Button
-              type="submit"
-              className="w-full bg-[#245b45] text-white hover:bg-[#1a4333] text-xs font-semibold h-10"
-            >
-              Sign In to VirsaFlow <ArrowRight size={14} className="ml-1.5" />
-            </Button>
-          </div>
-        </form>
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">Password</label>
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#245b45] text-white hover:bg-[#1a4333] text-xs font-semibold h-10 disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin mr-1.5" />
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    Sign In to VirsaFlow <ArrowRight size={14} className="ml-1.5" />
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('register');
+                  setAuthError(null);
+                }}
+                className="text-xs text-[#245b45] hover:underline font-medium"
+              >
+                Don't have an account? Create one now →
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Mode 2: Create Account Form */}
+        {authMode === 'register' && (
+          <form onSubmit={handleRegister} className="space-y-3.5">
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Jaswinder Singh"
+                value={regName}
+                onChange={(e) => setRegName(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                placeholder="jaswinder@example.com"
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">
+                Password <span className="text-red-500">*</span> (min. 8 characters)
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                value={regPassword}
+                onChange={(e) => setRegPassword(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">
+                Account Role <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={regRole}
+                onChange={(e) => setRegRole(e.target.value as UserRole)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              >
+                <option value="farmer">Farmer / Landholder (Farmer Portal)</option>
+                <option value="project_developer">Project Developer (Panjdhara Ops)</option>
+                <option value="buyer">Corporate Buyer (Carbon Due Diligence Room)</option>
+                <option value="field_officer">Field Officer (FPO Collector)</option>
+                <option value="reviewer">Verifier / Auditor (VVB Reviewer)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[#193b2a] block mb-1">
+                Organization / Farm / Cooperative (Optional)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Malwa Organic Producers / Punjab Agro"
+                value={regOrg}
+                onChange={(e) => setRegOrg(e.target.value)}
+                className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none focus:border-[#245b45]"
+              />
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#245b45] text-white hover:bg-[#1a4333] text-xs font-semibold h-10 disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin mr-1.5" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create Account & Continue <ArrowRight size={14} className="ml-1.5" />
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('signin');
+                  setAuthError(null);
+                }}
+                className="text-xs text-[#245b45] hover:underline font-medium"
+              >
+                ← Already have an account? Sign in
+              </button>
+            </div>
+          </form>
+        )}
 
         <div className="mt-6 pt-4 border-t border-[#edf0e7] text-center">
           <p className="text-[11px] text-[#708071] mb-3">
@@ -243,15 +477,19 @@ export function LoginPage() {
 }
 
 export const Route = createFileRoute('/login')({
-  validateSearch: (search: Record<string, unknown>): { next?: string } => {
+  validateSearch: (search: Record<string, unknown>): { next?: string; mode?: 'signin' | 'register' } => {
     const rawNext = search['next'];
     const next = sanitizeRedirectPath(rawNext, '');
-    return next ? { next } : {};
+    const mode = search['mode'] === 'register' ? 'register' : undefined;
+    return {
+      ...(next ? { next } : {}),
+      ...(mode ? { mode } : {}),
+    };
   },
   head: () =>
     pageHead(
-      'Sign In | VirsaFlow Universal Portal',
-      'Sign in to access VirsaFlow Farmer Portal, Internal Workspace, or Buyer Due Diligence Room.',
+      'Authentication | VirsaFlow Universal Portal',
+      'Sign in or create an account to access VirsaFlow Farmer Portal, Internal Workspace, or Buyer Due Diligence Room.',
       '/login'
     ),
   component: LoginPage,

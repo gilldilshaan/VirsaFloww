@@ -26,6 +26,7 @@ import {
   PHENOLOGY_TIME_SERIES_MOCK,
 } from './mock-data';
 import { api } from '../api';
+import { AuthContext } from '../auth/auth-context';
 
 export interface TerraLedgerContextType {
   // Existing Demo State & Machine
@@ -100,6 +101,10 @@ export interface TerraLedgerContextType {
 const TerraLedgerContext = createContext<TerraLedgerContextType | null>(null);
 
 export function TerraLedgerProvider({ children }: { children: ReactNode }) {
+  const auth = useContext(AuthContext);
+  const isAuthenticated = auth?.isAuthenticated ?? false;
+  const isDemoMode = auth?.isDemoMode ?? true;
+  const user = auth?.user ?? null;
   const [demoState, setDemoState] = useState<DemoState>('unverified');
   const [activeTab, setActiveTab] = useState<string>('command');
   const [customEvidence, setCustomEvidence] = useState<EvidenceItem[]>([]);
@@ -356,6 +361,14 @@ export function TerraLedgerProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   }, []);
+
+  // Live Hydration: automatically synchronize live state from FastAPI backend
+  // when authenticated with a non-demo production account.
+  useEffect(() => {
+    if (isAuthenticated && !isDemoMode && user && !user.isDemoUser) {
+      refetchAll();
+    }
+  }, [isAuthenticated, isDemoMode, user, refetchAll]);
 
   return (
     <TerraLedgerContext.Provider
