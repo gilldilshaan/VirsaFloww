@@ -42,7 +42,7 @@ export type Permission =
   | 'buyer_profile.manage'
   | 'users.manage';
 
-export type PortalType = 'farmer' | 'workspace' | 'buyer';
+export type PortalType = 'farmer' | 'workspace' | 'buyer' | 'admin';
 
 /**
  * Resource-Level Scoping Boundaries

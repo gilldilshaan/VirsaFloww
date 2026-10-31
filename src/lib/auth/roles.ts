@@ -44,6 +44,10 @@ export const PERMISSIONS = [
   'workspace:terra_intelligence',
   'workspace:view_dossier',
   'workspace:manage_dossier',
+  'workspace:view_partnerships',
+  'workspace:manage_partnerships',
+  'workspace:view_reports',
+  'workspace:view_enquiries',
 
   // Buyer portal
   'buyer:view_marketplace',
@@ -51,6 +55,15 @@ export const PERMISSIONS = [
   'buyer:submit_enquiry',
   'buyer:view_own_enquiries',
   'buyer:manage_profile',
+
+  // Admin portal
+  'admin:view_overview',
+  'admin:manage_users',
+  'admin:manage_roles',
+  'admin:manage_settings',
+  'admin:view_audit_logs',
+  'admin:manage_projects',
+  'admin:manage_partnerships',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -82,9 +95,20 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     'workspace:terra_intelligence',
     'workspace:view_dossier',
     'workspace:manage_dossier',
+    'workspace:view_partnerships',
+    'workspace:manage_partnerships',
+    'workspace:view_reports',
+    'workspace:view_enquiries',
     'buyer:view_marketplace',
     'buyer:view_approved_project',
     'buyer:view_own_enquiries',
+    'admin:view_overview',
+    'admin:manage_users',
+    'admin:manage_roles',
+    'admin:manage_settings',
+    'admin:view_audit_logs',
+    'admin:manage_projects',
+    'admin:manage_partnerships',
   ],
   project_developer: [
     'workspace:view_command',
@@ -98,6 +122,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
     'workspace:terra_intelligence',
     'workspace:view_dossier',
     'workspace:manage_dossier',
+    'workspace:view_partnerships',
+    'workspace:manage_partnerships',
+    'workspace:view_reports',
+    'workspace:view_enquiries',
     'buyer:view_marketplace',
     'buyer:view_approved_project',
   ],
@@ -131,7 +159,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 /** Which portals each role can access */
 export const PORTAL_ACCESS: Record<UserRole, readonly string[]> = {
   farmer: ['farmer'],
-  admin: ['workspace', 'buyers'],
+  admin: ['admin', 'workspace', 'buyers'],
   project_developer: ['workspace', 'buyers'],
   field_officer: ['workspace'],
   reviewer: ['workspace'],

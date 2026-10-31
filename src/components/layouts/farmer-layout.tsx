@@ -24,7 +24,7 @@ interface FarmerLayoutProps {
 }
 
 export function FarmerLayout({ children }: FarmerLayoutProps) {
-  const { clearDemoLogin, role } = useAuth();
+const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
@@ -41,7 +41,7 @@ export function FarmerLayout({ children }: FarmerLayoutProps) {
   ];
 
   const handleLogout = () => {
-    clearDemoLogin();
+    logout();
     window.location.href = '/login';
   };
 

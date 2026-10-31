@@ -90,6 +90,10 @@ export const DEMO_IDENTITIES: Record<UserRole, AuthUser> = {
 };
 
 interface AuthContextType extends AuthState {
+  role: UserRole | null;
+  isDemoMode: boolean;
+  clearDemoLogin: () => void;
+  setDemoLogin: (role: UserRole) => void;
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; user?: AuthUser; error?: string }>;
   loginAsDemo: (role: UserRole) => Promise<{ success: boolean; user?: AuthUser }>;
   logout: () => void;
@@ -360,7 +364,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        role: user ? user.role : null,
+        isDemoMode: Boolean(user?.isDemoUser),
         isAuthenticated: Boolean(user),
+        clearDemoLogin: logout,
+        setDemoLogin: switchDemoRole,
         isLoading,
         error,
         login,

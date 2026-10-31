@@ -28,7 +28,7 @@ interface WorkspaceLayoutShellProps {
 
 function WorkspaceInternalLayout({ children }: { children: ReactNode }) {
   const { field, assessmentStatus, completenessPercent } = useTerraLedger();
-  const { role, clearDemoLogin } = useAuth();
+  const { logout, role } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
@@ -47,7 +47,7 @@ function WorkspaceInternalLayout({ children }: { children: ReactNode }) {
   ];
 
   const handleLogout = () => {
-    clearDemoLogin();
+    logout();
     window.location.href = '/login';
   };
 

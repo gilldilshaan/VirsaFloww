@@ -131,6 +131,8 @@ export function canAccessPortal(userOrRole: AuthUser | UserRole | null, portal: 
       return ['project_developer', 'reviewer', 'field_officer'].includes(role);
     case 'buyer':
       return role === 'buyer';
+    case 'admin':
+      return false;
     default:
       return false;
   }
@@ -138,12 +140,13 @@ export function canAccessPortal(userOrRole: AuthUser | UserRole | null, portal: 
 
 /**
  * Extract portal name from a pathname.
- * Returns 'farmer' | 'workspace' | 'buyers' | null
+ * Returns 'farmer' | 'workspace' | 'buyers' | 'admin' | null
  */
-export function getPortalFromPath(pathname: string): 'farmer' | 'workspace' | 'buyers' | null {
+export function getPortalFromPath(pathname: string): 'farmer' | 'workspace' | 'buyers' | 'admin' | null {
   if (pathname.startsWith('/farmer')) return 'farmer';
   if (pathname.startsWith('/workspace')) return 'workspace';
   if (pathname.startsWith('/buyers')) return 'buyers';
+  if (pathname.startsWith('/admin')) return 'admin';
   return null;
 }
 

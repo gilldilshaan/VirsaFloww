@@ -129,3 +129,28 @@ export function saveBuyerEnquiry(enquiry: Omit<BuyerEnquiry, 'id' | 'inquiryDate
 
   return newEnquiry;
 }
+
+/** Update an existing buyer enquiry (internal triage) */
+export function updateBuyerEnquiry(id: string, updates: Partial<BuyerEnquiry>): boolean {
+  const current = loadBuyerEnquiries();
+  const idx = current.findIndex((e) => e.id === id);
+  if (idx === -1) return false;
+
+  const updatedItem: BuyerEnquiry = {
+    ...current[idx]!,
+    ...updates,
+  };
+
+  current[idx] = updatedItem;
+  memoryEnquiries = [...current];
+
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(BUYER_ENQUIRIES_STORAGE_KEY, JSON.stringify(memoryEnquiries));
+    } catch {
+      // ignore
+    }
+  }
+
+  return true;
+}

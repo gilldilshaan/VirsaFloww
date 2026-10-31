@@ -1,44 +1,55 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { PageHeader } from '@/components/terra-ledger/shared/page-header';
-import { Bell, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useMemo } from 'react';
+import { getFarmerNotifications } from '@/lib/farmer/farmer-service';
+import { PageHeader } from '@/components/shared/page-header';
+import { DemoBadge } from '@/components/shared/demo-badge';
+import { Bell, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { pageHead } from '@/lib/earth/content';
 
-export function FarmerNotificationsScreen() {
+export function FarmerNotificationsPage() {
+  const notifs = useMemo(() => getFarmerNotifications(), []);
+
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <PageHeader
-        title="Notifications & Tasks"
-        description="Verification requests, correction notices, and seasonal practice alerts."
+        title="ਸੂਚਨਾਵਾਂ · Alerts & Field Status"
+        description="Real-time updates regarding satellite passes, evidence review, and FPO notifications."
+        badge={<DemoBadge label="Farmer Notification Feed" />}
       />
 
-      <div className="space-y-3 text-xs">
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-          <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-amber-900 block font-semibold">
-              Action Required: Boundary Coordinate Mismatch on EV-003
-            </strong>
-            <p className="text-amber-800 mt-0.5">
-              Your seeding photograph was tagged 420m outside Parcel PB-LUD-042. Please upload a replacement in-boundary photo taken inside the field edge.
-            </p>
+      <div className="space-y-3">
+        {notifs.map((n) => (
+          <div
+            key={n.id}
+            className={`p-5 rounded-2xl border transition-all ${
+              !n.read
+                ? 'bg-white border-[#245b45] shadow-xs ring-1 ring-[#245b45]/10'
+                : 'bg-[#fafbf9] border-[#dde4d9]'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <Bell size={15} className={!n.read ? 'text-[#245b45]' : 'text-[#708071]'} />
+                <h3 className="font-serif text-sm font-bold text-[#193b2a]">{n.title}</h3>
+              </div>
+              <span className="text-[10px] font-mono text-[#708071]">
+                {new Date(n.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            <p className="text-xs text-[#526655] leading-relaxed pl-5">{n.message}</p>
           </div>
-        </div>
-
-        <div className="bg-white border border-[#dfe6d9] rounded-xl p-4 flex items-start gap-3">
-          <CheckCircle2 size={18} className="text-emerald-600 shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-[#193b2a] block font-semibold">
-              Land Tenancy Verified
-            </strong>
-            <p className="text-[#72816f] mt-0.5">
-              Digital Jamabandi API confirmed 4.8 hectares title registration in Ludhiana revenue circle.
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 }
 
 export const Route = createFileRoute('/farmer/notifications')({
-  component: FarmerNotificationsScreen,
+  head: () =>
+    pageHead(
+      'Alerts & Notifications | The Carbon Credit',
+      'Field status updates and correction requests for Punjab farmers.',
+      '/farmer/notifications'
+    ),
+  component: FarmerNotificationsPage,
 });

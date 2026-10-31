@@ -4,21 +4,11 @@ import { PageHeader } from '@/components/shared/page-header';
 import { DemoBadge } from '@/components/shared/demo-badge';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
-import {
-  User,
-  Building,
-  Mail,
-  ShieldCheck,
-  CheckCircle2,
-  Calendar,
-  Lock,
-  LogOut,
-  Bell,
-  Sparkles,
-} from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { LogOut, Mail, Building, Calendar, Lock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export function BuyerProfileView() {
-  const { clearDemoLogin } = useAuth();
+  const { user, logout } = useAuth();
   const [profile, setProfile] = useState(DEFAULT_DEMO_BUYER_PROFILE);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -34,7 +24,7 @@ export function BuyerProfileView() {
   };
 
   const handleLogout = () => {
-    clearDemoLogin();
+    logout();
     window.location.href = '/login';
   };
 

@@ -5,8 +5,8 @@ import { pageHead } from '@/lib/earth/content';
 export const Route = createFileRoute('/workspace/satellite')({
   head: () =>
     pageHead(
-      'Satellite Intelligence | VirsaFlow Workspace',
-      'Copernicus Sentinel-2 multi-spectral time-series and phenology analysis for Punjab agricultural parcels.',
+      'Satellite Intelligence | The Carbon Credit OS',
+      'Copernicus Sentinel-2 10m multi-spectral observations, cloud quality flags, and vegetation/water indices.',
       '/workspace/satellite'
     ),
   component: SatelliteIntelligence,

@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   "/contact",
   "/field-programs",
   "/how-it-works",
+  "/industrial-partnerships",
   "/methodology",
   "/partners",
   "/passport",

@@ -243,10 +243,10 @@ export function LoginPage() {
 }
 
 export const Route = createFileRoute('/login')({
-  validateSearch: (search: Record<string, unknown>) => {
+  validateSearch: (search: Record<string, unknown>): { next?: string } => {
     const rawNext = search['next'];
     const next = sanitizeRedirectPath(rawNext, '');
-    return { next };
+    return next ? { next } : {};
   },
   head: () =>
     pageHead(

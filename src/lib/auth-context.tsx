@@ -25,3 +25,24 @@ export function useAccount(): AuthUser | User | null {
 export * from './auth/types';
 export * from './auth/permissions';
 export * from './auth/auth-context';
+
+
+export function useHasPermission(permission: any): boolean {
+  try {
+    const auth = useAuth();
+    if (auth?.hasPermission) return auth.hasPermission(permission);
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function useCanAccessPortal(portal: any): boolean {
+  try {
+    const auth = useAuth();
+    if (auth?.canAccessPortal) return auth.canAccessPortal(portal);
+    return false;
+  } catch {
+    return false;
+  }
+}

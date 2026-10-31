@@ -5,7 +5,7 @@ import { pageHead } from '@/lib/earth/content';
 export const Route = createFileRoute('/buyers/projects/$projectId')({
   head: () =>
     pageHead(
-      'Project Due Diligence Dossier | VirsaFlow Buyers',
+      'Project Due Diligence Dossier | TerraLedger AI',
       'Institutional due diligence dossier for publication-approved agricultural carbon MRV.',
       '/buyers/projects'
     ),

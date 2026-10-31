@@ -21,7 +21,7 @@ interface BuyerLayoutProps {
 }
 
 export function BuyerLayout({ children }: BuyerLayoutProps) {
-  const { clearDemoLogin, role } = useAuth();
+const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
@@ -34,7 +34,7 @@ export function BuyerLayout({ children }: BuyerLayoutProps) {
   ];
 
   const handleLogout = () => {
-    clearDemoLogin();
+    logout();
     window.location.href = '/login';
   };
 

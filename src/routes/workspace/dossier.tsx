@@ -5,8 +5,8 @@ import { pageHead } from '@/lib/earth/content';
 export const Route = createFileRoute('/workspace/dossier')({
   head: () =>
     pageHead(
-      'Project Dossier | VirsaFlow Workspace',
-      'Institutional due diligence scorecard and pre-audit data room for accredited carbon verifiers.',
+      'Verification Dossiers | The Carbon Credit OS',
+      'Comprehensive institutional project dossier compiled from cadastral boundaries and multi-sensor evidence.',
       '/workspace/dossier'
     ),
   component: ProjectDossier,

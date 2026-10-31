@@ -321,7 +321,7 @@ export function DsrEducation() {
               <summary>How can an FPO or partner explore a project?</summary>
               <p>
                 Start with your geography, crop and season, current practices, available records and
-                intended programme. VirsaFlow can discuss evidence requirements and a
+                intended programme. The Carbon Credit can discuss evidence requirements and a
                 potential collaboration.
               </p>
             </details>
