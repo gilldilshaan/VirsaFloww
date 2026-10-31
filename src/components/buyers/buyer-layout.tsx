@@ -145,7 +145,7 @@ export function BuyerLayout({ children }: { children?: ReactNode }) {
       <footer className="bg-white border-t border-[#DDE4D9] py-6 px-4 text-xs text-[#718078]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="font-serif font-semibold text-[#123C2B]">The Carbon Credit OS</span>
+            <span className="font-serif font-semibold text-[#123C2B]">VirsaFlow</span>
             <span>·</span>
             <span>Panjdhara Private Limited</span>
             <span>·</span>

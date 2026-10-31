@@ -115,6 +115,53 @@ async function request<T>(
   }
 }
 
+/** Make an authenticated multipart upload request */
+async function uploadRequest<T>(
+  path: string,
+  formData: FormData,
+): Promise<ApiResponse<T>> {
+  const token = await clientConfig.getAuthToken();
+  const url = `${clientConfig.baseUrl}${path}`;
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorBody = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+      return {
+        data: null,
+        error: {
+          code: String(errorBody['code'] ?? 'API_ERROR'),
+          message: String(errorBody['message'] ?? `Upload failed with status ${response.status}`),
+          details: errorBody['details'] ? String(errorBody['details']) : '',
+        },
+        status: response.status,
+      };
+    }
+
+    const data = (await response.json()) as T;
+    return { data, error: null, status: response.status };
+  } catch (err) {
+    return {
+      data: null,
+      error: {
+        code: 'NETWORK_ERROR',
+        message: err instanceof Error ? err.message : 'Network upload failed',
+      },
+      status: 0,
+    };
+  }
+}
+
 /** Typed API methods */
 export const api = {
   get: <T>(path: string) => request<T>('GET', path),
@@ -122,4 +169,5 @@ export const api = {
   put: <T>(path: string, body?: unknown) => request<T>('PUT', path, body),
   patch: <T>(path: string, body?: unknown) => request<T>('PATCH', path, body),
   delete: <T>(path: string) => request<T>('DELETE', path),
+  upload: <T>(path: string, formData: FormData) => uploadRequest<T>(path, formData),
 };

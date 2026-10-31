@@ -56,7 +56,7 @@ export function FarmerProjectsPage() {
 export const Route = createFileRoute('/farmer/projects')({
   head: () =>
     pageHead(
-      'Project Participation | The Carbon Credit',
+      'Project Participation | VirsaFlow',
       'Enrolled agricultural carbon programs and smallholder benefit agreements.',
       '/farmer/projects'
     ),

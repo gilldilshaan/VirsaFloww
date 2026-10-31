@@ -369,7 +369,7 @@ export function AdminUsersPage() {
 export const Route = createFileRoute('/admin/users')({
   head: () =>
     pageHead(
-      'User Directory | The Carbon Credit OS Admin',
+      'User Directory | VirsaFlow Admin',
       'Manage user accounts, credentials, and role assignments across portals.',
       '/admin/users'
     ),

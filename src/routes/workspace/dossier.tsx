@@ -5,7 +5,7 @@ import { pageHead } from '@/lib/earth/content';
 export const Route = createFileRoute('/workspace/dossier')({
   head: () =>
     pageHead(
-      'Verification Dossiers | The Carbon Credit OS',
+      'Verification Dossiers | VirsaFlow',
       'Comprehensive institutional project dossier compiled from cadastral boundaries and multi-sensor evidence.',
       '/workspace/dossier'
     ),

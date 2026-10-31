@@ -180,7 +180,7 @@ export function AdminSettingsPage() {
 export const Route = createFileRoute('/admin/settings')({
   head: () =>
     pageHead(
-      'System Settings | The Carbon Credit OS Admin',
+      'System Settings | VirsaFlow Admin',
       'MRV rules engine parameters, spatial buffer tolerances, and platform thresholds.',
       '/admin/settings'
     ),

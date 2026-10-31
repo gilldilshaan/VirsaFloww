@@ -754,7 +754,7 @@ export function WorkspaceReviewPage() {
 export const Route = createFileRoute('/workspace/review')({
   head: () =>
     pageHead(
-      'Review Management | The Carbon Credit OS',
+      'Review Management | VirsaFlow',
       'Third-party review queue, 3-pane evidence inspection, and MRV verification sign-off.',
       '/workspace/review'
     ),

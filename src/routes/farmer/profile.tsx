@@ -105,7 +105,7 @@ export function FarmerProfilePage() {
                 <CheckCircle2 size={14} /> Profile preferences saved
               </span>
             ) : <span />}
-            <Button type="submit" size="sm" className="bg-[#245b45] text-white hover:bg-[#1a4333] text-xs">
+            <Button type="submit" size="sm" className="bg-[#193B2A] text-white hover:bg-[#245B45] text-xs font-semibold px-5">
               Update Profile
             </Button>
           </div>
@@ -118,7 +118,7 @@ export function FarmerProfilePage() {
 export const Route = createFileRoute('/farmer/profile')({
   head: () =>
     pageHead(
-      'Farmer Profile | The Carbon Credit',
+      'Farmer Profile | VirsaFlow',
       'Manage producer registration and digital consent records.',
       '/farmer/profile'
     ),

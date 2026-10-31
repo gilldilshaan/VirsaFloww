@@ -289,7 +289,7 @@ export function AdminFarmersPage() {
 export const Route = createFileRoute('/admin/farmers')({
   head: () =>
     pageHead(
-      'Farmer Registry | The Carbon Credit OS Admin',
+      'Farmer Registry | VirsaFlow Admin',
       'Manage enrolled smallholder farmers, AgriStack IDs, and land records.',
       '/admin/farmers'
     ),

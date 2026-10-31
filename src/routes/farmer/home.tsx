@@ -47,8 +47,8 @@ export function FarmerHomeScreen() {
             <span className="font-semibold text-white">Kharif 2026</span>
           </div>
           <div>
-            <span className="text-[#809c88] text-[10px] uppercase font-mono block">Mitigation Target</span>
-            <span className="font-semibold text-[#d6eaa6]">23.04 tCO2e</span>
+            <span className="text-[#809c88] text-[10px] uppercase font-mono block">Enrolled Method</span>
+            <span className="font-semibold text-[#d6eaa6]">DSR + AWD Practice</span>
           </div>
         </div>
       </div>
@@ -86,6 +86,14 @@ export function FarmerHomeScreen() {
   );
 }
 
+import { pageHead } from '@/lib/earth/content';
+
 export const Route = createFileRoute('/farmer/home')({
+  head: () =>
+    pageHead(
+      'Farmer Overview | VirsaFlow',
+      'Farmer field management, cadastral boundary verification, and ground truth synchronization.',
+      '/farmer/home'
+    ),
   component: FarmerHomeScreen,
 });

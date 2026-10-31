@@ -419,7 +419,7 @@ export function WorkspacePartnershipsPage() {
 export const Route = createFileRoute('/workspace/partnerships')({
   head: () =>
     pageHead(
-      'Industrial Partnerships | The Carbon Credit OS',
+      'Industrial Partnerships | VirsaFlow',
       'Industrial, institutional, and CSR carbon infrastructure partnership management pipeline.',
       '/workspace/partnerships'
     ),

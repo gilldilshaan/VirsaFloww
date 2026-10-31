@@ -47,7 +47,7 @@ export function FarmerNotificationsPage() {
 export const Route = createFileRoute('/farmer/notifications')({
   head: () =>
     pageHead(
-      'Alerts & Notifications | The Carbon Credit',
+      'Alerts & Notifications | VirsaFlow',
       'Field status updates and correction requests for Punjab farmers.',
       '/farmer/notifications'
     ),

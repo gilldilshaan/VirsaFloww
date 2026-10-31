@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { PageHeader } from '@/components/terra-ledger/shared/page-header';
 import { Calendar, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { pageHead } from '@/lib/earth/content';
 
 export function FarmerSeasonScreen() {
   return (
@@ -9,17 +11,16 @@ export function FarmerSeasonScreen() {
         title="Crop Season Activities (Kharif 2026)"
         description="Track sowing schedule, direct-seeding dates, and alternate wetting & drying irrigation cessation logs."
         actions={
-          <Link
-            to="/farmer/season/add"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#245b45] text-white rounded-lg text-xs font-medium hover:bg-[#1a4333]"
-          >
-            <PlusCircle size={14} />
-            <span>Log Practice Event</span>
-          </Link>
+          <Button asChild size="sm" className="bg-[#193B2A] text-white hover:bg-[#245B45]">
+            <Link to="/farmer/season/add" className="inline-flex items-center gap-1.5">
+              <PlusCircle size={14} />
+              <span>Log Practice Event</span>
+            </Link>
+          </Button>
         }
       />
 
-      <div className="bg-white border border-[#dfe6d9] rounded-xl p-5 shadow-xs space-y-3">
+      <div className="bg-white border border-[#dfe6d9] rounded-2xl p-5 shadow-2xs space-y-3">
         <h3 className="text-xs font-semibold text-[#193b2a] uppercase font-mono tracking-wider">
           Recorded Seasonal Events
         </h3>
@@ -57,5 +58,11 @@ export function FarmerSeasonScreen() {
 }
 
 export const Route = createFileRoute('/farmer/season/')({
+  head: () =>
+    pageHead(
+      'Crop Season | VirsaFlow',
+      'Track Kharif 2026 Direct Seeded Rice and Alternate Wetting & Drying milestones.',
+      '/farmer/season'
+    ),
   component: FarmerSeasonScreen,
 });

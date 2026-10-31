@@ -6,6 +6,8 @@ from fastapi.testclient import TestClient
 
 from backend.app.api import deps
 from backend.app.core.config import settings
+if not settings.TEST_DATABASE_URL:
+    pytest.skip('TEST_DATABASE_URL is not configured', allow_module_level=True)
 from backend.app.main import create_app
 from backend.app.schemas.user import User
 from backend.scripts.migrate_json_to_postgres import JsonToPostgresMigrator

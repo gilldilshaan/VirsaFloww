@@ -262,7 +262,7 @@ export function AdminAuditLogsPage() {
 export const Route = createFileRoute('/admin/audit-logs')({
   head: () =>
     pageHead(
-      'Audit Logs | The Carbon Credit OS Admin',
+      'Audit Logs | VirsaFlow Admin',
       'Append-only cryptographic audit trail and platform activity logging.',
       '/admin/audit-logs'
     ),

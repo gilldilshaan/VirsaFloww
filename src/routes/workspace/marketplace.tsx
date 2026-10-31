@@ -153,7 +153,7 @@ export function WorkspaceMarketplaceViewPage() {
 export const Route = createFileRoute('/workspace/marketplace')({
   head: () =>
     pageHead(
-      'Buyer Marketplace Review | The Carbon Credit OS',
+      'Buyer Marketplace Review | VirsaFlow',
       'Internal verification of buyer-facing marketplace projections and data safety.',
       '/workspace/marketplace'
     ),

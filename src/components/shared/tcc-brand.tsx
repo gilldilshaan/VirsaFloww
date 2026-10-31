@@ -36,7 +36,7 @@ export function TccBrand({
       <span className="w-8 h-8 rounded-lg bg-[#123C2B] border border-[#285C45] flex items-center justify-center p-1 shadow-xs shrink-0 overflow-hidden">
         <img
           src="/brand/organic-tcc-monogram.png"
-          alt="The Carbon Credit Logo"
+          alt="VirsaFlow Logo"
           className="w-full h-full object-contain"
         />
       </span>
@@ -49,7 +49,7 @@ export function TccBrand({
               size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-xl' : 'text-base'
             } ${isDark ? 'text-[#F7F8F3]' : 'text-[#1B2B23]'}`}
           >
-            The Carbon Credit
+            VirsaFlow
           </span>
           {portalBadge && (
             <span
@@ -64,7 +64,7 @@ export function TccBrand({
             isDark ? 'text-[#8EA595]' : 'text-[#718078]'
           }`}
         >
-          Panjdhara MRV & Agricultural Intelligence
+          Agricultural Carbon & MRV Intelligence
         </span>
       </div>
     </Link>

@@ -179,7 +179,7 @@ export function AdminStaffPage() {
 export const Route = createFileRoute('/admin/staff')({
   head: () =>
     pageHead(
-      'Operating Staff | The Carbon Credit OS Admin',
+      'Operating Staff | VirsaFlow Admin',
       'Manage field officers, third-party reviewers, and device cryptographic bindings.',
       '/admin/staff'
     ),

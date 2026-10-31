@@ -139,7 +139,7 @@ export function AdminRolesMatrixPage() {
 export const Route = createFileRoute('/admin/roles')({
   head: () =>
     pageHead(
-      'Role Permissions Matrix | The Carbon Credit OS Admin',
+      'Role Permissions Matrix | VirsaFlow Admin',
       'Granular role-to-permission mapping and portal access control matrix.',
       '/admin/roles'
     ),

@@ -1,7 +1,9 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+
+from backend.app.schemas.review import Review, ReviewSeverity, ReviewStatus
 
 from backend.app.schemas.evidence import (
     Evidence,
@@ -107,6 +109,28 @@ async def upload_evidence(
     )
 
     created = container.evidence_repo.create(evidence_item)
+
+    # Auto-enqueue for Auditor Review
+    try:
+        review_id = f"REV-{evidence_id.replace('EV-', '')}"
+        new_review = Review(
+            id=review_id,
+            parcel_id=field_id,
+            field_id=field_id,
+            title=f"Review Submission: {title}",
+            description=description or f"Field evidence uploaded by {author}. Verify cryptographic SHA-256 seal and GPS coordinates.",
+            severity=ReviewSeverity.MEDIUM,
+            status=ReviewStatus.PENDING_REVIEW,
+            reported_date=now_iso[:10],
+            due_date=(datetime.now(timezone.utc) + timedelta(days=7)).strftime("%Y-%m-%d"),
+            assigned_to="Auditor Review Queue",
+            evidence_ref_id=evidence_id,
+            is_demo=False,
+            data_label="Live Farmer Submission",
+        )
+        container.review_repo.create(new_review)
+    except Exception:
+        pass
 
     audit_service.log_event(
         actor_id=current_user.id,

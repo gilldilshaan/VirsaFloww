@@ -47,7 +47,7 @@ export function FarmerHistoryPage() {
 export const Route = createFileRoute('/farmer/history')({
   head: () =>
     pageHead(
-      'Seasonal History | The Carbon Credit',
+      'Seasonal History | VirsaFlow',
       'Historical seasonal timeline and practice baselines for Punjab farmers.',
       '/farmer/history'
     ),

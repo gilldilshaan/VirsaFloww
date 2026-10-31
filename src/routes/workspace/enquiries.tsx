@@ -348,7 +348,7 @@ export function WorkspaceBuyerEnquiriesPage() {
 export const Route = createFileRoute('/workspace/enquiries')({
   head: () =>
     pageHead(
-      'Buyer Enquiries | The Carbon Credit OS',
+      'Buyer Enquiries | VirsaFlow',
       'Institutional buyer due diligence and carbon credit pre-issuance enquiry triage.',
       '/workspace/enquiries'
     ),

@@ -143,7 +143,7 @@ export function AdminPartnershipsGovernancePage() {
 export const Route = createFileRoute('/admin/partnerships')({
   head: () =>
     pageHead(
-      'Industrial MoUs | The Carbon Credit OS Admin',
+      'Industrial MoUs | VirsaFlow Admin',
       'Executive governance, institutional partnerships, and corporate agreements.',
       '/admin/partnerships'
     ),

@@ -223,7 +223,7 @@ export function WorkspaceReportsPage() {
 export const Route = createFileRoute('/workspace/reports')({
   head: () =>
     pageHead(
-      'Audit Reports | The Carbon Credit OS',
+      'Audit Reports | VirsaFlow',
       'Certified MRV compliance exports, ISO 14064-2 documentation dossiers, and telemetry files.',
       '/workspace/reports'
     ),

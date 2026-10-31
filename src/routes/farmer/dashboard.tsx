@@ -163,7 +163,7 @@ export function FarmerDashboardPage() {
           <h3 className="font-serif text-lg font-bold text-[#193b2a]">
             Active Field Parcels (Kharif 2026)
           </h3>
-          <Button asChild variant="ghost" size="sm" className="text-xs text-[#245b45]">
+          <Button asChild variant="ghost" size="sm" className="text-xs text-[#193B2A] font-semibold hover:bg-[#eef5ea]">
             <Link to={"/farmer/fields" as any}>
               View All Fields <ArrowRight size={13} className="ml-1" />
             </Link>
@@ -202,7 +202,7 @@ export function FarmerDashboardPage() {
                 >
                   {field.status === 'READY_FOR_VERIFICATION' ? 'Ready for Verification' : 'Needs Review'}
                 </span>
-                <Button asChild size="sm" variant="outline" className="text-xs border-[#dce3d7] h-8">
+                <Button asChild size="sm" variant="outline" className="text-xs border-[#193b2a] text-[#193b2a] hover:bg-[#f4f7f1] h-8 font-semibold">
                   <Link to={`/farmer/fields/${field.id}` as any}>
                     Details
                   </Link>
@@ -219,7 +219,7 @@ export function FarmerDashboardPage() {
 export const Route = createFileRoute('/farmer/dashboard')({
   head: () =>
     pageHead(
-      'Farmer Dashboard | The Carbon Credit',
+      'Farmer Dashboard | VirsaFlow',
       'Farmer operations dashboard for Direct Seeded Rice MRV, field registration, and ground evidence.',
       '/farmer/dashboard'
     ),

@@ -5,7 +5,7 @@ import { pageHead } from '@/lib/earth/content';
 export const Route = createFileRoute('/workspace/evidence')({
   head: () =>
     pageHead(
-      'Evidence Explorer | The Carbon Credit OS',
+      'Evidence Explorer | VirsaFlow',
       'Append-only evidence graph, server-side SHA-256 byte hashes, and ground truth provenance.',
       '/workspace/evidence'
     ),

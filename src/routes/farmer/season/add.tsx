@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { PageHeader } from '@/components/terra-ledger/shared/page-header';
 import { Button } from '@/components/ui/button';
+import { pageHead } from '@/lib/earth/content';
 
 export function FarmerSeasonAddScreen() {
   return (
@@ -14,9 +15,9 @@ export function FarmerSeasonAddScreen() {
         ]}
       />
 
-      <div className="bg-white border border-[#dfe6d9] rounded-xl p-6 shadow-xs space-y-4 text-xs">
+      <div className="bg-white border border-[#dfe6d9] rounded-2xl p-6 shadow-2xs space-y-4 text-xs">
         <div>
-          <label className="font-medium text-[#193b2a] block mb-1">Activity Type</label>
+          <label className="font-semibold text-[#193b2a] block mb-1">Activity Type</label>
           <select className="w-full text-xs bg-[#f7f9f5] border border-[#dce3d7] rounded-lg px-3 py-2 text-[#193b2a] outline-none">
             <option>AWD Water Depth Observation</option>
             <option>DSR Drill Sowing Event</option>
@@ -26,7 +27,7 @@ export function FarmerSeasonAddScreen() {
         </div>
 
         <div>
-          <label className="font-medium text-[#193b2a] block mb-1">Date Observed</label>
+          <label className="font-semibold text-[#193b2a] block mb-1">Date Observed</label>
           <input
             type="date"
             defaultValue="2026-07-15"
@@ -35,13 +36,10 @@ export function FarmerSeasonAddScreen() {
         </div>
 
         <div className="pt-2 flex justify-end gap-2">
-          <Link
-            to="/farmer/season"
-            className="px-3 py-2 rounded-lg border border-[#d8e1d4] text-[#72816f] hover:text-[#193b2a]"
-          >
-            Cancel
-          </Link>
-          <Button size="sm" className="bg-[#245b45] text-white hover:bg-[#1a4333]">
+          <Button asChild variant="outline" size="sm" className="border-[#193b2a] text-[#193b2a] hover:bg-[#f4f7f1]">
+            <Link to="/farmer/season">Cancel</Link>
+          </Button>
+          <Button size="sm" className="bg-[#193B2A] text-white hover:bg-[#245B45] font-semibold">
             Save Season Event
           </Button>
         </div>
@@ -51,5 +49,11 @@ export function FarmerSeasonAddScreen() {
 }
 
 export const Route = createFileRoute('/farmer/season/add')({
+  head: () =>
+    pageHead(
+      'Log Season Event | VirsaFlow',
+      'Record agronomic practice milestones and irrigation cycles.',
+      '/farmer/season/add'
+    ),
   component: FarmerSeasonAddScreen,
 });

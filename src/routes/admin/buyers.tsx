@@ -210,7 +210,7 @@ export function AdminBuyersPage() {
 export const Route = createFileRoute('/admin/buyers')({
   head: () =>
     pageHead(
-      'Institutional Buyers | The Carbon Credit OS Admin',
+      'Institutional Buyers | VirsaFlow Admin',
       'Manage buyer accounts, KYC validation, and confidential data room access grants.',
       '/admin/buyers'
     ),

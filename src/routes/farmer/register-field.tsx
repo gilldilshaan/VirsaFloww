@@ -219,7 +219,7 @@ export function RegisterFieldPage() {
                 type="submit"
                 disabled={isSubmitting}
                 size="sm"
-                className="bg-[#245b45] text-white hover:bg-[#1a4333] text-xs h-9 px-4"
+                className="bg-[#193B2A] text-white hover:bg-[#245B45] text-xs h-9 px-5 font-semibold"
               >
                 {isSubmitting ? 'Registering Parcel...' : 'Save & Onboard Parcel'}
               </Button>
@@ -234,7 +234,7 @@ export function RegisterFieldPage() {
 export const Route = createFileRoute('/farmer/register-field')({
   head: () =>
     pageHead(
-      'Register New Field | The Carbon Credit OS',
+      'Register New Field | VirsaFlow',
       'Onboard a new agricultural parcel with MapLibre GL polygon mapping and geodesic area calculation.',
       '/farmer/register-field'
     ),

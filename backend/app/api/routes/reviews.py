@@ -11,6 +11,7 @@ from backend.app.schemas.review import (
     ReviewDecisionType,
 )
 from backend.app.schemas.notification import Notification, NotificationType
+from backend.app.schemas.evidence import EvidenceStatus
 from backend.app.schemas.common import ListEnvelope
 from backend.app.schemas.user import User, UserRole
 from backend.app.services.audit_service import AuditService
@@ -111,6 +112,29 @@ def submit_review_decision(
         }
     )
     container.review_repo.update(updated_review)
+
+    # If linked evidence exists, update its status
+    if review.evidence_ref_id:
+        try:
+            ev_item = container.evidence_repo.get(review.evidence_ref_id)
+            if ev_item:
+                target_ev_status = (
+                    EvidenceStatus.HASH_RECORDED if body.decision == ReviewDecisionType.ACCEPTED
+                    else (EvidenceStatus.FLAGGED if body.decision == ReviewDecisionType.REJECTED else EvidenceStatus.HASH_RECORDED)
+                )
+                prov_rev_status = (
+                    "Accepted by Reviewer" if body.decision == ReviewDecisionType.ACCEPTED
+                    else ("Rejected by Reviewer" if body.decision == ReviewDecisionType.REJECTED else "Clarification Requested")
+                )
+                updated_ev = ev_item.model_copy(
+                    update={
+                        "status": target_ev_status,
+                        "provenance": ev_item.provenance.model_copy(update={"review_status": prov_rev_status}),
+                    }
+                )
+                container.evidence_repo.update(updated_ev)
+        except Exception:
+            pass
 
     # If clarification requested, dispatch notification
     if body.decision == ReviewDecisionType.CLARIFICATION_REQUESTED:

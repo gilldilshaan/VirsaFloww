@@ -398,7 +398,7 @@ export function AdminProjectsPage() {
 export const Route = createFileRoute('/admin/projects')({
   head: () =>
     pageHead(
-      'Project Governance | The Carbon Credit OS Admin',
+      'Project Governance | VirsaFlow Admin',
       'Stage, approve, and manage project publication status in the Buyer Marketplace.',
       '/admin/projects'
     ),

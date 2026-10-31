@@ -325,7 +325,7 @@ export function AdminOverviewPage() {
 export const Route = createFileRoute('/admin/overview')({
   head: () =>
     pageHead(
-      'System Administration | The Carbon Credit OS',
+      'System Administration | VirsaFlow',
       'Administrative governance, platform security, user directory, and MRV rules management.',
       '/admin/overview'
     ),

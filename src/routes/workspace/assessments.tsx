@@ -229,7 +229,7 @@ export function WorkspaceAssessmentsPage() {
 export const Route = createFileRoute('/workspace/assessments')({
   head: () =>
     pageHead(
-      'MRV Assessments | The Carbon Credit OS',
+      'MRV Assessments | VirsaFlow',
       'Deterministic methodology rules engine and multi-sensor evaluations.',
       '/workspace/assessments'
     ),

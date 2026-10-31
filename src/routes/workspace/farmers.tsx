@@ -151,7 +151,7 @@ export function WorkspaceFarmersPage() {
 export const Route = createFileRoute('/workspace/farmers')({
   head: () =>
     pageHead(
-      'Farmer Registry | The Carbon Credit OS',
+      'Farmer Registry | VirsaFlow',
       'Smallholder producer registry and consent management.',
       '/workspace/farmers'
     ),

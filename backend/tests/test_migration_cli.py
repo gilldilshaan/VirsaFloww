@@ -5,6 +5,8 @@ import pytest
 from sqlalchemy import create_engine, select, text
 
 from backend.app.core.config import settings
+if not settings.TEST_DATABASE_URL:
+    pytest.skip('TEST_DATABASE_URL is not configured', allow_module_level=True)
 from backend.app.db.models import (
     AuditChainHeadDB,
     AuditEventDB,
